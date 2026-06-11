@@ -19,8 +19,6 @@ class REFRAIN_API ARACharacterPlayer : public ARACharacterBase, public IAbilityS
 public:
 	// Sets default values for this character's properties
 	ARACharacterPlayer();
-	
-
 
 protected:
 	// Called when the game starts or when spawned
@@ -74,5 +72,17 @@ protected:
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TObjectPtr<class UAbilitySystemComponent> ASC;
 	
+	UPROPERTY(EditAnywhere, Category = GAS)
+	TArray<TSubclassOf<class UGameplayAbility>> StartAbilities;
+	
+	UPROPERTY(EditAnywhere, Category = GAS)
+	TMap<int32, TSubclassOf<class UGameplayAbility>> StartInputAbilities;
+	
+	
 	void SetupGASInputComponent();	
+	void GASInputPressed(int32 InputId);
+	void GASInputReleased(int32 InputId);
+	
+	
+	
 };

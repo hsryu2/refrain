@@ -104,6 +104,45 @@ void ARACharacterPlayer::PossessedBy(AController* NewController)
 }
 void ARACharacterPlayer::SetupGASInputComponent()
 {
+	if (IsValid(ASC) && IsValid(InputComponent))
+	{
+		UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
+		
+		// GAS로 만들 플레이어 액션 여기에 추가.
+		// (GetInputPressed, InputId)로 추가.
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ARACharacterPlayer::GASInputPressed, 0);
+		
+	}
+}
+
+void ARACharacterPlayer::GASInputPressed(int32 InputId)
+{
+	FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromInputID(InputId);
+	if (Spec)
+	{
+		Spec->InputPressed = true;
+		if (Spec->IsActive())
+		{
+			ASC->AbilitySpecInputPressed(*Spec);
+		}
+		else
+		{
+			ASC->TryActivateAbility(Spec->Handle);
+		}
+	}
+}
+
+void ARACharacterPlayer::GASInputReleased(int32 InputId)
+{
+	FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromInputID(InputId);
+	if (Spec)
+	{
+		Spec->InputPressed = true;
+		if (Spec->IsActive())
+		{
+			ASC->AbilitySpecInputReleased(*Spec);
+		}
+	}
 }
 
 // Called to bind functionality to input
@@ -158,6 +197,7 @@ void ARACharacterPlayer::SetIMC()
 
 void ARACharacterPlayer::Attack()
 {
+	UE_LOG(LogTemp, Log, TEXT("공격 입력 들어옴."));
 }
 
 void ARACharacterPlayer::Move(const FInputActionValue& Value)
