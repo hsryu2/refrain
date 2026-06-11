@@ -2,6 +2,8 @@
 
 
 #include "RACharacterPlayer.h"
+
+#include "AbilitySystemComponent.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
@@ -10,6 +12,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Refrain/Player/RAPlayerState.h"
 
 
 // Sets default values
@@ -60,6 +63,15 @@ ARACharacterPlayer::ARACharacterPlayer()
 	{
 		AttackAction = InputActionAttackRef.Object;
 	}
+	
+	// GAS
+	ASC = nullptr;
+	
+}
+
+class UAbilitySystemComponent* ARACharacterPlayer::GetAbilitySystemComponent() const
+{
+	return ASC;
 }
 
 // Called when the game starts or when spawned
@@ -75,6 +87,23 @@ void ARACharacterPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ARACharacterPlayer::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	
+	ARAPlayerState* GASPS = GetPlayerState<ARAPlayerState>();
+	if (GASPS)
+	{
+		ASC = GASPS->GetAbilitySystemComponent();
+		ASC->InitAbilityActorInfo(GASPS, this);
+		
+		
+	}
+}
+void ARACharacterPlayer::SetupGASInputComponent()
+{
 }
 
 // Called to bind functionality to input

@@ -6,16 +6,21 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "RACharacterBase.h"
+
+#include "AbilitySystemInterface.h"
+#include "../Player/RAPlayerState.h"
 #include "RACharacterPlayer.generated.h"
 
 UCLASS()
-class REFRAIN_API ARACharacterPlayer : public ARACharacterBase
+class REFRAIN_API ARACharacterPlayer : public ARACharacterBase, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this character's properties
 	ARACharacterPlayer();
+	
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -59,4 +64,15 @@ protected:
 protected:
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	
+//GAS
+public:
+	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	virtual void PossessedBy(AController* NewController) override;
+
+protected:
+	UPROPERTY(EditAnywhere, Category = GAS)
+	TObjectPtr<class UAbilitySystemComponent> ASC;
+	
+	void SetupGASInputComponent();	
 };
