@@ -6,9 +6,22 @@
 // Sets default values
 ARACharacterBase::ARACharacterBase()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
+	// Pawn
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+	
+	// Mesh
+	GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -100.0f), FRotator(0.0f, -90.0f, 0.0f));
+	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
+	
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMeshRef(TEXT("/Game/Characters/CureArcanaShadow/SK_露露卡连体袜.SK_露露卡连体袜"));
+	if (CharacterMeshRef.Succeeded())
+	{
+		GetMesh()->SetSkeletalMesh(CharacterMeshRef.Object);
+	}
+	
+	
 }
 
 // Called when the game starts or when spawned
