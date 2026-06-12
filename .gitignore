@@ -1,9 +1,8 @@
 __ExternalObjects__/
 __ExternalActors__/
 
-# 애셋 파일은 기본적으로 전부 제외함 - 필요 시 이 밑에 수동으로 추가
-Content/
-!Content/Refrain/
+# 애셋
+Content/ThirdPersonTemplate
 
 # 플러그인
 Plugins/
