@@ -6,10 +6,13 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "RACharacterBase.h"
+
+#include "AbilitySystemInterface.h"
+#include "../Player/RAPlayerState.h"
 #include "RACharacterPlayer.generated.h"
 
 UCLASS()
-class REFRAIN_API ARACharacterPlayer : public ARACharacterBase
+class REFRAIN_API ARACharacterPlayer : public ARACharacterBase, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -59,4 +62,27 @@ protected:
 protected:
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	
+//GAS
+public:
+	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	virtual void PossessedBy(AController* NewController) override;
+
+protected:
+	UPROPERTY(EditAnywhere, Category = GAS)
+	TObjectPtr<class UAbilitySystemComponent> ASC;
+	
+	UPROPERTY(EditAnywhere, Category = GAS)
+	TArray<TSubclassOf<class UGameplayAbility>> StartAbilities;
+	
+	UPROPERTY(EditAnywhere, Category = GAS)
+	TMap<int32, TSubclassOf<class UGameplayAbility>> StartInputAbilities;
+	
+	
+	void SetupGASInputComponent();	
+	void GASInputPressed(int32 InputId);
+	void GASInputReleased(int32 InputId);
+	
+	
+	
 };
