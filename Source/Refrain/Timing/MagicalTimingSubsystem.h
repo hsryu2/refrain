@@ -17,6 +17,13 @@ class REFRAIN_API UMagicalTimingSubsystem : public UWorldSubsystem
 public:
 	UMagicalTimingSubsystem();
 	
-	// 
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
 	
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Music, meta=(ClampMin=60, ClampMax=240))
+	float MusicBPM;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Music)
+	FName ClockName = TEXT("MusicClock");
 };
