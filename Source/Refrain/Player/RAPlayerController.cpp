@@ -7,7 +7,7 @@
 
 ARAPlayerController::ARAPlayerController()
 {
-	static ConstructorHelpers::FObjectFinder<UInputMappingContext> InputMappingContextRef(TEXT("/Game/Input/IMC_Player.IMC_Player"));
+	static ConstructorHelpers::FObjectFinder<UInputMappingContext> InputMappingContextRef(TEXT("/Game/Refrain/Input/IMC_Player.IMC_Player"));
 
 	if (InputMappingContextRef.Object != nullptr)
 	{

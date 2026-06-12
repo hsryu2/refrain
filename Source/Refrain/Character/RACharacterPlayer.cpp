@@ -40,25 +40,25 @@ ARACharacterPlayer::ARACharacterPlayer()
 	
 
 	// Input
-	static ConstructorHelpers::FObjectFinder<UInputMappingContext> DefaultContextRef(TEXT("/Game/Input/IMC_Player.IMC_Player"));
+	static ConstructorHelpers::FObjectFinder<UInputMappingContext> DefaultContextRef(TEXT("/Game/Refrain/Input/IMC_Player.IMC_Player"));
 	if (DefaultContextRef.Succeeded())
 	{
 		DefaultContext = DefaultContextRef.Object;
 	}
 	
-	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionMoveRef(TEXT("/Game/Input/InputAction/IA_Move.IA_Move"));
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionMoveRef(TEXT("/Game/Refrain/Input/InputAction/IA_Move.IA_Move"));
 	if (InputActionMoveRef.Succeeded())
 	{
 		MoveAction = InputActionMoveRef.Object;
 	}
 	
-	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionLookRef(TEXT("/Game/Input/InputAction/IA_Look.IA_Look"));
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionLookRef(TEXT("/Game/Refrain/Input/InputAction/IA_Look.IA_Look"));
 	if (InputActionLookRef.Succeeded())
 	{
 		LookAction = InputActionLookRef.Object;
 	}
 	
-	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionAttackRef(TEXT(""));
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionAttackRef(TEXT("/Game/Refrain/Input/InputAction/IA_Attack.IA_Attack"));
 	if (InputActionAttackRef.Succeeded())
 	{
 		AttackAction = InputActionAttackRef.Object;
