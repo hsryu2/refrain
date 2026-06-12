@@ -1,11 +1,17 @@
 __ExternalObjects__/
 __ExternalActors__/
-LevelPrototyping/
 
-Plugins/VRM4U
-Plugins/KawaiiPhysics
+# 애셋 파일은 기본적으로 전부 제외함 - 필요 시 이 밑에 수동으로 추가
+Content/
+!Content/Refrain/
 
+# 플러그인
+Plugins/
+
+# Rider 개인 설정
 .idea/
+
+##################################################
 
 # Visual Studio 2015 user specific files
 .vs/
