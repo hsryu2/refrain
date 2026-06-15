@@ -6,7 +6,7 @@
 
 ARAGameMode::ARAGameMode()
 {
-	static ConstructorHelpers::FClassFinder<APawn> DefaultPawnClassRef(TEXT("//Game/Refrain/Player/BluePrint/BP_RACharacterPlayer.BP_RACharacterPlayer_C"));
+	static ConstructorHelpers::FClassFinder<APawn> DefaultPawnClassRef(TEXT("/Game/Refrain/Player/BluePrint/BP_RACharacterPlayer.BP_RACharacterPlayer_C"));
 	if (DefaultPawnClassRef.Class)
 	{
 		DefaultPawnClass = DefaultPawnClassRef.Class;
