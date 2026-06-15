@@ -65,12 +65,6 @@ ARACharacterPlayer::ARACharacterPlayer()
 		AttackAction = InputActionAttackRef.Object;
 	}
 	
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> AttackMontageRef(TEXT(""));
-	if (AttackMontageRef.Succeeded())
-	{
-		AttackMontage = AttackMontageRef.Object;
-	}
-	
 	// GAS
 	ASC = nullptr;
 	
@@ -106,7 +100,23 @@ void ARACharacterPlayer::PossessedBy(AController* NewController)
 		ASC = GASPS->GetAbilitySystemComponent();
 		ASC->InitAbilityActorInfo(GASPS, this);
 		
-		
+		for (const auto& StartAbility : StartAbilities)
+		{
+			FGameplayAbilitySpec StartSpec(StartAbility);
+			ASC->GiveAbility(StartSpec);
+		}
+
+		for (const auto& StartInputAbility : StartInputAbilities)
+		{
+			FGameplayAbilitySpec StartSpec(StartInputAbility.Value);
+			StartSpec.InputID = StartInputAbility.Key;
+			ASC->GiveAbility(StartSpec);
+		}
+
+		//SetupGASInputComponent();
+
+		//APlayerController* PlayerController = CastChecked<APlayerController>(NewController);
+		//PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
 	}
 }
 void ARACharacterPlayer::SetupGASInputComponent()
@@ -117,7 +127,8 @@ void ARACharacterPlayer::SetupGASInputComponent()
 		
 		// GAS로 만들 플레이어 액션 여기에 추가.
 		// (GetInputPressed, InputId)로 추가.
-		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ARACharacterPlayer::GASInputPressed, 0);
+		EnhancedInputComponent->BindAction(
+			AttackAction, ETriggerEvent::Triggered, this, &ARACharacterPlayer::GASInputPressed, 0);
 		
 	}
 }
@@ -144,7 +155,7 @@ void ARACharacterPlayer::GASInputReleased(int32 InputId)
 	FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromInputID(InputId);
 	if (Spec)
 	{
-		Spec->InputPressed = true;
+		Spec->InputPressed = false;
 		if (Spec->IsActive())
 		{
 			ASC->AbilitySpecInputReleased(*Spec);
@@ -157,11 +168,6 @@ void ARACharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
-
-	EnhancedInputComponent->BindAction(
-		AttackAction, ETriggerEvent::Triggered,
-		this, &ARACharacterPlayer::Attack
-	);
 	
 	EnhancedInputComponent->BindAction(
 		MoveAction,
@@ -176,6 +182,8 @@ void ARACharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		this,
 		&ARACharacterPlayer::Look
 	);
+	
+	SetupGASInputComponent();
 }
 
 // IMC 설정

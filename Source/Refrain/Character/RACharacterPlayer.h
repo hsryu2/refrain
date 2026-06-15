@@ -6,7 +6,7 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "RACharacterBase.h"
-
+#include "../Animation/RACharacterAnimationData.h"
 #include "AbilitySystemInterface.h"
 #include "../Player/RAPlayerState.h"
 #include "RACharacterPlayer.generated.h"
@@ -84,7 +84,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TMap<int32, TSubclassOf<class UGameplayAbility>> StartInputAbilities;
 	
-	UPROPERTY()
 	//TObjectPtr<class UABCharacterAttributeSet> AttributeSet;
 	
 	void SetupGASInputComponent();	
