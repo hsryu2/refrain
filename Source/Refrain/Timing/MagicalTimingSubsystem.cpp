@@ -129,6 +129,46 @@ bool UMagicalTimingSubsystem::StopMusic()
 	return true;
 }
 
+float UMagicalTimingSubsystem::JudgeTiming(EQuartzCommandQuantization TargetQuantization, float Multiplier)
+{
+	FQuartzTransportTimeStamp TimeStamp = MusicClockHandle->GetCurrentTimestamp(GetWorld());
+	if (TimeStamp.IsZero())
+	{
+		RA_LOG(LogRefrain, Error, TEXT("Failed to get current timestamp"));
+		return 0.f;
+	}
+	RA_LOG(LogRefrain, Log, TEXT("Current TimeStamp Bar: %d, Beat: %d, Fraction: %f, Seconds: %f"), TimeStamp.Bars, TimeStamp.Beat, TimeStamp.BeatFraction, TimeStamp.Seconds);
+	
+	const float TargetDuration = MusicClockHandle->GetDurationOfQuantizationTypeInSeconds(GetWorld(), TargetQuantization, Multiplier);
+	// TODO: Multiplier 계산 구현
+	float TargetProgress = MusicClockHandle->GetBeatProgressPercent(TargetQuantization);
+	
+	const float TimeSincePreviousTarget = TargetDuration * TargetProgress;
+	const float TimeUntilNextTarget = TargetDuration * (1.f - TargetProgress);
+	
+	// 이전 박부터 시간과 다음 박까지 시간 중 더 가까운 값
+	const float SignedOffsetFromNearestBeat = 
+		TargetProgress <= 0.5f ? TimeSincePreviousTarget: -(TimeUntilNextTarget);
+
+	return SignedOffsetFromNearestBeat;
+}
+
+float UMagicalTimingSubsystem::GetTimeUntilNextHit(float MinimumStartupDelay, EQuartzCommandQuantization TargetQuantization, float Multiplier)
+{
+	const float TargetDuration = MusicClockHandle->GetDurationOfQuantizationTypeInSeconds(GetWorld(), TargetQuantization, Multiplier);
+	float TargetProgress = MusicClockHandle->GetBeatProgressPercent(TargetQuantization);
+	
+	float TimeUntilNextHit = TargetDuration * (1.f - TargetProgress);
+	
+	// 최소 선딜레이 적용
+	while (TimeUntilNextHit < MinimumStartupDelay)
+	{
+		TimeUntilNextHit += TargetDuration;
+	}
+	
+	return TimeUntilNextHit;
+}
+
 bool UMagicalTimingSubsystem::CreateQuartzClock()
 {
 	UWorld* World = GetWorld();
