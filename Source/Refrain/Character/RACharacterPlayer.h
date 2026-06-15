@@ -78,6 +78,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TMap<int32, TSubclassOf<class UGameplayAbility>> StartInputAbilities;
 	
+	UPROPERTY()
+	//TObjectPtr<class UABCharacterAttributeSet> AttributeSet;
 	
 	void SetupGASInputComponent();	
 	void GASInputPressed(int32 InputId);
