@@ -3,7 +3,7 @@
 
 #include "RAAttributeSet.h"
 
-URAAttributeSet::URAAttributeSet() : AttackRate(100.0f)
+URAAttributeSet::URAAttributeSet() : AttackPower(100.0f)
 {
 	
 }

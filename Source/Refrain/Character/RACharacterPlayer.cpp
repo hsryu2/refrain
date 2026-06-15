@@ -12,6 +12,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Refrain/Animation/RACharacterAnimationData.h"
 #include "Refrain/Player/RAPlayerState.h"
 
 
@@ -62,6 +63,12 @@ ARACharacterPlayer::ARACharacterPlayer()
 	if (InputActionAttackRef.Succeeded())
 	{
 		AttackAction = InputActionAttackRef.Object;
+	}
+	
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> AttackMontageRef(TEXT(""));
+	if (AttackMontageRef.Succeeded())
+	{
+		AttackMontage = AttackMontageRef.Object;
 	}
 	
 	// GAS
@@ -198,6 +205,11 @@ void ARACharacterPlayer::SetIMC()
 void ARACharacterPlayer::Attack()
 {
 	UE_LOG(LogTemp, Log, TEXT("공격 입력 들어옴."));
+}
+
+UAnimMontage* ARACharacterPlayer::GetAttackMontage() const
+{
+	return AnimationData ? AnimationData->AttackMontage : nullptr;
 }
 
 void ARACharacterPlayer::Move(const FInputActionValue& Value)

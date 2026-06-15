@@ -24,12 +24,12 @@ class REFRAIN_API URAAttributeSet : public UAttributeSet
 public:
 	URAAttributeSet();
 	
-	ATTRIBUTE_ACCESSORS(URAAttributeSet, AttackRate);
+	ATTRIBUTE_ACCESSORS(URAAttributeSet, AttackPower);
 	
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
 protected:
 	UPROPERTY(BlueprintReadOnly, Category="Attack", Meta=(AllowPrivateAccess=true))
-	FGameplayAttributeData AttackRate;
+	FGameplayAttributeData AttackPower;
 	
 };

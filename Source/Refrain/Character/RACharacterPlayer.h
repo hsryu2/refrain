@@ -55,14 +55,20 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Input)
 	TObjectPtr<class UInputAction> LookAction;
 	
+	// 애니메이션 데이터에셋
 protected:
-	void Attack();
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Animation")
+	TObjectPtr<URACharacterAnimationData> AnimationData;
+	
+public:
+	UAnimMontage* GetAttackMontage() const;
 	
 // 기본 동작
 protected:
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	
+	void Attack();
 //GAS
 public:
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
