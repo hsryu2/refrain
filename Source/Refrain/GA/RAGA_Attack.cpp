@@ -2,6 +2,7 @@
 
 
 #include "RAGA_Attack.h"
+#include "AbilitySystemComponent.h"
 #include "../RefrainGameplayTags.h"
 
 URAGA_Attack::URAGA_Attack()
@@ -29,6 +30,17 @@ void URAGA_Attack::ActivateAbility(
 	{
 		EndAbility(Handle,ActorInfo,ActivationInfo, true, true);
 		return;
+	}
+	
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+	{
+		FGameplayCueParameters CueParams;
+		CueParams.Instigator = PlayerCharacter;
+		CueParams.SourceObject = this;
+		CueParams.Location = PlayerCharacter->GetActorLocation();
+		CueParams.Normal = PlayerCharacter->GetActorForwardVector();
+		
+		ASC->ExecuteGameplayCue(RefrainGameplayTags::GameplayCue_Attack, CueParams);
 	}
 	
 	UAbilityTask_PlayMontageAndWait* MontageTask =
