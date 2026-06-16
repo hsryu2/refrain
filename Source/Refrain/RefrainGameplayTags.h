@@ -8,4 +8,6 @@ namespace RefrainGameplayTags
 	// cpp 파일에도 적어줘야 함
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Test_GameplayTag_Example);
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Attack);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Attack);
+	
 }
