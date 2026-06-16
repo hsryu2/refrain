@@ -39,13 +39,6 @@ protected:
 	/** 디자이너의 Image 컴포넌트와 자동 바인딩 */
 	UPROPERTY(meta = (BindWidget))
 	UImage* RingTargetImage;
-	
-	/** 
-	  * @brief: 바인딩 할 대상 Image \n
-	  * @note: 만약 필요없는 경우라면 Image에서 Brush만 적용하지 않으면 됩니다 
-	  */
-	UPROPERTY(meta = (BindWidget))
-	UImage* GuideImage;
 
 	// 추가: 에디터 인스턴스나 블루프린트에서 쉽게 변경할 가이드 아이콘 텍스처
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rhythm Settings")

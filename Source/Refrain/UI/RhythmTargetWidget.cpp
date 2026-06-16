@@ -24,11 +24,6 @@ void URhythmTargetWidget::NativeConstruct()
 			RingMaterialInstance->SetScalarParameterValue(TEXT("SyncProgress"), 0.0f);
 		}
 	}
-	
-	if (GuideImage && GuideTexture)
-	{
-		GuideImage->SetBrushFromTexture(GuideTexture);
-	}
 }
 
 void URhythmTargetWidget::UpdateProgress(float Alpha)
