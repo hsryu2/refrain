@@ -18,7 +18,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music|Data")
 	TSoftObjectPtr<USoundBase> MusicSound;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music|Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music|Data", meta = (ClampMin = "60.0", ClampMax = "240.0"))
 	float BPM = 100.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music|Data")
