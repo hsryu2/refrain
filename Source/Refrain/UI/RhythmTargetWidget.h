@@ -12,7 +12,9 @@ class UUMGSequencePlayer;
 /**
  * @class URhythmTargetWidget
  * @brief 리듬 타이밍에 맞춰 축소되는 링과 가이드 이미지를 표시하는 위젯
- * @note 일단 커밋 하고 수정하겠습니다. 파라미터값이 있긴 하지만 실제 블루프린트에서 연동하는 것은 아직 밝혀내지 못했습니다
+ * @note 일단 커밋 하고 수정하겠습니다. 파라미터값이 있긴 하지만 실제 블루프린트에서 연동하는 것은 아직 밝혀내지 못했습니다.\n
+    UI|Settings** 카테고리에서 `Widget Draw Size`를 통해 실제 픽셀 크기를 정하세요.
+    에디터 창에서 위젯이 너무 크게 보인다면 `Widget Editor Scale` 값을 줄이세요 (기본 0.15). 이 값은 게임 플레이(Screen Space)에는 영향을 주지 않고 에디터 뷰포트의 시각적 확인 용도로만 쓰입니다.
  * @date 2026-06-15\n
  * @author sejong
  */
