@@ -12,7 +12,8 @@
 				"Engine",
 				"AudioMixer",
 				"GameplayAbilities",
-				"UMG"
+				"UMG",
+				"DeveloperSettings"
 			]
 		}
 	],
