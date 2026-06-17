@@ -215,9 +215,24 @@ void ARACharacterPlayer::Attack()
 	UE_LOG(LogTemp, Log, TEXT("공격 입력 들어옴."));
 }
 
-UAnimMontage* ARACharacterPlayer::GetAttackMontage() const
+UAnimMontage* ARACharacterPlayer::GetAttackMontage(int32 ComboIndex) const
 {
-	return AnimationData ? AnimationData->AttackMontage : nullptr;
+	if (!AnimationData)
+	{
+		return nullptr;
+	}
+	switch (ComboIndex)
+	{
+	case 1:
+		return AnimationData->AttackMontage_1;
+	case 2:
+		return AnimationData->AttackMontage_2;
+	case 3:
+		return AnimationData->AttackMontage_3;
+	default:
+		return nullptr;
+	}
+
 }
 
 void ARACharacterPlayer::Move(const FInputActionValue& Value)

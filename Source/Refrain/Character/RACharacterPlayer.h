@@ -61,7 +61,7 @@ protected:
 	TObjectPtr<URACharacterAnimationData> AnimationData;
 	
 public:
-	UAnimMontage* GetAttackMontage() const;
+	UAnimMontage* GetAttackMontage(int32 ComboIndex) const;
 	
 // 기본 동작
 protected:
