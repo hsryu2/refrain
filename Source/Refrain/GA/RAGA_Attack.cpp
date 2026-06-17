@@ -135,6 +135,7 @@ void URAGA_Attack::PlayAttackMontage()
 		return;
 	}
 	
+	// 공격 이펙트 실행
 	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
 	{
 		FGameplayCueParameters CueParams;

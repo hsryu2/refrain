@@ -9,4 +9,7 @@ namespace RefrainGameplayTags
 	
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_ComboStart, "Event.Montage.Combo.Start", "콤보 시작");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_ComboEnd, "Event.Montage.Combo.End", "콤보 완료");
+	
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_Dodge, "Ability.Dodge", "회피");
+	
 }
