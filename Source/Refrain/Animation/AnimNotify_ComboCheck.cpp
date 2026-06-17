@@ -14,6 +14,8 @@ void UAnimNotify_ComboCheck::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 	{
 		return;
 	}
+	
+	// 태그에 따라 이벤트를 실행할 예정으로 Payload 생성.
 	FGameplayEventData Payload;
 	Payload.EventTag = EventTag;
 	Payload.Instigator = MeshComp->GetOwner();
