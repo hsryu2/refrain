@@ -7,9 +7,12 @@
 #include "Engine/AssetManager.h"
 #include "Engine/StreamableManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "Materials/MaterialParameterCollection.h"
+#include "Materials/MaterialParameterCollectionInstance.h"
 #include "Quartz/AudioMixerClockHandle.h"
 #include "Quartz/QuartzSubsystem.h"
 #include "Refrain/Refrain.h"
+#include "Refrain/Settings/RefrainClassSettings.h"
 #include "Sound/SoundBase.h"
 
 UMagicalTimingSubsystem::UMagicalTimingSubsystem()
@@ -20,6 +23,48 @@ bool UMagicalTimingSubsystem::DoesSupportWorldType(const EWorldType::Type WorldT
 {
 	// return Super::DoesSupportWorldType(WorldType);
 	return WorldType == EWorldType::Game || WorldType == EWorldType::PIE;
+}
+
+void UMagicalTimingSubsystem::OnWorldBeginPlay(UWorld& InWorld)
+{
+	Super::OnWorldBeginPlay(InWorld);
+	
+	const URefrainClassSettings* Settings = GetDefault<URefrainClassSettings>();
+	
+	// MagicalTimingMPCInstance 설정
+	UMaterialParameterCollection* MagicalTimingMPC = Settings->MagicalTimingMPC.LoadSynchronous();
+	if (!IsValid(MagicalTimingMPC))
+	{
+		RA_LOG(LogRefrain, Error, TEXT("MagicalTimingMPC is invalid"));
+		return;
+	}
+	MagicalTimingMPCInstance = GetWorld()->GetParameterCollectionInstance(MagicalTimingMPC);
+	if (!IsValid(MagicalTimingMPCInstance))
+	{
+		RA_LOG(LogRefrain, Error, TEXT("MagicalTimingMPCInstance is invalid"));
+		return;
+	}
+}
+
+void UMagicalTimingSubsystem::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	
+	// 비트 진행도를 UI 표시용 머티리얼에 전달
+	if (IsValid(MagicalTimingMPCInstance))
+	{
+		MagicalTimingMPCInstance->SetScalarParameterValue(TEXT("BeatProgress"), GetBeatProgress());
+	}
+}
+
+TStatId UMagicalTimingSubsystem::GetStatId() const
+{
+	RETURN_QUICK_DECLARE_CYCLE_STAT(UMagicalTimingSubsystem, STATGROUP_Tickables);
+}
+
+bool UMagicalTimingSubsystem::IsTickable() const
+{
+	return !IsTemplate() && IsValid(MusicClockHandle);
 }
 
 bool UMagicalTimingSubsystem::SetMusicData(UMagicalMusicData* NewMusicData)

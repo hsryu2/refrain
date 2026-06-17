@@ -14,7 +14,7 @@ struct FStreamableHandle;
  * 
  */
 UCLASS()
-class REFRAIN_API UMagicalTimingSubsystem : public UWorldSubsystem
+class REFRAIN_API UMagicalTimingSubsystem : public UTickableWorldSubsystem
 {
 	GENERATED_BODY()
 	
@@ -24,7 +24,10 @@ public:
 // 엔진 재정의 함수
 protected:
 	virtual bool DoesSupportWorldType(const EWorldType::Type WorldType) const override;
-	
+	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
+	virtual void Tick(float DeltaTime) override;
+	virtual TStatId GetStatId() const override;
+	virtual bool IsTickable() const override;
 	
 public:
 // 게임 로직 - 음악 재생
@@ -81,4 +84,8 @@ private:
 	
 	UPROPERTY(Transient)
 	TObjectPtr<UAudioComponent> AudioComponent;
+	
+// 머티리얼 파라미터
+	UPROPERTY(VisibleAnywhere, Category = "Magical|Material")
+	TObjectPtr<UMaterialParameterCollectionInstance> MagicalTimingMPCInstance;
 };
