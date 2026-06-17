@@ -16,6 +16,12 @@ class REFRAIN_API URACharacterAnimationData : public UDataAsset
 	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attack")
-	TObjectPtr<UAnimMontage> AttackMontage;
+	TObjectPtr<UAnimMontage> AttackMontage_1;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attack")
+	TObjectPtr<UAnimMontage> AttackMontage_2;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attack")
+	TObjectPtr<UAnimMontage> AttackMontage_3;
 	
 };
