@@ -65,6 +65,12 @@ ARACharacterPlayer::ARACharacterPlayer()
 		AttackAction = InputActionAttackRef.Object;
 	}
 	
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionDodgeRef(TEXT("/Game/Refrain/Input/InputAction/IA_Dodge.IA_Dodge"));
+	if (InputActionAttackRef.Succeeded())
+	{
+		DodgeAction = InputActionDodgeRef.Object;
+	}
+	
 	// GAS
 	ASC = nullptr;
 	
@@ -129,7 +135,8 @@ void ARACharacterPlayer::SetupGASInputComponent()
 		// (GetInputPressed, InputId)로 추가.
 		EnhancedInputComponent->BindAction(
 			AttackAction, ETriggerEvent::Triggered, this, &ARACharacterPlayer::GASInputPressed, 0);
-		
+		EnhancedInputComponent->BindAction(
+			DodgeAction, ETriggerEvent::Triggered, this, &ARACharacterPlayer::GASInputPressed, 1);
 	}
 }
 
@@ -210,14 +217,29 @@ void ARACharacterPlayer::SetIMC()
 	}
 }
 
-void ARACharacterPlayer::Attack()
+UAnimMontage* ARACharacterPlayer::GetAttackMontage(int32 ComboIndex) const
 {
-	UE_LOG(LogTemp, Log, TEXT("공격 입력 들어옴."));
+	if (!AnimationData)
+	{
+		return nullptr;
+	}
+	switch (ComboIndex)
+	{
+	case 1:
+		return AnimationData->AttackMontage_1;
+	case 2:
+		return AnimationData->AttackMontage_2;
+	case 3:
+		return AnimationData->AttackMontage_3;
+	default:
+		return nullptr;
+	}
+
 }
 
-UAnimMontage* ARACharacterPlayer::GetAttackMontage() const
+UAnimMontage* ARACharacterPlayer::GetDodgeMontage() const
 {
-	return AnimationData ? AnimationData->AttackMontage : nullptr;
+	return AnimationData->DodgeMontage;
 }
 
 void ARACharacterPlayer::Move(const FInputActionValue& Value)

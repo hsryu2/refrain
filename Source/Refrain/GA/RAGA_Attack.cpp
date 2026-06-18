@@ -2,7 +2,9 @@
 
 
 #include "RAGA_Attack.h"
+#include "AbilitySystemComponent.h"
 #include "../RefrainGameplayTags.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 
 URAGA_Attack::URAGA_Attack()
 {
@@ -18,40 +20,55 @@ void URAGA_Attack::ActivateAbility(
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
-	ARACharacterPlayer* PlayerCharacter = Cast<ARACharacterPlayer>(ActorInfo->AvatarActor.Get());
+	PlayerCharacter = Cast<ARACharacterPlayer>(ActorInfo->AvatarActor.Get());
 	if (!PlayerCharacter)
 	{
 		EndAbility(Handle,ActorInfo,ActivationInfo, true, true);
 		return;
 	}
-	UAnimMontage* AttackMontage = PlayerCharacter->GetAttackMontage();
-	if (!AttackMontage)
-	{
-		EndAbility(Handle,ActorInfo,ActivationInfo, true, true);
-		return;
-	}
 	
-	UAbilityTask_PlayMontageAndWait* MontageTask =
-		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+	CurrentCombo = 1;
+	bComboInput = false;
+	bCanAcceptComboInput = false;
+	
+	PlayAttackMontage();
+	
+	// 콤보 시작 -> 콤보 예약 가능 구간
+	UAbilityTask_WaitGameplayEvent* ComboStartTask =
+		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 			this,
-			TEXT("AttackMontage"),
-			AttackMontage
+			RefrainGameplayTags::Event_Montage_ComboStart,
+			nullptr,
+			false,
+			true
 		);
 	
-	// 몽타주가 완료/취소/중단 시 EndAbility를 호출하기 위해 델리게이트로 등록.
-	MontageTask->OnCompleted.AddDynamic(this, &URAGA_Attack::OnMontageCompleted);
-	MontageTask->OnInterrupted.AddDynamic(this, &URAGA_Attack::OnMontageInterrupted);
-	MontageTask->OnCancelled.AddDynamic(this, &URAGA_Attack::OnMontageCancelled);
+	ComboStartTask->EventReceived.AddDynamic(this, &URAGA_Attack::OnComboStart);
+	ComboStartTask->ReadyForActivation();
 	
-	MontageTask->ReadyForActivation();
+	// 콤보 완료 -> 공격이 완료되거나 콤보 예약이 이후로 불가능.
+	UAbilityTask_WaitGameplayEvent* ComboEndTask =
+	UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+		this,
+		RefrainGameplayTags::Event_Montage_ComboEnd,
+		nullptr,
+		false,
+		true
+	);
 	
-
+	ComboEndTask->EventReceived.AddDynamic(this, &URAGA_Attack::OnComboEnd);
+	ComboEndTask->ReadyForActivation();
 }
 
 void URAGA_Attack::InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo)
 {
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
+	
+	if (bCanAcceptComboInput)
+	{
+		bComboInput = true;
+	}
 }
 
 void URAGA_Attack::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
@@ -79,4 +96,68 @@ void URAGA_Attack::OnMontageInterrupted()
 void URAGA_Attack::OnMontageCancelled()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+}
+
+
+void URAGA_Attack::OnComboStart(FGameplayEventData Payload)
+{
+	bCanAcceptComboInput = true;
+}
+
+void URAGA_Attack::OnComboEnd(FGameplayEventData Payload)
+{
+	bCanAcceptComboInput = false;
+	
+	if (bComboInput && CurrentCombo < MaxComboCount)
+	{
+		bComboInput = false;
+		CurrentCombo++;
+		
+		PlayAttackMontage();
+	}
+	else
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	}
+}
+
+void URAGA_Attack::PlayAttackMontage()
+{
+	if (!PlayerCharacter)
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+		return;
+	}
+	UAnimMontage* AttackMontage = PlayerCharacter->GetAttackMontage(CurrentCombo);
+	if (!AttackMontage)
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+		return;
+	}
+	
+	// 공격 이펙트 실행
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+	{
+		FGameplayCueParameters CueParams;
+		CueParams.Instigator = PlayerCharacter;
+		CueParams.SourceObject = this;
+		CueParams.Location = PlayerCharacter->GetActorLocation();
+		CueParams.Normal = PlayerCharacter->GetActorForwardVector();
+		
+		ASC->ExecuteGameplayCue(RefrainGameplayTags::GameplayCue_Attack, CueParams);
+	}
+	
+	// 현재 콤보에 따라서 Montage 실행
+	UAbilityTask_PlayMontageAndWait* MontageTask =
+		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+			this,
+			*FString::Printf(TEXT("AttackMontage_%d"), CurrentCombo),
+			AttackMontage
+		);
+	// 몽타주가 완료/취소/중단 시 EndAbility를 호출하기 위해 델리게이트로 등록.
+	MontageTask->OnCompleted.AddDynamic(this, &URAGA_Attack::OnMontageCompleted);
+	MontageTask->OnInterrupted.AddDynamic(this, &URAGA_Attack::OnMontageInterrupted);
+	MontageTask->OnCancelled.AddDynamic(this, &URAGA_Attack::OnMontageCancelled);
+	
+	MontageTask->ReadyForActivation();
 }

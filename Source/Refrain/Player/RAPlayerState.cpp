@@ -4,7 +4,7 @@
 #include "RAPlayerState.h"
 
 #include "AbilitySystemComponent.h"
-#include "Refrain/Attribute/RAAttributeSet.h"
+#include "Refrain/GA/Attribute/RAAttributeSet.h"
 
 ARAPlayerState::ARAPlayerState()
 {
