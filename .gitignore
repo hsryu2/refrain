@@ -3,7 +3,8 @@ __ExternalActors__/
 
 # 애셋
 Content/ThirdPersonTemplate
-Content/EW_humanFryPose
+Content/8WayFlyAnimation
+Content/RamsterZ_FreeAnims_Volume1
 # 플러그인
 Plugins/
 
