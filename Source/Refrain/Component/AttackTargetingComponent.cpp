@@ -2,18 +2,18 @@
 
 
 #include "AttackTargetingComponent.h"
-
-#include <ThirdParty/ShaderConductor/ShaderConductor/External/DirectXShaderCompiler/include/dxc/DXIL/DxilConstants.h>
-
 #include "Engine/OverlapResult.h"
+#include "Refrain/Character/RACharacterNonPlayer.h"
 
 // Sets default values for this component's properties
 UAttackTargetingComponent::UAttackTargetingComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 
+	// 타겟 NPC로 설정.
+	TargetActorClass = ARACharacterNonPlayer::StaticClass();
 	// ...
 }
 

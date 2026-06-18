@@ -5,6 +5,7 @@
 #include "AbilitySystemComponent.h"
 #include "../RefrainGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "Refrain/Component/AttackTargetingComponent.h"
 
 URAGA_Attack::URAGA_Attack()
 {
@@ -133,6 +134,22 @@ void URAGA_Attack::PlayAttackMontage()
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
+	}
+	if (UAttackTargetingComponent* TargetingComponent = PlayerCharacter->FindComponentByClass<UAttackTargetingComponent>())
+	{
+		AActor* TargetActor = TargetingComponent->FindAttackTarget();
+		
+		if (TargetActor)
+		{
+			FVector Direction = 
+				TargetActor->GetActorLocation() - PlayerCharacter->GetActorLocation();
+			Direction.Z = 0.0f;
+			if (!Direction.IsNearlyZero())
+			{
+				FRotator TargetRotation = Direction.Rotation();
+				PlayerCharacter->SetActorRotation(TargetRotation);
+			}
+		}
 	}
 	
 	// 공격 이펙트 실행
