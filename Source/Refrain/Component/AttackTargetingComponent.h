@@ -29,7 +29,7 @@ protected:
 	float SearchRadius = 700.0f;
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Targeting)
-	float MaxTargetAngle = 180.0f;
+	float MaxTargetAngle = 270.0f;
 	
 	// 타겟팅할 콜리전채널을 확인.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Targeting)
