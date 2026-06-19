@@ -15,7 +15,7 @@
 #include "Refrain/Animation/RACharacterAnimationData.h"
 #include "Refrain/Component/AttackTargetingComponent.h"
 #include "Refrain/Player/RAPlayerState.h"
-#include "../Component/AttackTargetingComponent.h"
+#include "Component/AttackTargetingComponent.h"
 
 // Sets default values
 ARACharacterPlayer::ARACharacterPlayer()

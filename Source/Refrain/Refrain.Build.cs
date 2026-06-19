@@ -8,7 +8,7 @@ public class Refrain : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		//PublicIncludePaths.Add(ModuleDirectory);
+		PublicIncludePaths.Add(ModuleDirectory);
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "GameplayAbilities", "GameplayTags", "GameplayTasks", "Niagara"});
 		

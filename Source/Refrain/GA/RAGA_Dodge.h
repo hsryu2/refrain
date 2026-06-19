@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
-#include "../Character/RACharacterPlayer.h"
+#include "Character/RACharacterPlayer.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "RAGA_Dodge.generated.h"
 

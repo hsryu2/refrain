@@ -2,7 +2,7 @@
 
 
 #include "RAGameMode.h"
-#include "../Player/RAPlayerState.h"
+#include "Player/RAPlayerState.h"
 
 ARAGameMode::ARAGameMode()
 {

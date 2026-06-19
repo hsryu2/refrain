@@ -6,9 +6,9 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "RACharacterBase.h"
-#include "../Animation/RACharacterAnimationData.h"
+#include "Animation/RACharacterAnimationData.h"
 #include "AbilitySystemInterface.h"
-#include "../Player/RAPlayerState.h"
+#include "Player/RAPlayerState.h"
 #include "RACharacterPlayer.generated.h"
 
 UCLASS()
