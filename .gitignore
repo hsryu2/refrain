@@ -5,6 +5,10 @@ __ExternalActors__/
 Content/ThirdPersonTemplate
 Content/8WayFlyAnimation
 Content/RamsterZ_FreeAnims_Volume1
+
+# AI mcp
+.ai/
+
 # 플러그인
 Plugins/
 
