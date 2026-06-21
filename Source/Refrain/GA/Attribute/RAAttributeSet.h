@@ -25,11 +25,27 @@ public:
 	URAAttributeSet();
 	
 	ATTRIBUTE_ACCESSORS(URAAttributeSet, AttackPower);
+	ATTRIBUTE_ACCESSORS(URAAttributeSet, Health);
+	ATTRIBUTE_ACCESSORS(URAAttributeSet, MaxHealth);
+	ATTRIBUTE_ACCESSORS(URAAttributeSet, Damage);
 	
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
+	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 protected:
 	UPROPERTY(BlueprintReadOnly, Category="Attack", Meta=(AllowPrivateAccess=true))
 	FGameplayAttributeData AttackPower;
+	
+	UPROPERTY()
+	FGameplayAttributeData Health;
+	
+	UPROPERTY()
+	FGameplayAttributeData MaxHealth;
+	
+	UPROPERTY()
+	FGameplayAttributeData Damage;
+	
+	
+	
 	
 };

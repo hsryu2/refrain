@@ -3,7 +3,7 @@
 
 #include "RAGA_Attack.h"
 #include "AbilitySystemComponent.h"
-#include "../RefrainGameplayTags.h"
+#include "RefrainGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Refrain/Component/AttackTargetingComponent.h"
 
