@@ -59,6 +59,19 @@ void URAGA_Attack::ActivateAbility(
 	
 	ComboEndTask->EventReceived.AddDynamic(this, &URAGA_Attack::OnComboEnd);
 	ComboEndTask->ReadyForActivation();
+	
+	// 어택히트 이벤트 추가
+	UAbilityTask_WaitGameplayEvent* AttackHitTask =
+	UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+		this,
+		RefrainGameplayTags::Event_Montage_AttackHit,
+		nullptr,
+		false,
+		true
+	);
+	
+	AttackHitTask->EventReceived.AddDynamic(this, &URAGA_Attack::OnAttackHit);
+	AttackHitTask->ReadyForActivation();
 }
 
 void URAGA_Attack::InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
@@ -177,4 +190,9 @@ void URAGA_Attack::PlayAttackMontage()
 	MontageTask->OnCancelled.AddDynamic(this, &URAGA_Attack::OnMontageCancelled);
 	
 	MontageTask->ReadyForActivation();
+}
+
+void URAGA_Attack::OnAttackHit(FGameplayEventData Payload)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Attack Hit Event Received"));
 }
