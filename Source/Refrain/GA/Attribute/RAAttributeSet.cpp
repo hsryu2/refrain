@@ -5,23 +5,36 @@
 
 #include "GameplayEffectExtension.h"
 
-URAAttributeSet::URAAttributeSet() : AttackPower(100.0f)
+URAAttributeSet::URAAttributeSet() 
+	: AttackPower(100.0f)
+	, MaxHealth(100.0f)
+	, Health(100.0f)
 {
 	
 }
 
 void URAAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
-		
+	Super::PreAttributeChange(Attribute, NewValue);
 	if (Attribute == GetHealthAttribute())
 	{
 		NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxHealth());
+	}
+	
+	if (Attribute == GetMaxHealthAttribute())
+	{
+		NewValue = FMath::Max(1.0f, NewValue);
 	}
 }
 
 void URAAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
 {
 	Super::PostAttributeChange(Attribute, OldValue, NewValue);
+	
+	if (Attribute == GetMaxHealthAttribute() && GetHealth() > NewValue)
+	{
+		SetHealth(NewValue);
+	}
 }
 
 void URAAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)

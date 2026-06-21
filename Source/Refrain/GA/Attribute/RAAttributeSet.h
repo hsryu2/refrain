@@ -36,10 +36,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category="Attack", Meta=(AllowPrivateAccess=true))
 	FGameplayAttributeData AttackPower;
 	
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category="Status", Meta=(AllowPrivateAccess=true))
 	FGameplayAttributeData Health;
 	
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category="Status", Meta=(AllowPrivateAccess=true))
 	FGameplayAttributeData MaxHealth;
 	
 	UPROPERTY()

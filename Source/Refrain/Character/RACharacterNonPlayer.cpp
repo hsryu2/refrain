@@ -17,6 +17,15 @@ ARACharacterNonPlayer::ARACharacterNonPlayer()
 	
 	// 수동 DrawSize를 없애는 대신 블루프린트에서 제어 가능하도록 함
 	RhythmTargetWidget->SetDrawAtDesiredSize(false);
+	
+	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
+	AttributeSet = CreateDefaultSubobject<URAAttributeSet>(TEXT("AttributeSet"));
+	
+}
+
+UAbilitySystemComponent* ARACharacterNonPlayer::GetAbilitySystemComponent() const
+{
+	return ASC;
 }
 
 void ARACharacterNonPlayer::PostInitializeComponents()
@@ -43,6 +52,16 @@ void ARACharacterNonPlayer::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
 	UpdateWidgetPreview();
+}
+
+void ARACharacterNonPlayer::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	if (ASC)
+	{
+		ASC->InitAbilityActorInfo(this, this);
+	}
 }
 
 void ARACharacterNonPlayer::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
