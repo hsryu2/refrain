@@ -19,4 +19,8 @@ namespace RefrainGameplayTags
 	// Dodge 태그.
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Dodge);
 	
+	// 데미지 관련 태그
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_AttackHit);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Damage);
+	
 }

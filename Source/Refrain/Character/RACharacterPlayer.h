@@ -6,9 +6,9 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "RACharacterBase.h"
-#include "../Animation/RACharacterAnimationData.h"
+#include "Animation/RACharacterAnimationData.h"
 #include "AbilitySystemInterface.h"
-#include "../Player/RAPlayerState.h"
+#include "Player/RAPlayerState.h"
 #include "RACharacterPlayer.generated.h"
 
 UCLASS()
@@ -93,6 +93,10 @@ protected:
 	void GASInputPressed(int32 InputId);
 	void GASInputReleased(int32 InputId);
 	
+	// 타겟팅 컴포넌트
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Targeting)
+	TObjectPtr<class UAttackTargetingComponent> TargetingComponent;
 	
 	
 };

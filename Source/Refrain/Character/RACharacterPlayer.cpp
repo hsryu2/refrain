@@ -13,8 +13,9 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Refrain/Animation/RACharacterAnimationData.h"
+#include "Refrain/Component/AttackTargetingComponent.h"
 #include "Refrain/Player/RAPlayerState.h"
-
+#include "Component/AttackTargetingComponent.h"
 
 // Sets default values
 ARACharacterPlayer::ARACharacterPlayer()
@@ -74,6 +75,8 @@ ARACharacterPlayer::ARACharacterPlayer()
 	// GAS
 	ASC = nullptr;
 	
+	// 컴포넌트
+	TargetingComponent = CreateDefaultSubobject<UAttackTargetingComponent>(TEXT("TargetingComponent"));
 }
 
 class UAbilitySystemComponent* ARACharacterPlayer::GetAbilitySystemComponent() const

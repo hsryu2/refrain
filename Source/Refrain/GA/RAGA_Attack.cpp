@@ -3,8 +3,9 @@
 
 #include "RAGA_Attack.h"
 #include "AbilitySystemComponent.h"
-#include "../RefrainGameplayTags.h"
+#include "RefrainGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "Refrain/Component/AttackTargetingComponent.h"
 
 URAGA_Attack::URAGA_Attack()
 {
@@ -58,6 +59,19 @@ void URAGA_Attack::ActivateAbility(
 	
 	ComboEndTask->EventReceived.AddDynamic(this, &URAGA_Attack::OnComboEnd);
 	ComboEndTask->ReadyForActivation();
+	
+	// 어택히트 이벤트 추가
+	UAbilityTask_WaitGameplayEvent* AttackHitTask =
+	UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+		this,
+		RefrainGameplayTags::Event_Montage_AttackHit,
+		nullptr,
+		false,
+		true
+	);
+	
+	AttackHitTask->EventReceived.AddDynamic(this, &URAGA_Attack::OnAttackHit);
+	AttackHitTask->ReadyForActivation();
 }
 
 void URAGA_Attack::InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
@@ -134,6 +148,22 @@ void URAGA_Attack::PlayAttackMontage()
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
+	if (UAttackTargetingComponent* TargetingComponent = PlayerCharacter->FindComponentByClass<UAttackTargetingComponent>())
+	{
+		AActor* TargetActor = TargetingComponent->FindAttackTarget();
+		
+		if (TargetActor)
+		{
+			FVector Direction = 
+				TargetActor->GetActorLocation() - PlayerCharacter->GetActorLocation();
+			Direction.Z = 0.0f;
+			if (!Direction.IsNearlyZero())
+			{
+				FRotator TargetRotation = Direction.Rotation();
+				PlayerCharacter->SetActorRotation(TargetRotation);
+			}
+		}
+	}
 	
 	// 공격 이펙트 실행
 	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
@@ -160,4 +190,9 @@ void URAGA_Attack::PlayAttackMontage()
 	MontageTask->OnCancelled.AddDynamic(this, &URAGA_Attack::OnMontageCancelled);
 	
 	MontageTask->ReadyForActivation();
+}
+
+void URAGA_Attack::OnAttackHit(FGameplayEventData Payload)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Attack Hit Event Received"));
 }

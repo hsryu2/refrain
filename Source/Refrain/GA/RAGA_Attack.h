@@ -6,7 +6,7 @@
 #include "Abilities/GameplayAbility.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
-#include "../Character/RACharacterPlayer.h"
+#include "Character/RACharacterPlayer.h"
 #include "RAGA_Attack.generated.h"
 
 /**
@@ -60,6 +60,8 @@ protected:
 	
 	bool bChangingCombo;
 	
+	UFUNCTION()
+	void OnAttackHit(FGameplayEventData Payload);
 	
 };
 
