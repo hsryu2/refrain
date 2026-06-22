@@ -60,6 +60,12 @@ protected:
 	
 	bool bChangingCombo;
 	
+	UPROPERTY(EditDefaultsOnly, Category=Damage)
+	TSubclassOf<UGameplayEffect> DamageEffectClass;
+	
+	UPROPERTY(EditDefaultsOnly, Category=Damage)
+	float DamageAmount = 10.0f;
+	
 	UFUNCTION()
 	void OnAttackHit(FGameplayEventData Payload);
 	

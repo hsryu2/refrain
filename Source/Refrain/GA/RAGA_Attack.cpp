@@ -2,6 +2,8 @@
 
 
 #include "RAGA_Attack.h"
+
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "RefrainGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
@@ -195,4 +197,48 @@ void URAGA_Attack::PlayAttackMontage()
 void URAGA_Attack::OnAttackHit(FGameplayEventData Payload)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Attack Hit Event Received"));
+	
+	if (!PlayerCharacter || !DamageEffectClass)
+	{
+		return;
+	}
+	
+	AActor* TargetActor = nullptr;
+	
+	UAttackTargetingComponent* TargetingComponent =
+		PlayerCharacter->FindComponentByClass<UAttackTargetingComponent>();
+	
+	if (TargetingComponent)
+	{
+		TargetActor = TargetingComponent->FindAttackTarget();
+	}
+	
+	if (!TargetActor)
+	{
+		return;
+	}
+	UAbilitySystemComponent* SourceASC =
+		GetAbilitySystemComponentFromActorInfo();
+	
+	UAbilitySystemComponent* TargetASC =
+		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+	
+	if (!SourceASC || !TargetASC)
+	{
+		return;
+	}
+	FGameplayEffectSpecHandle DamageSpec =
+		MakeOutgoingGameplayEffectSpec(DamageEffectClass, GetAbilityLevel());
+	
+	if (!DamageSpec.IsValid())
+	{
+		return;
+	}
+	
+	//DamageSpec.Data->SetByCallerTagMagnitudes(
+	//	RefrainGameplayTags::Data_Damage,
+	//	DamageAmount
+	//);
+	//
+	//SourceASC
 }
