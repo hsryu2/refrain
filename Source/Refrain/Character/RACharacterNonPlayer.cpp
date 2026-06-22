@@ -4,6 +4,7 @@
 #include "RACharacterNonPlayer.h"
 #include "Components/WidgetComponent.h"
 #include "Refrain/UI/RhythmTargetWidget.h"
+#include "AbilitySystemComponent.h"
 
 ARACharacterNonPlayer::ARACharacterNonPlayer()
 {
@@ -18,14 +19,27 @@ ARACharacterNonPlayer::ARACharacterNonPlayer()
 	// 수동 DrawSize를 없애는 대신 블루프린트에서 제어 가능하도록 함
 	RhythmTargetWidget->SetDrawAtDesiredSize(false);
 	
+	// GAS
 	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
 	AttributeSet = CreateDefaultSubobject<URAAttributeSet>(TEXT("AttributeSet"));
 	
+	if (RhythmTargetWidget)
+	{
+		RhythmTargetWidget->SetVisibility(false);
+	}
 }
 
 UAbilitySystemComponent* ARACharacterNonPlayer::GetAbilitySystemComponent() const
 {
 	return ASC;
+}
+
+void ARACharacterNonPlayer::SetRhythmWidgetVisibility(bool bShow)
+{
+	if (RhythmTargetWidget)
+	{
+		RhythmTargetWidget->SetVisibility(bShow);
+	}
 }
 
 void ARACharacterNonPlayer::PostInitializeComponents()
@@ -60,7 +74,22 @@ void ARACharacterNonPlayer::BeginPlay()
 	
 	if (ASC)
 	{
+		// 1. ASC의 ActorInfo를 먼저 초기화
 		ASC->InitAbilityActorInfo(this, this);
+		
+		// 2. 초기화용 Gameplay Effect가 블루프린트에 등록되어 있다면 자신에게 적용.
+		if (InitStatEffect)
+		{
+			FGameplayEffectContextHandle ContextHandle = ASC->MakeEffectContext();
+			ContextHandle.AddInstigator(this, this);
+
+			FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(InitStatEffect, 1.0f, ContextHandle);
+			if (SpecHandle.IsValid())
+			{
+				// 포인터 역참조를 통해 Spec 데이터를 전달하여 자신에게 이펙트를 적용.
+				ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+			}
+		}
 	}
 }
 
@@ -84,6 +113,22 @@ void ARACharacterNonPlayer::UpdateWidgetPreview()
 			RhythmTargetWidget->SetWidgetSpace(EWidgetSpace::World);
 			RhythmTargetWidget->SetDrawSize(WidgetDrawSize);
 			RhythmTargetWidget->SetRelativeScale3D(FVector(WidgetEditorScale));
+		}
+	}
+}
+
+void ARACharacterNonPlayer::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	if (ASC)
+	{
+		ASC->InitAbilityActorInfo(this, this);
+
+		for (const auto& StartAbility : StartAbilities)
+		{
+			FGameplayAbilitySpec StartSpec(StartAbility);
+			ASC->GiveAbility(StartSpec);
 		}
 	}
 }

@@ -16,7 +16,7 @@ class URhythmTargetWidget;
 struct FStreamableHandle;
 /**
  * @brief 플레이어가 아닌 캐릭터 클래스(적)\n
- * @note NPC의 메쉬는 UE의 기본적인 마네킹을 사용하기로 함\n
+ * @note NPC의 메쉬는 UE의 기본적인 마네킹을 사용하기로 함. 최대체력을 500, 방어력을 9로 설정하였음.\n
  * @date 2026-06-11\n
  * @author sejong
  */
@@ -29,6 +29,14 @@ public:
 	ARACharacterNonPlayer();
 	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+	/**
+	 * @brief RhythmTargetWidget을 띄우거나 띄우지 않는 함수
+	 * @param bShow RhythmTarget을 띄울지 여부
+	 * @note Quarts 시스템과 연결이 필요하기 때문에 현재 완벽하게 동작하지 않습니다. 다들 알다시피 온의 기준은 NPC의 공격 시도이며
+	오프의 기준은 NPC의 공격이 다 끝날 때 등 입니다.\n 추가적으로, 아직은 공격을 할 떄 켜고 끄는 기능 밖에 없어 공격 속도와 동기화가 되어있거나 하지 않습니다!
+	 */
+	void SetRhythmWidgetVisibility(bool bShow);
 	
 protected:
 	// --- override ---
@@ -72,12 +80,26 @@ private:
 	void UpdateWidgetPreview();
 	
 	// GAS
+public:
+	virtual void PossessedBy(AController* NewController) override;
+	
 private:
 	UPROPERTY(VisibleAnywhere, Category="GAS")
 	TObjectPtr<UAbilitySystemComponent> ASC;
 	
 	UPROPERTY()
 	TObjectPtr<URAAttributeSet> AttributeSet;
+	
+	/**
+	 * @brief 캐릭터가 장착할 스킬을 블루프린트에서 세팅할 수 있도록 하는 배열(슬롯)
+	 * @note UE 에디터에서 사용하고자 하는 기능을 지정해줘야 합니다.
+	 */
+	UPROPERTY(EditAnywhere, Category="GAS")
+	TArray<TSubclassOf<class UGameplayAbility>> StartAbilities;
+	
+	/** NPC 전용 스탯 초기화 GE */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS|Init", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class UGameplayEffect> InitStatEffect;
 	
 	// HP 위젯
 private:

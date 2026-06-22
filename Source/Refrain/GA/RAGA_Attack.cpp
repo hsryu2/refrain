@@ -102,6 +102,8 @@ void URAGA_Attack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGa
 	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	
+	ClearAttackMotionWarpTarget();
 }
 
 void URAGA_Attack::OnMontageCompleted()
@@ -243,6 +245,15 @@ void URAGA_Attack::UpdateAttackMotionWarpTarget(AActor* TargetActor)
 		MotionWarpingComponent->AddOrUpdateWarpTargetFromComponent(
 			FName(TEXT("Enemy")), TargetMesh, NAME_None, true, 
 			EWarpTargetLocationOffsetDirection::VectorFromTargetToOwner);
+	}
+}
+
+void URAGA_Attack::ClearAttackMotionWarpTarget()
+{
+	UMotionWarpingComponent* MotionWarpingComponent = AvatarActor->FindComponentByClass<UMotionWarpingComponent>();
+	if (MotionWarpingComponent)
+	{
+		MotionWarpingComponent->RemoveAllWarpTargets();
 	}
 }
 
