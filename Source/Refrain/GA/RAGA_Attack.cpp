@@ -197,14 +197,15 @@ void URAGA_Attack::PlayAttackMontage()
 	MontageTask->ReadyForActivation();
 }
 
+// 데미지 처리.
 void URAGA_Attack::OnAttackHit(FGameplayEventData Payload)
 {
-	
 	if (!PlayerCharacter || !DamageEffectClass)
 	{
 		return;
 	}
 	
+	// 공격 타겟이 있는지 확인.
 	AActor* TargetActor = nullptr;
 	
 	UAttackTargetingComponent* TargetingComponent =
@@ -219,6 +220,8 @@ void URAGA_Attack::OnAttackHit(FGameplayEventData Payload)
 	{
 		return;
 	}
+	
+	// 플레이어와 타겟이 ASC를 가지고 있는지 확인.
 	UAbilitySystemComponent* SourceASC =
 		GetAbilitySystemComponentFromActorInfo();
 	
@@ -229,6 +232,7 @@ void URAGA_Attack::OnAttackHit(FGameplayEventData Payload)
 	{
 		return;
 	}
+	// GE Spec Handle이 있는지 확인.
 	FGameplayEffectSpecHandle DamageSpec =
 		MakeOutgoingGameplayEffectSpec(DamageEffectClass, GetAbilityLevel());
 	
@@ -236,6 +240,7 @@ void URAGA_Attack::OnAttackHit(FGameplayEventData Payload)
 	{
 		return;
 	}
+	// 위에 모든 조건이 통과되면 데미지 전달.
 	DamageSpec.Data->SetSetByCallerMagnitude(
 		RefrainGameplayTags::Data_Damage,
 		DamageAmount
