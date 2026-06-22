@@ -183,6 +183,11 @@ float UMagicalTimingSubsystem::GetBeatProgress()
 	return MusicClockHandle->GetBeatProgressPercent();
 }
 
+bool UMagicalTimingSubsystem::IsMusicPlaying()
+{
+	return IsValid(AudioComponent) && AudioComponent->IsPlaying() && IsValid(MusicClockHandle);
+}
+
 float UMagicalTimingSubsystem::JudgeTiming(EQuartzCommandQuantization TargetQuantization, float Multiplier)
 {
 	FQuartzTransportTimeStamp TimeStamp = MusicClockHandle->GetCurrentTimestamp(GetWorld());

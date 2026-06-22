@@ -49,6 +49,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Magical|Info")
 	float GetBeatProgress();
+
+	UFUNCTION(BlueprintCallable, Category = "Magical|Info")
+	bool IsMusicPlaying();
 	
 	
 // 게임 로직 - 공격 시 판정

@@ -51,7 +51,7 @@ protected:
 	void PlayAttackMontage();
 	
 // 모션 워핑 (몽타주 재생 전, 후 실행)
-	void UpdateAttackMotionWarpTarget(AActor* TargetActor);
+	void UpdateAttackMotionWarpTarget();
 	void ClearAttackMotionWarpTarget();
 	
 // 재생 속도 조절
@@ -59,7 +59,7 @@ protected:
 	float FindGameplayEventNotifyTime(const UAnimMontage* Montage, const FGameplayTag EventTag = FGameplayTag::EmptyTag);
 	
 	// 몽타주 안의 노티파이까지 시간과 공격이 적중해야 할 시간을 비교해서 몽타주 Play Rate(선딜)을 결정
-	float CalculateAttackPlayRate(float NotifyTime, float TargetTime, float MinimumStartupDelay = 0.f);
+	float CalculateAttackPlayRate(float NotifyTime, float MinimumStartupDelay = 0.f);
 
 // 변수
 	UPROPERTY()

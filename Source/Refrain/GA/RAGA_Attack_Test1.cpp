@@ -13,6 +13,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayEffect.h"
 #include "Animation/AnimNotify_SendGameplayEvent.h"
+#include "Timing/MagicalTimingSubsystem.h"
 
 
 URAGA_Attack_Test1::URAGA_Attack_Test1()
@@ -214,7 +215,7 @@ void URAGA_Attack_Test1::PlayAttackMontage()
 		if (TargetActor)
 		{
 			// 모션워핑 설정
-			UpdateAttackMotionWarpTarget(TargetActor);
+			UpdateAttackMotionWarpTarget();
 		}
 		else
 		{
@@ -238,12 +239,16 @@ void URAGA_Attack_Test1::PlayAttackMontage()
 		ASC->ExecuteGameplayCue(RefrainGameplayTags::GameplayCue_Attack, CueParams);
 	}
 	
+	const float AttackHitNotifyTime = FindGameplayEventNotifyTime(AttackMontage, RefrainGameplayTags::Event_Montage_AttackHit);
+	const float EstimatedPlayRate = CalculateAttackPlayRate(AttackHitNotifyTime, 0.1f);
+	
 	// 현재 콤보에 따라서 Montage 실행
 	UAbilityTask_PlayMontageAndWait* MontageTask =
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 			this,
 			*FString::Printf(TEXT("AttackMontage_%d"), CurrentCombo),
-			AttackMontage
+			AttackMontage,
+			EstimatedPlayRate
 		);
 	
 	// 몽타주가 완료/취소/중단 시 EndAbility를 호출하기 위해 델리게이트로 등록.
@@ -254,7 +259,7 @@ void URAGA_Attack_Test1::PlayAttackMontage()
 	MontageTask->ReadyForActivation();
 }
 
-void URAGA_Attack_Test1::UpdateAttackMotionWarpTarget(AActor* TargetActor)
+void URAGA_Attack_Test1::UpdateAttackMotionWarpTarget()
 {
 	if (!AvatarActor)
 	{
@@ -313,7 +318,7 @@ float URAGA_Attack_Test1::FindGameplayEventNotifyTime(const UAnimMontage* Montag
 	{
 		return -1.f;
 	}
-
+	
 	for (const FAnimNotifyEvent& NotifyEvent : Montage->Notifies)
 	{
 		const UAnimNotify_SendGameplayEvent* EventNotify = Cast<UAnimNotify_SendGameplayEvent>(NotifyEvent.Notify);
@@ -326,7 +331,23 @@ float URAGA_Attack_Test1::FindGameplayEventNotifyTime(const UAnimMontage* Montag
 	return -1.f;
 }
 
-float URAGA_Attack_Test1::CalculateAttackPlayRate(float NotifyTime, float TargetTime, float MinimumStartupDelay)
+float URAGA_Attack_Test1::CalculateAttackPlayRate(float NotifyTime, float MinimumStartupDelay)
 {
+	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
+	if (!MagicalTiming)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("MagicalTimingSubsystem Not Found"));
+		return 1.f;
+	}
+	if (!MagicalTiming->IsMusicPlaying())
+	{
+		RA_LOG(LogRefrain, Warning, TEXT("Music is not playing"));
+		return 1.f;
+	}
 	
+	const float TargetTime = MagicalTiming->GetTimeUntilNextHit(MinimumStartupDelay);
+	
+	const float EstimatedPlayRate = NotifyTime / TargetTime;
+	
+	return EstimatedPlayRate;
 }
