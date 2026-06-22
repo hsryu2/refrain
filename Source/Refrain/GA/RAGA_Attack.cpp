@@ -8,6 +8,9 @@
 #include "RefrainGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Refrain/Component/AttackTargetingComponent.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "GameplayEffect.h"
+
 
 URAGA_Attack::URAGA_Attack()
 {
@@ -196,7 +199,6 @@ void URAGA_Attack::PlayAttackMontage()
 
 void URAGA_Attack::OnAttackHit(FGameplayEventData Payload)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Attack Hit Event Received"));
 	
 	if (!PlayerCharacter || !DamageEffectClass)
 	{
@@ -234,11 +236,20 @@ void URAGA_Attack::OnAttackHit(FGameplayEventData Payload)
 	{
 		return;
 	}
+	DamageSpec.Data->SetSetByCallerMagnitude(
+		RefrainGameplayTags::Data_Damage,
+		DamageAmount
+	);
 	
-	//DamageSpec.Data->SetByCallerTagMagnitudes(
-	//	RefrainGameplayTags::Data_Damage,
-	//	DamageAmount
-	//);
-	//
-	//SourceASC
+	SourceASC->ApplyGameplayEffectSpecToTarget(
+		*DamageSpec.Data.Get(),
+		TargetASC
+	);
+	
+	UE_LOG(LogTemp, Warning, TEXT("Apply Damage: Target=%s Damage=%.1f"), *GetNameSafe(TargetActor), DamageAmount);
+	if (!DamageEffectClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("DamageEffectClass is not assigned."));
+		return;
+	}
 }
