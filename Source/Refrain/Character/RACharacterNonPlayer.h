@@ -4,6 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "RACharacterBase.h"
+
+// 6.21 현석 추가 -> NPC ASC, AttributeSet
+#include "AbilitySystemInterface.h"
+#include "GA/Attribute/RAAttributeSet.h"
+
 #include "RACharacterNonPlayer.generated.h"
 
 class UWidgetComponent;
@@ -16,18 +21,22 @@ struct FStreamableHandle;
  * @author sejong
  */
 UCLASS(Config=ArenaBattle)
-class REFRAIN_API ARACharacterNonPlayer : public ARACharacterBase
+class REFRAIN_API ARACharacterNonPlayer : public ARACharacterBase, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 	
 public:
 	ARACharacterNonPlayer();
 	
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	
 protected:
 	// --- override ---
 	virtual void PostInitializeComponents() override;
 	/** 블루프린트의 Construction Script와 동일한 역할 (에디터에서 값이 바뀌거나 배치될 때 실행됨) */
 	virtual void OnConstruction(const FTransform& Transform) override;
+	
+	virtual void BeginPlay() override;
 	
 #if WITH_EDITOR
 	/** 디테일 패널에서 수정을 감지하기 위한 함수 */
@@ -61,4 +70,12 @@ private:
 	
 	/** 공통 업데이트 로직 */
 	void UpdateWidgetPreview();
+	
+	// GAS
+private:
+	UPROPERTY(VisibleAnywhere, Category="GAS")
+	TObjectPtr<UAbilitySystemComponent> ASC;
+	
+	UPROPERTY()
+	TObjectPtr<URAAttributeSet> AttributeSet;
 };

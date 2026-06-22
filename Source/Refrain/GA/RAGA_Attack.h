@@ -60,6 +60,8 @@ protected:
 	
 	bool bChangingCombo;
 	
+	UFUNCTION()
+	void OnAttackHit(FGameplayEventData Payload);
 	
 };
 
