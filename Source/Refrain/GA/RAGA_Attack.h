@@ -43,10 +43,13 @@ protected:
 	UFUNCTION()
 	void OnComboEnd(FGameplayEventData Payload);
 	
+// 공격 실행
 	void PlayAttackMontage();
 	
+	void UpdateAttackMotionWarpTarget(AActor* TargetActor);
+	
 	UPROPERTY()
-	TObjectPtr<ARACharacterPlayer> PlayerCharacter;
+	TObjectPtr<ARACharacterPlayer> AvatarActor;
 	
 	// 콤보
 	int CurrentCombo = 0;
