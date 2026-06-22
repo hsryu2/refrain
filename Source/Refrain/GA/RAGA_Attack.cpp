@@ -5,6 +5,8 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "MotionWarpingComponent.h"
+#include "Refrain.h"
 #include "RefrainGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Refrain/Component/AttackTargetingComponent.h"
@@ -26,8 +28,8 @@ void URAGA_Attack::ActivateAbility(
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
-	PlayerCharacter = Cast<ARACharacterPlayer>(ActorInfo->AvatarActor.Get());
-	if (!PlayerCharacter)
+	AvatarActor = Cast<ARACharacterPlayer>(ActorInfo->AvatarActor.Get());
+	if (!AvatarActor)
 	{
 		EndAbility(Handle,ActorInfo,ActivationInfo, true, true);
 		return;
@@ -100,6 +102,8 @@ void URAGA_Attack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGa
 	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	
+	ClearAttackMotionWarpTarget();
 }
 
 void URAGA_Attack::OnMontageCompleted()
@@ -142,42 +146,44 @@ void URAGA_Attack::OnComboEnd(FGameplayEventData Payload)
 
 void URAGA_Attack::PlayAttackMontage()
 {
-	if (!PlayerCharacter)
+	if (!AvatarActor)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
-	UAnimMontage* AttackMontage = PlayerCharacter->GetAttackMontage(CurrentCombo);
+	UAnimMontage* AttackMontage = AvatarActor->GetAttackMontage(CurrentCombo);
 	if (!AttackMontage)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
-	if (UAttackTargetingComponent* TargetingComponent = PlayerCharacter->FindComponentByClass<UAttackTargetingComponent>())
+	if (UAttackTargetingComponent* TargetingComponent = AvatarActor->FindComponentByClass<UAttackTargetingComponent>())
 	{
 		AActor* TargetActor = TargetingComponent->FindAttackTarget();
 		
 		if (TargetActor)
 		{
-			FVector Direction = 
-				TargetActor->GetActorLocation() - PlayerCharacter->GetActorLocation();
-			Direction.Z = 0.0f;
-			if (!Direction.IsNearlyZero())
-			{
-				FRotator TargetRotation = Direction.Rotation();
-				PlayerCharacter->SetActorRotation(TargetRotation);
-			}
+			// 모션워핑 설정
+			UpdateAttackMotionWarpTarget(TargetActor);
 		}
+		else
+		{
+			RA_LOG(LogRefrain, Log, TEXT("TargetActor Not Found"));
+		}
+	}
+	else
+	{
+		RA_LOG(LogRefrain, Log, TEXT("TargetingComponent가 없습니다."));
 	}
 	
 	// 공격 이펙트 실행
 	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
 	{
 		FGameplayCueParameters CueParams;
-		CueParams.Instigator = PlayerCharacter;
+		CueParams.Instigator = AvatarActor;
 		CueParams.SourceObject = this;
-		CueParams.Location = PlayerCharacter->GetActorLocation();
-		CueParams.Normal = PlayerCharacter->GetActorForwardVector();
+		CueParams.Location = AvatarActor->GetActorLocation();
+		CueParams.Normal = AvatarActor->GetActorForwardVector();
 		
 		ASC->ExecuteGameplayCue(RefrainGameplayTags::GameplayCue_Attack, CueParams);
 	}
@@ -197,10 +203,63 @@ void URAGA_Attack::PlayAttackMontage()
 	MontageTask->ReadyForActivation();
 }
 
+void URAGA_Attack::UpdateAttackMotionWarpTarget(AActor* TargetActor)
+{
+	if (!AvatarActor)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("AvatarActor Not Found"));
+		return;
+	}
+	
+	UMotionWarpingComponent* MotionWarpingComponent = AvatarActor->FindComponentByClass<UMotionWarpingComponent>();
+	if (!MotionWarpingComponent)
+	{
+		// 모션 워핑 컴포넌트가 없는 경우 그냥 바로 회전만
+		RA_LOG(LogRefrain, Log, TEXT("MotionWarpingComponent Not Found"));
+		FVector Direction = 
+				TargetActor->GetActorLocation() - AvatarActor->GetActorLocation();
+		Direction.Z = 0.0f;
+		if (!Direction.IsNearlyZero())
+		{
+			FRotator TargetRotation = Direction.Rotation();
+			AvatarActor->SetActorRotation(TargetRotation);
+		}
+	}
+	else
+	{
+		
+		ACharacter* TargetCharacter = Cast<ACharacter>(TargetActor);
+		if (!TargetCharacter)
+		{
+			RA_LOG(LogRefrain, Error, TEXT("TargetCharacter Cast Failed"));
+			return;
+		}
+		USkeletalMeshComponent* TargetMesh = TargetCharacter->GetMesh();
+		if (!TargetMesh)
+		{
+			RA_LOG(LogRefrain, Error, TEXT("TargetMesh Not Found"));
+			return;
+		}
+		// 모션워핑에 필요한 정보 설정 (현재 오프셋 설정 안 됨)
+		MotionWarpingComponent->AddOrUpdateWarpTargetFromComponent(
+			FName(TEXT("Enemy")), TargetMesh, NAME_None, true, 
+			EWarpTargetLocationOffsetDirection::VectorFromTargetToOwner);
+	}
+}
+
+void URAGA_Attack::ClearAttackMotionWarpTarget()
+{
+	UMotionWarpingComponent* MotionWarpingComponent = AvatarActor->FindComponentByClass<UMotionWarpingComponent>();
+	if (MotionWarpingComponent)
+	{
+		MotionWarpingComponent->RemoveAllWarpTargets();
+	}
+}
+
 void URAGA_Attack::OnAttackHit(FGameplayEventData Payload)
 {
 	
-	if (!PlayerCharacter || !DamageEffectClass)
+	if (!AvatarActor || !DamageEffectClass)
 	{
 		return;
 	}
@@ -208,7 +267,7 @@ void URAGA_Attack::OnAttackHit(FGameplayEventData Payload)
 	AActor* TargetActor = nullptr;
 	
 	UAttackTargetingComponent* TargetingComponent =
-		PlayerCharacter->FindComponentByClass<UAttackTargetingComponent>();
+		AvatarActor->FindComponentByClass<UAttackTargetingComponent>();
 	
 	if (TargetingComponent)
 	{
