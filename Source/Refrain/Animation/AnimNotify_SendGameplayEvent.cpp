@@ -3,6 +3,7 @@
 
 #include "AnimNotify_SendGameplayEvent.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "Abilities/GameplayAbilityTypes.h"
 
 void UAnimNotify_SendGameplayEvent::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
@@ -15,16 +16,24 @@ void UAnimNotify_SendGameplayEvent::Notify(USkeletalMeshComponent* MeshComp, UAn
 		return;
 	}
 	
+	UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(MeshComp->GetOwner());
+	if (!IsValid(ASC))
+	{
+		return;
+	}
+	
 	// 태그에 따라 이벤트를 실행할 예정으로 Payload 생성.
 	FGameplayEventData Payload;
 	Payload.EventTag = EventTag;
 	Payload.Instigator = MeshComp->GetOwner();
 	Payload.Target = MeshComp->GetOwner();
 	
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+	ASC->HandleGameplayEvent(EventTag, &Payload);
+	
+	/*UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
 	MeshComp->GetOwner(),
 	EventTag,
 	Payload
-	);
+	);*/
 	
 }
