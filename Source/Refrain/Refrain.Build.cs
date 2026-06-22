@@ -10,7 +10,19 @@ public class Refrain : ModuleRules
 
 		PublicIncludePaths.Add(ModuleDirectory);
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "GameplayAbilities", "GameplayTags", "GameplayTasks", "Niagara"});
+		PublicDependencyModuleNames.AddRange(new string[]
+		{
+			"Core", 
+			"CoreUObject", 
+			"Engine", 
+			"InputCore", 
+			"EnhancedInput", 
+			"GameplayAbilities", 
+			"GameplayTags", 
+			"GameplayTasks", 
+			"Niagara",
+			"MotionWarping"
+		});
 		
 
 		// Uncomment if you are using Slate UI
