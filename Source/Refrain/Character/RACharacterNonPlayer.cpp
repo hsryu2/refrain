@@ -19,14 +19,27 @@ ARACharacterNonPlayer::ARACharacterNonPlayer()
 	// 수동 DrawSize를 없애는 대신 블루프린트에서 제어 가능하도록 함
 	RhythmTargetWidget->SetDrawAtDesiredSize(false);
 	
+	// GAS
 	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
 	AttributeSet = CreateDefaultSubobject<URAAttributeSet>(TEXT("AttributeSet"));
 	
+	if (RhythmTargetWidget)
+	{
+		RhythmTargetWidget->SetVisibility(false);
+	}
 }
 
 UAbilitySystemComponent* ARACharacterNonPlayer::GetAbilitySystemComponent() const
 {
 	return ASC;
+}
+
+void ARACharacterNonPlayer::SetRhythmWidgetVisibility(bool bShow)
+{
+	if (RhythmTargetWidget)
+	{
+		RhythmTargetWidget->SetVisibility(bShow);
+	}
 }
 
 void ARACharacterNonPlayer::PostInitializeComponents()
@@ -100,6 +113,22 @@ void ARACharacterNonPlayer::UpdateWidgetPreview()
 			RhythmTargetWidget->SetWidgetSpace(EWidgetSpace::World);
 			RhythmTargetWidget->SetDrawSize(WidgetDrawSize);
 			RhythmTargetWidget->SetRelativeScale3D(FVector(WidgetEditorScale));
+		}
+	}
+}
+
+void ARACharacterNonPlayer::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	if (ASC)
+	{
+		ASC->InitAbilityActorInfo(this, this);
+
+		for (const auto& StartAbility : StartAbilities)
+		{
+			FGameplayAbilitySpec StartSpec(StartAbility);
+			ASC->GiveAbility(StartSpec);
 		}
 	}
 }
