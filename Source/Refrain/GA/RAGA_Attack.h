@@ -46,6 +46,7 @@ protected:
 // 공격 실행
 	void PlayAttackMontage();
 	
+// 모션 워핑 (몽타주 재생 전, 후 실행)
 	void UpdateAttackMotionWarpTarget(AActor* TargetActor);
 	void ClearAttackMotionWarpTarget();
 	
@@ -61,8 +62,6 @@ protected:
 	
 	// 콤보 예약이 가능한 상태인지 확인.
 	bool bCanAcceptComboInput;
-	
-	bool bChangingCombo;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Damage)
 	TSubclassOf<UGameplayEffect> DamageEffectClass;

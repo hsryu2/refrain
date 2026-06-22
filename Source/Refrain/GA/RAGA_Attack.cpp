@@ -56,26 +56,26 @@ void URAGA_Attack::ActivateAbility(
 	
 	// 콤보 완료 -> 공격이 완료되거나 콤보 예약이 이후로 불가능.
 	UAbilityTask_WaitGameplayEvent* ComboEndTask =
-	UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
-		this,
-		RefrainGameplayTags::Event_Montage_ComboEnd,
-		nullptr,
-		false,
-		true
-	);
+		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+			this,
+			RefrainGameplayTags::Event_Montage_ComboEnd,
+			nullptr,
+			false,
+			true
+		);
 	
 	ComboEndTask->EventReceived.AddDynamic(this, &URAGA_Attack::OnComboEnd);
 	ComboEndTask->ReadyForActivation();
 	
 	// 어택히트 이벤트 추가
 	UAbilityTask_WaitGameplayEvent* AttackHitTask =
-	UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
-		this,
-		RefrainGameplayTags::Event_Montage_AttackHit,
-		nullptr,
-		false,
-		true
-	);
+		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+			this,
+			RefrainGameplayTags::Event_Montage_AttackHit,
+			nullptr,
+			false,
+			true
+		);
 	
 	AttackHitTask->EventReceived.AddDynamic(this, &URAGA_Attack::OnAttackHit);
 	AttackHitTask->ReadyForActivation();
@@ -151,12 +151,16 @@ void URAGA_Attack::PlayAttackMontage()
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
+	
+	// 다음 공격 몽타주
 	UAnimMontage* AttackMontage = AvatarActor->GetAttackMontage(CurrentCombo);
 	if (!AttackMontage)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
+	
+	// 타겟팅
 	if (UAttackTargetingComponent* TargetingComponent = AvatarActor->FindComponentByClass<UAttackTargetingComponent>())
 	{
 		AActor* TargetActor = TargetingComponent->FindAttackTarget();
@@ -195,6 +199,7 @@ void URAGA_Attack::PlayAttackMontage()
 			*FString::Printf(TEXT("AttackMontage_%d"), CurrentCombo),
 			AttackMontage
 		);
+	
 	// 몽타주가 완료/취소/중단 시 EndAbility를 호출하기 위해 델리게이트로 등록.
 	MontageTask->OnCompleted.AddDynamic(this, &URAGA_Attack::OnMontageCompleted);
 	MontageTask->OnInterrupted.AddDynamic(this, &URAGA_Attack::OnMontageInterrupted);
