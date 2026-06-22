@@ -47,6 +47,7 @@ protected:
 	void PlayAttackMontage();
 	
 	void UpdateAttackMotionWarpTarget(AActor* TargetActor);
+	void ClearAttackMotionWarpTarget();
 	
 	UPROPERTY()
 	TObjectPtr<ARACharacterPlayer> AvatarActor;
