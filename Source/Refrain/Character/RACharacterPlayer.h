@@ -93,10 +93,12 @@ protected:
 	void GASInputPressed(int32 InputId);
 	void GASInputReleased(int32 InputId);
 	
-	// 타겟팅 컴포넌트
+// 타겟팅 컴포넌트
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Targeting)
 	TObjectPtr<class UAttackTargetingComponent> TargetingComponent;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=MotionWarping)
+	TObjectPtr<class UMotionWarpingComponent> MotionWarpingComponent;
 	
 };
