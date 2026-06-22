@@ -15,6 +15,32 @@ ARAPlayerController::ARAPlayerController()
 	}
 }
 
+void ARAPlayerController::InitHealthHUD(UAbilitySystemComponent* InASC)
+{
+	if (!IsLocalController() || !InASC || !HealthBarWidgetClass)
+	{
+		return;
+	}
+	
+	if (!HealthBarWidget)
+	{
+		HealthBarWidget = CreateWidget<URAHealthBarWidget>(
+			this,
+			HealthBarWidgetClass
+		);
+		
+		if (HealthBarWidget)
+		{
+			HealthBarWidget->AddToViewport();
+		}
+	}
+	
+	if (HealthBarWidget)
+	{
+		HealthBarWidget->InitAbilitySystem(InASC);
+	}
+}
+
 void ARAPlayerController::BeginPlay()
 {
 	Super::BeginPlay();

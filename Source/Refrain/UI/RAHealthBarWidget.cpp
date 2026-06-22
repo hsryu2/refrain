@@ -32,10 +32,10 @@ void URAHealthBarWidget::RefreshHealth()
 	
 	const float Health = ASC->GetNumericAttribute(URAAttributeSet::GetHealthAttribute());
 	const float MaxHealth = ASC->GetNumericAttribute(URAAttributeSet::GetMaxHealthAttribute());
-	const float Persent = MaxHealth > 0.0f ? Health / MaxHealth : 0.0f;
+	const float Percent = MaxHealth > 0.0f ? Health / MaxHealth : 0.0f;
 	if (HealthBar)
 	{
-		HealthBar->SetPercent(Persent);
+		HealthBar->SetPercent(Percent);
 	}
 	
 	if (HealthText)

@@ -78,4 +78,9 @@ private:
 	
 	UPROPERTY()
 	TObjectPtr<URAAttributeSet> AttributeSet;
+	
+	// HP 위젯
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = true))
+	UWidgetComponent* HealthWidget;
 };

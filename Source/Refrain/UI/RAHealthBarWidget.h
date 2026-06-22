@@ -23,10 +23,10 @@ public:
 	void InitAbilitySystem(UAbilitySystemComponent* InASC);
 	
 protected:
-	UPROPERTY(meta = (BindWiget))
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UProgressBar> HealthBar;
 	
-	UPROPERTY(meta = (BindWigetOptional))
+	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UTextBlock> HealthText;
 	
 private:
