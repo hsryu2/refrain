@@ -36,4 +36,7 @@ private:
 	void RefreshHealth();
 	void OnHealthChanged(const FOnAttributeChangeData& Data);
 	void OnMaxHealthChanged(const FOnAttributeChangeData& Data);
+	
+	
+	
 };
