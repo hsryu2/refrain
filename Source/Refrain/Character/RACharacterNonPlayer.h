@@ -16,7 +16,7 @@ class URhythmTargetWidget;
 struct FStreamableHandle;
 /**
  * @brief 플레이어가 아닌 캐릭터 클래스(적)\n
- * @note NPC의 메쉬는 UE의 기본적인 마네킹을 사용하기로 함\n
+ * @note NPC의 메쉬는 UE의 기본적인 마네킹을 사용하기로 함. 최대체력을 500, 방어력을 9로 설정하였음.\n
  * @date 2026-06-11\n
  * @author sejong
  */
@@ -78,4 +78,8 @@ private:
 	
 	UPROPERTY()
 	TObjectPtr<URAAttributeSet> AttributeSet;
+	
+	/** NPC 전용 스탯 초기화 GE */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS|Init", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class UGameplayEffect> InitStatEffect;
 };

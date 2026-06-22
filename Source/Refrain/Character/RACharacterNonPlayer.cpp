@@ -4,6 +4,7 @@
 #include "RACharacterNonPlayer.h"
 #include "Components/WidgetComponent.h"
 #include "Refrain/UI/RhythmTargetWidget.h"
+#include "AbilitySystemComponent.h"
 
 ARACharacterNonPlayer::ARACharacterNonPlayer()
 {
@@ -60,7 +61,22 @@ void ARACharacterNonPlayer::BeginPlay()
 	
 	if (ASC)
 	{
+		// 1. ASC의 ActorInfo를 먼저 초기화
 		ASC->InitAbilityActorInfo(this, this);
+		
+		// 2. 초기화용 Gameplay Effect가 블루프린트에 등록되어 있다면 자신에게 적용.
+		if (InitStatEffect)
+		{
+			FGameplayEffectContextHandle ContextHandle = ASC->MakeEffectContext();
+			ContextHandle.AddInstigator(this, this);
+
+			FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(InitStatEffect, 1.0f, ContextHandle);
+			if (SpecHandle.IsValid())
+			{
+				// 포인터 역참조를 통해 Spec 데이터를 전달하여 자신에게 이펙트를 적용.
+				ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+			}
+		}
 	}
 }
 
