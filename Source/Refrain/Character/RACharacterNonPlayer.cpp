@@ -5,7 +5,8 @@
 #include "Components/WidgetComponent.h"
 #include "Refrain/UI/RhythmTargetWidget.h"
 #include "AbilitySystemComponent.h"
-
+#include "Component/AttackTargetingComponent.h"
+#include "Character/RACharacterPlayer.h"
 ARACharacterNonPlayer::ARACharacterNonPlayer()
 {
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -27,6 +28,9 @@ ARACharacterNonPlayer::ARACharacterNonPlayer()
 	{
 		RhythmTargetWidget->SetVisibility(false);
 	}
+	
+	TargetingComponent = CreateDefaultSubobject<UAttackTargetingComponent>(TEXT("TargetingComponent"));
+	TargetingComponent->SetTargetActorClass(ARACharacterPlayer::StaticClass());
 }
 
 UAbilitySystemComponent* ARACharacterNonPlayer::GetAbilitySystemComponent() const

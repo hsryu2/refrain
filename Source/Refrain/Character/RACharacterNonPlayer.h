@@ -101,6 +101,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS|Init", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class UGameplayEffect> InitStatEffect;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Targeting, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAttackTargetingComponent> TargetingComponent;
+	
 	// HP 위젯
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = true))

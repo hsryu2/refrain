@@ -12,6 +12,7 @@
 #include "Refrain/Component/AttackTargetingComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayEffect.h"
+#include "Refrain.h"
 
 
 URAGA_Attack::URAGA_Attack()
@@ -311,10 +312,10 @@ void URAGA_Attack::OnAttackHit(FGameplayEventData Payload)
 		TargetASC
 	);
 	
-	UE_LOG(LogTemp, Warning, TEXT("Apply Damage: Target=%s Damage=%.1f"), *GetNameSafe(TargetActor), DamageAmount);
+	UE_LOG(LogTemp, Log, TEXT("Apply Damage: Target=%s Damage=%.1f"), *GetNameSafe(TargetActor), DamageAmount);
 	if (!DamageEffectClass)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("DamageEffectClass is not assigned."));
+		UE_LOG(LogTemp,Log, TEXT("DamageEffectClass is not assigned."));
 		return;
 	}
 }

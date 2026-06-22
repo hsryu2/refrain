@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
+#include "Character/RACharacterNonPlayer.h"
 #include "RAGA_NPCAttack.generated.h"
 
 /**
@@ -32,4 +33,16 @@ protected:
 	/** 애님 몽타주를 가리킬 변수 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UAnimMontage> AttackMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Damage)
+	TSubclassOf<UGameplayEffect> DamageEffectClass;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Damage)
+	float DamageAmount = 10.0f;
+	
+	UFUNCTION()
+	void OnAttackHit(FGameplayEventData Payload);
+	
+	UPROPERTY()
+	TObjectPtr<ARACharacterNonPlayer> NPC;
 };
