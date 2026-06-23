@@ -58,11 +58,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Input)
 	TObjectPtr<class UInputAction> DodgeAction;
 	
-	// 애니메이션 데이터에셋
-protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Animation")
-	TObjectPtr<URACharacterAnimationData> AnimationData;
-	
 public:
 	UAnimMontage* GetAttackMontage(int32 ComboIndex) const;
 	UAnimMontage* GetDodgeMontage() const;
