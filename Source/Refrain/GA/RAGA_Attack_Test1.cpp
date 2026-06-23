@@ -88,26 +88,24 @@ void URAGA_Attack_Test1::InputPressed(const FGameplayAbilitySpecHandle Handle, c
 {
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
 	
-	if (bCanAcceptComboInput)
+	if (bCanAcceptComboInput && !bComboInput)
 	{
 		bComboInput = true;
 		bCanAcceptComboInput = false;
-	}
-	
-	if (bComboInput && CurrentCombo < MaxComboCount)
-	{
-		CurrentCombo++;
-		RA_LOG(LogRefrain, Log, TEXT("Combo %d"), CurrentCombo);
 		
-		PlayAttackMontage();
-	}
+		if (CurrentCombo < MaxComboCount)
+		{
+			CurrentCombo++;
+		}
+		else if (CurrentCombo == MaxComboCount)
+		{
+			CurrentCombo = 1;
+		}
 	
-	if (bComboInput && CurrentCombo == MaxComboCount)
-	{
-		CurrentCombo = 1;
-		RA_LOG(LogRefrain, Log, TEXT("Combo %d"), CurrentCombo);
-		
-		PlayAttackMontage();
+		if (bIsAfterAttackHit)
+		{
+			PlayAttackMontage();
+		}
 	}
 }
 
@@ -169,6 +167,7 @@ void URAGA_Attack_Test1::OnComboEnd(FGameplayEventData Payload)
 
 void URAGA_Attack_Test1::OnAttackHit(FGameplayEventData Payload)
 {
+	bIsAfterAttackHit = true;
 	
 	if (!AvatarActor || !DamageEffectClass)
 	{
@@ -266,6 +265,8 @@ void URAGA_Attack_Test1::PlayAttackMontage()
 	const float BPM = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>()->GetBPM();
 	const float AttackHitNotifyTime = FindGameplayEventNotifyTime(AttackMontage, RefrainGameplayTags::Event_Montage_AttackHit);
 	const float EstimatedPlayRate = CalculateAttackPlayRate(AttackHitNotifyTime, 60.f / BPM * 0.9f);
+
+	bIsAfterAttackHit = false;
 	
 	// 현재 콤보에 따라서 Montage 실행
 	UAbilityTask_PlayMontageAndWait* MontageTask =
