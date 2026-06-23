@@ -47,7 +47,7 @@ protected:
 
 
 private:
-	bool IsVaildTarget(AActor* TargetActor) const;
+	bool IsValidTarget(AActor* TargetActor) const;
 	float CalculateTargetScore(AActor* TargetActor) const;
 		
 };

@@ -58,7 +58,7 @@ AActor* UAttackTargetingComponent::FindAttackTarget() const
 		AActor* TargetActor = Result.GetActor();
 		
 		// 공격 대상이 맞는지 확인.
-		if (!IsVaildTarget(TargetActor))
+		if (!IsValidTarget(TargetActor))
 		{
 			continue;
 		}
@@ -89,7 +89,7 @@ void UAttackTargetingComponent::BeginPlay()
 	
 }
 
-bool UAttackTargetingComponent::IsVaildTarget(AActor* TargetActor) const
+bool UAttackTargetingComponent::IsValidTarget(AActor* TargetActor) const
 {
 	AActor* Owner = GetOwner();
 	 
