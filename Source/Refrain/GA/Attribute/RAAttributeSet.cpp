@@ -7,8 +7,8 @@
 
 URAAttributeSet::URAAttributeSet() 
 	: AttackPower(100.0f)
-	, MaxHealth(100.0f)
 	, Health(100.0f)
+	, MaxHealth(100.0f)
 {
 	
 }
