@@ -22,7 +22,7 @@ void UANS_CanAcceptComboInput::NotifyBegin(USkeletalMeshComponent* MeshComp, UAn
 		return;
 	}
 	
-	const FGameplayTag ComboInputStartTag = RefrainGameplayTags::Event_Montage_ComboStart;
+	const FGameplayTag ComboInputStartTag = RefrainGameplayTags::Event_Montage_ComboInputStart;
 	
 	// 태그에 따라 이벤트를 실행할 예정으로 Payload 생성.
 	FGameplayEventData Payload;
@@ -48,7 +48,7 @@ void UANS_CanAcceptComboInput::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnim
 		return;
 	}
 	
-	const FGameplayTag ComboInputEndTag = RefrainGameplayTags::Event_Montage_ComboEnd;
+	const FGameplayTag ComboInputEndTag = RefrainGameplayTags::Event_Montage_ComboInputEnd;
 	
 	// 태그에 따라 이벤트를 실행할 예정으로 Payload 생성.
 	FGameplayEventData Payload;

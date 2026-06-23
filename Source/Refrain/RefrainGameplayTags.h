@@ -9,8 +9,8 @@ namespace RefrainGameplayTags
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Attack);
 	
 	// AttackCombo 시작, 완료 태그
-	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_ComboStart);
-	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_ComboEnd);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_ComboInputStart);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_ComboInputEnd);
 	
 	// Dodge 태그.
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Dodge);

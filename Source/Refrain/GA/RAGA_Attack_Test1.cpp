@@ -47,7 +47,7 @@ void URAGA_Attack_Test1::ActivateAbility(
 	UAbilityTask_WaitGameplayEvent* ComboStartTask =
 		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 			this,
-			RefrainGameplayTags::Event_Montage_ComboStart,
+			RefrainGameplayTags::Event_Montage_ComboInputStart,
 			nullptr,
 			false,
 			true
@@ -60,7 +60,7 @@ void URAGA_Attack_Test1::ActivateAbility(
 	UAbilityTask_WaitGameplayEvent* ComboEndTask =
 		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 			this,
-			RefrainGameplayTags::Event_Montage_ComboEnd,
+			RefrainGameplayTags::Event_Montage_ComboInputEnd,
 			nullptr,
 			false,
 			true
