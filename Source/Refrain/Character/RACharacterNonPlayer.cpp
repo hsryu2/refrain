@@ -33,11 +33,6 @@ ARACharacterNonPlayer::ARACharacterNonPlayer()
 	TargetingComponent->SetTargetActorClass(ARACharacterPlayer::StaticClass());
 }
 
-UAbilitySystemComponent* ARACharacterNonPlayer::GetAbilitySystemComponent() const
-{
-	return ASC;
-}
-
 void ARACharacterNonPlayer::SetRhythmWidgetVisibility(bool bShow)
 {
 	if (RhythmTargetWidget)

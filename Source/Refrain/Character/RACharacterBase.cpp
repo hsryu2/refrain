@@ -45,3 +45,13 @@ void ARACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 }
 
+UAbilitySystemComponent* ARACharacterBase::GetAbilitySystemComponent() const
+{
+	return ASC;
+}
+
+void ARACharacterBase::Die()
+{
+	
+}
+

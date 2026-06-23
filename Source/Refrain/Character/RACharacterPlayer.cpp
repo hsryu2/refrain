@@ -83,11 +83,6 @@ ARACharacterPlayer::ARACharacterPlayer()
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 }
 
-class UAbilitySystemComponent* ARACharacterPlayer::GetAbilitySystemComponent() const
-{
-	return ASC;
-}
-
 // Called when the game starts or when spawned
 void ARACharacterPlayer::BeginPlay()
 {

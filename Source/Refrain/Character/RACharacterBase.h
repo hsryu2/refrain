@@ -3,13 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystemInterface.h"
 #include "GameFramework/Character.h"
 #include "RACharacterBase.generated.h"
 
 class URACharacterAnimationData;
 
 UCLASS()
-class REFRAIN_API ARACharacterBase : public ACharacter
+class REFRAIN_API ARACharacterBase : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -28,10 +29,16 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
 public:
 	virtual URACharacterAnimationData* GetAnimationData() const { return AnimationData; }
-	
+
+	virtual void Die();
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Refrain|Animation")
 	URACharacterAnimationData* AnimationData;
+	
+	UPROPERTY(VisibleAnywhere, Category="GAS")
+	TObjectPtr<UAbilitySystemComponent> ASC;
 };

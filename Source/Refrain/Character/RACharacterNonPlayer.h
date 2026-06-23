@@ -22,15 +22,13 @@ struct FStreamableHandle;
  * @author sejong
  */
 UCLASS(Config=ArenaBattle)
-class REFRAIN_API ARACharacterNonPlayer : public ARACharacterBase, public IAbilitySystemInterface
+class REFRAIN_API ARACharacterNonPlayer : public ARACharacterBase
 {
 	GENERATED_BODY()
 	
 public:
 	ARACharacterNonPlayer();
 	
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-
 	/**
 	 * @brief RhythmTargetWidget을 띄우거나 띄우지 않는 함수
 	 * @param bShow RhythmTarget을 띄울지 여부
@@ -94,9 +92,6 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 	
 private:
-	UPROPERTY(VisibleAnywhere, Category="GAS")
-	TObjectPtr<UAbilitySystemComponent> ASC;
-	
 	UPROPERTY()
 	TObjectPtr<URAAttributeSet> AttributeSet;
 	
