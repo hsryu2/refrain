@@ -14,5 +14,6 @@ namespace RefrainGameplayTags
 	
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_AttackHit, "Event.Montage.AttackHit", "공격 적중");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Data_Damage, "Data.Damage", "데미지");
-	
+
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Untargetable, "State.Untargetable", "대상 지정 불가");
 }

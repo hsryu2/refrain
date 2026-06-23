@@ -12,6 +12,7 @@
 #include "Refrain/Component/AttackTargetingComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayEffect.h"
+#include "Refrain.h"
 
 
 URAGA_Attack::URAGA_Attack()
@@ -208,6 +209,7 @@ void URAGA_Attack::PlayAttackMontage()
 	MontageTask->ReadyForActivation();
 }
 
+// 데미지 처리.
 void URAGA_Attack::UpdateAttackMotionWarpTarget(AActor* TargetActor)
 {
 	if (!AvatarActor)
@@ -269,6 +271,7 @@ void URAGA_Attack::OnAttackHit(FGameplayEventData Payload)
 		return;
 	}
 	
+	// 공격 타겟이 있는지 확인.
 	AActor* TargetActor = nullptr;
 	
 	UAttackTargetingComponent* TargetingComponent =
@@ -283,6 +286,8 @@ void URAGA_Attack::OnAttackHit(FGameplayEventData Payload)
 	{
 		return;
 	}
+	
+	// 플레이어와 타겟이 ASC를 가지고 있는지 확인.
 	UAbilitySystemComponent* SourceASC =
 		GetAbilitySystemComponentFromActorInfo();
 	
@@ -293,6 +298,7 @@ void URAGA_Attack::OnAttackHit(FGameplayEventData Payload)
 	{
 		return;
 	}
+	// GE Spec Handle이 있는지 확인.
 	FGameplayEffectSpecHandle DamageSpec =
 		MakeOutgoingGameplayEffectSpec(DamageEffectClass, GetAbilityLevel());
 	
@@ -300,6 +306,7 @@ void URAGA_Attack::OnAttackHit(FGameplayEventData Payload)
 	{
 		return;
 	}
+	// 위에 모든 조건이 통과되면 데미지 전달.
 	DamageSpec.Data->SetSetByCallerMagnitude(
 		RefrainGameplayTags::Data_Damage,
 		DamageAmount
@@ -310,10 +317,10 @@ void URAGA_Attack::OnAttackHit(FGameplayEventData Payload)
 		TargetASC
 	);
 	
-	UE_LOG(LogTemp, Warning, TEXT("Apply Damage: Target=%s Damage=%.1f"), *GetNameSafe(TargetActor), DamageAmount);
+	UE_LOG(LogTemp, Log, TEXT("Apply Damage: Target=%s Damage=%.1f"), *GetNameSafe(TargetActor), DamageAmount);
 	if (!DamageEffectClass)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("DamageEffectClass is not assigned."));
+		UE_LOG(LogTemp,Log, TEXT("DamageEffectClass is not assigned."));
 		return;
 	}
 }

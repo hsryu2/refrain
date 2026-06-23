@@ -17,7 +17,9 @@
 #include "Refrain/Component/AttackTargetingComponent.h"
 #include "Refrain/Player/RAPlayerState.h"
 #include "Component/AttackTargetingComponent.h"
+#include "Player/RAPlayerController.h"
 
+class ARAPlayerController;
 // Sets default values
 ARACharacterPlayer::ARACharacterPlayer()
 {
@@ -123,11 +125,12 @@ void ARACharacterPlayer::PossessedBy(AController* NewController)
 			StartSpec.InputID = StartInputAbility.Key;
 			ASC->GiveAbility(StartSpec);
 		}
-
-		//SetupGASInputComponent();
-
-		//APlayerController* PlayerController = CastChecked<APlayerController>(NewController);
-		//PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
+		
+		ARAPlayerController* RAPlayerController = Cast<ARAPlayerController>(NewController);
+		if (RAPlayerController)
+		{
+			RAPlayerController->InitHealthHUD(ASC);
+		}
 	}
 }
 void ARACharacterPlayer::SetupGASInputComponent()

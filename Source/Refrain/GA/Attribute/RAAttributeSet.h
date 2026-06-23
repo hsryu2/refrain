@@ -28,6 +28,7 @@ public:
 	ATTRIBUTE_ACCESSORS(URAAttributeSet, Health);
 	ATTRIBUTE_ACCESSORS(URAAttributeSet, MaxHealth);
 	ATTRIBUTE_ACCESSORS(URAAttributeSet, Damage);
+	ATTRIBUTE_ACCESSORS(URAAttributeSet, Defense);
 	
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
@@ -44,6 +45,9 @@ protected:
 	
 	UPROPERTY()
 	FGameplayAttributeData Damage;
+	
+	UPROPERTY(BlueprintReadOnly, Category="Status", meta=(AllowPrivateAccess=true))
+	FGameplayAttributeData Defense;
 	
 	
 	

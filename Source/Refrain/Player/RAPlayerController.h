@@ -3,7 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystemComponent.h"
 #include "GameFramework/PlayerController.h"
+#include "UI/RAHealthBarWidget.h"
 #include "RAPlayerController.generated.h"
 
 /**
@@ -19,10 +21,18 @@ public:
 	
 	FORCEINLINE TObjectPtr<class UInputMappingContext> GetInputMappingContext() { return InputMappingContext; }
 
+	void InitHealthHUD(UAbilitySystemComponent* InASC);
+	
 protected:
 	virtual void BeginPlay() override;
 
-protected:
 	UPROPERTY(VisibleAnywhere, Category = Input, BlueprintReadOnly)
 	TObjectPtr<class UInputMappingContext> InputMappingContext;
+	
+	// HP UI
+	UPROPERTY(EditDefaultsOnly, Category=UI)
+	TSubclassOf<URAHealthBarWidget> HealthBarWidgetClass;
+	
+	UPROPERTY()
+	TObjectPtr<URAHealthBarWidget> HealthBarWidget;
 };

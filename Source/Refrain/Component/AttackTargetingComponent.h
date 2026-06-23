@@ -19,6 +19,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Targeting)
 	AActor* FindAttackTarget() const;
 	
+	// 타겟 클래스 설정 (플레이어 -> NPC or NPC -> 플레이어)
+	UFUNCTION(BlueprintCallable, Category = Targeting)
+	void SetTargetActorClass(TSubclassOf<AActor> InTargetActorClass);
+	
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -39,6 +43,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Targeting)
 	TSubclassOf<AActor> TargetActorClass;
 	
+
 
 private:
 	bool IsVaildTarget(AActor* TargetActor) const;

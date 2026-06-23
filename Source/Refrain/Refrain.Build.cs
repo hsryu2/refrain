@@ -21,7 +21,8 @@ public class Refrain : ModuleRules
 			"GameplayTags", 
 			"GameplayTasks", 
 			"Niagara",
-			"MotionWarping"
+			"MotionWarping",
+			"UMG"
 		});
 		
 

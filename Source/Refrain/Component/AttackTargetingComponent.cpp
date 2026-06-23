@@ -74,6 +74,11 @@ AActor* UAttackTargetingComponent::FindAttackTarget() const
 	return BestTarget;
 }
 
+void UAttackTargetingComponent::SetTargetActorClass(TSubclassOf<AActor> InTargetActorClass)
+{
+	TargetActorClass = InTargetActorClass;
+}
+
 
 // Called when the game starts
 void UAttackTargetingComponent::BeginPlay()
