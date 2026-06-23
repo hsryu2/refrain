@@ -22,15 +22,13 @@ struct FStreamableHandle;
  * @author sejong
  */
 UCLASS(Config=ArenaBattle)
-class REFRAIN_API ARACharacterNonPlayer : public ARACharacterBase, public IAbilitySystemInterface
+class REFRAIN_API ARACharacterNonPlayer : public ARACharacterBase
 {
 	GENERATED_BODY()
 	
 public:
 	ARACharacterNonPlayer();
 	
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-
 	/**
 	 * @brief RhythmTargetWidget을 띄우거나 띄우지 않는 함수
 	 * @param bShow RhythmTarget을 띄울지 여부
@@ -47,19 +45,11 @@ protected:
 	
 	virtual void BeginPlay() override;
 	
+	virtual void Die() override;
 #if WITH_EDITOR
 	/** 디테일 패널에서 수정을 감지하기 위한 함수 */
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
-	
-private:
-	/** 히트 애니메이션 */
-	UPROPERTY(EditDefaultsOnly, Category = "Animation | Montage")
-	TObjectPtr<class UAnimMontage> HitMontage;
-	
-	/** 사망 애니메이션 */
-	UPROPERTY(EditDefaultsOnly, Category = "Animataion | Montage")
-	TObjectPtr<class UAnimMontage> DeathMontage;
 
 private:
 	/** 타이밍 연출을 담당하기 위한 위젯 컴포넌트 */
@@ -94,9 +84,6 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 	
 private:
-	UPROPERTY(VisibleAnywhere, Category="GAS")
-	TObjectPtr<UAbilitySystemComponent> ASC;
-	
 	UPROPERTY()
 	TObjectPtr<URAAttributeSet> AttributeSet;
 	

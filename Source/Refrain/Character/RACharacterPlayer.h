@@ -12,7 +12,7 @@
 #include "RACharacterPlayer.generated.h"
 
 UCLASS()
-class REFRAIN_API ARACharacterPlayer : public ARACharacterBase, public IAbilitySystemInterface
+class REFRAIN_API ARACharacterPlayer : public ARACharacterBase
 {
 	GENERATED_BODY()
 
@@ -69,12 +69,9 @@ protected:
 	
 //GAS
 public:
-	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	virtual void PossessedBy(AController* NewController) override;
 
 protected:
-	UPROPERTY(EditAnywhere, Category = GAS)
-	TObjectPtr<class UAbilitySystemComponent> ASC;
 	
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TArray<TSubclassOf<class UGameplayAbility>> StartAbilities;

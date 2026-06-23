@@ -3,6 +3,9 @@
 
 #include "RACharacterBase.h"
 
+#include "AbilitySystemComponent.h"
+#include "RefrainGameplayTags.h"
+
 // Sets default values
 ARACharacterBase::ARACharacterBase()
 {
@@ -43,5 +46,16 @@ void ARACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+UAbilitySystemComponent* ARACharacterBase::GetAbilitySystemComponent() const
+{
+	return ASC;
+}
+
+void ARACharacterBase::Die()
+{
+	ASC->AddLooseGameplayTag( RefrainGameplayTags::State_Dead);
+	
 }
 
