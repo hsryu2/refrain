@@ -8,6 +8,8 @@
 #include "MotionWarpingComponent.h"
 #include "Refrain.h"
 #include "RefrainGameplayTags.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Animation/AnimNotify_SendGameplayEvent.h"
 #include "Animation/RACharacterAnimationData.h"
 #include "Character/RACharacterBase.h"
@@ -40,6 +42,12 @@ void URAGA_Attack_Test2::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	TargetingComponent = AvatarCharacter->FindComponentByClass<UAttackTargetingComponent>();
 	CurrentCombo = 0;
 	
+	// AT 델리게이트 등록
+	UAbilityTask_WaitGameplayEvent* AttackHitTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, RefrainGameplayTags::Event_Montage_AttackHit, nullptr, false, true);
+		AttackHitTask->EventReceived.AddDynamic(this, &URAGA_Attack_Test2::OnAttackHit);
+		AttackHitTask->ReadyForActivation();
+	
+	
 	PlayAttackMontage();
 }
 
@@ -59,12 +67,32 @@ void URAGA_Attack_Test2::EndAbility(const FGameplayAbilitySpecHandle Handle, con
 	TargetActor = nullptr;
 }
 
-void URAGA_Attack_Test2::OnAttackMontageEnded(UAnimMontage* AnimMontage, const bool bInterrupted)
+void URAGA_Attack_Test2::OnMontageCompleted()
 {
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
-void URAGA_Attack_Test2::OnAttackHit()
+void URAGA_Attack_Test2::OnMontageInterrupted()
 {
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+}
+
+void URAGA_Attack_Test2::OnAttackHit(FGameplayEventData Payload)
+{
+	// 대미지 적용
+	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+	if (SourceASC && TargetASC)
+	{
+		FGameplayEffectSpecHandle DamageSpec = MakeOutgoingGameplayEffectSpec(DamageEffectClass, GetAbilityLevel());
+		DamageSpec.Data->SetSetByCallerMagnitude( RefrainGameplayTags::Data_Damage, GetDamageAmount());
+		RA_LOG(LogRefrain, Log, TEXT("Apply Damage: Target=%s Damage=%.1f"), *GetNameSafe(TargetActor), GetDamageAmount());
+		SourceASC->ApplyGameplayEffectSpecToTarget(*DamageSpec.Data.Get(), TargetASC);
+	}
+	else
+	{
+		RA_LOG(LogRefrain, Log, TEXT("SourceASC or TargetASC Not Found"));
+	}
 }
 
 void URAGA_Attack_Test2::PlayAttackMontage()
@@ -77,56 +105,33 @@ void URAGA_Attack_Test2::PlayAttackMontage()
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
+	CalculatePlayRates(AttackMontage);
 	
 	// 타겟팅
-	if (!TargetActor || )
-	{
-		TargetActor = TargetingComponent->FindAttackTarget();
-	}
-	if (UAttackTargetingComponent* TargetingComponent = AvatarActor->FindComponentByClass<UAttackTargetingComponent>())
-	{
-		AActor* TargetActor = TargetingComponent->FindAttackTarget();
-		
-		if (TargetActor)
-		{
-			// 모션워핑 설정
-			UpdateAttackMotionWarpTarget(TargetActor);
-		}
-		else
-		{
-			RA_LOG(LogRefrain, Log, TEXT("TargetActor Not Found"));
-		}
-	}
-	else
-	{
-		RA_LOG(LogRefrain, Log, TEXT("TargetingComponent가 없습니다."));
-	}
+	SetTargetActor();
+	UpdateAttackMotionWarpTarget();
 	
-	// 공격 이펙트 실행
+	// 공격 GE 실행
 	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
 	{
 		FGameplayCueParameters CueParams;
-		CueParams.Instigator = AvatarActor;
+		CueParams.Instigator = AvatarCharacter;
 		CueParams.SourceObject = this;
-		CueParams.Location = AvatarActor->GetActorLocation();
-		CueParams.Normal = AvatarActor->GetActorForwardVector();
+		CueParams.Location = AvatarCharacter->GetActorLocation();
+		CueParams.Normal = AvatarCharacter->GetActorForwardVector();
 		
 		ASC->ExecuteGameplayCue(RefrainGameplayTags::GameplayCue_Attack, CueParams);
 	}
 	
-	// 현재 콤보에 따라서 Montage 실행
+	// 현재 콤보에 따라서 Montage AT 실행 및 델리게이트 등록
 	UAbilityTask_PlayMontageAndWait* MontageTask =
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 			this,
 			*FString::Printf(TEXT("AttackMontage_%d"), CurrentCombo),
-			AttackMontage
-		);
-	
-	// 몽타주가 완료/취소/중단 시 EndAbility를 호출하기 위해 델리게이트로 등록.
-	MontageTask->OnCompleted.AddDynamic(this, &URAGA_Attack::OnMontageCompleted);
-	MontageTask->OnInterrupted.AddDynamic(this, &URAGA_Attack::OnMontageInterrupted);
-	MontageTask->OnCancelled.AddDynamic(this, &URAGA_Attack::OnMontageCancelled);
-	
+			AttackMontage,
+			StartupPlayRate);
+	MontageTask->OnCompleted.AddDynamic(this, &URAGA_Attack_Test2::OnMontageCompleted);
+	MontageTask->OnInterrupted.AddDynamic(this, &URAGA_Attack_Test2::OnMontageInterrupted);
 	MontageTask->ReadyForActivation();
 }
 
@@ -280,4 +285,42 @@ void URAGA_Attack_Test2::SetJudgement()
 	{
 		JudgementTag = RefrainGameplayTags::Judge_Bad;
 	}
+	
+	RA_LOG(LogRefrain, Log, TEXT("JudgementTag: %s"), *JudgementTag.ToString());
+}
+
+float URAGA_Attack_Test2::GetDamageAmount() const
+{
+	return 10.0f;
+}
+
+void URAGA_Attack_Test2::CalculatePlayRates(const UAnimMontage* Montage)
+{
+	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
+	if (!MagicalTiming || !MagicalTiming->IsMusicPlaying())
+	{
+		RA_LOG(LogRefrain, Error, TEXT("Music Not Playing"));
+		StartupPlayRate = AnticipationPlayRate = StrikePlayRate = RecoveryPlayRate = 1.f;
+		return;
+	}
+	
+	const float Time1 = FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_StartupToAnticipation);
+	const float Time2 = FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_AnticipationToStrike);
+	const float Time3 = FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_StrikeToRecovery);
+	if (Time1 < 0.f || Time2 < 0.f || Time3 < 0.f)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("Montage Notify Time Not Found: %f, %f, %f"), Time1, Time2, Time3);
+		StartupPlayRate = AnticipationPlayRate = StrikePlayRate = RecoveryPlayRate = 1.f;
+		return;
+	}
+	
+	const float BPM = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>()->GetBPM();
+	const float PlayLength = Montage->GetPlayLength();
+	
+	
+	
+	StartupPlayRate;
+	AnticipationPlayRate;
+	StrikePlayRate;
+	RecoveryPlayRate;
 }

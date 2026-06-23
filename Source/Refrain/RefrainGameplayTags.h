@@ -30,4 +30,9 @@ namespace RefrainGameplayTags
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Judge_Bad);
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Judge_Miss);
 	
+	// 공격 애니메이션 재생 속도 조절에 사용되는 태그
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_StartupToAnticipation);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_AnticipationToStrike);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_StrikeToRecovery);
+	
 }

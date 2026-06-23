@@ -31,10 +31,12 @@ protected:
 protected:
 // 델리게이트로 실행되는 함수
 	UFUNCTION()
-	void OnAttackMontageEnded(UAnimMontage* AnimMontage, const bool bInterrupted);
+	void OnMontageCompleted();
+	UFUNCTION()
+	void OnMontageInterrupted();
 	
 	UFUNCTION()
-	void OnAttackHit();
+	void OnAttackHit(FGameplayEventData Payload);
 
 protected:	
 	// 공격 애니메이션 실행
@@ -58,6 +60,12 @@ protected:
 	
 	// 타이밍 판정 및 저장
 	void SetJudgement();
+	
+	// 대미지 계산
+	float GetDamageAmount() const;
+	
+	// 애니메이션 재생 속도 계산 함수
+	void CalculatePlayRates(const UAnimMontage* Montage);
 
 protected:
 // 블루프린트에서 설정할 변수
@@ -86,4 +94,10 @@ protected:
 	
 	// 입력 타이밍 판정 결과 저장
 	FGameplayTag JudgementTag;
+	
+	// 애니메이션 구간별 재생 속도
+	float StartupPlayRate;
+	float AnticipationPlayRate;
+	float StrikePlayRate;
+	float RecoveryPlayRate;
 };
