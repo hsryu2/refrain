@@ -19,7 +19,7 @@
 URAGA_Attack_Test1::URAGA_Attack_Test1()
 {
 	FGameplayTagContainer Tags(RefrainGameplayTags::Ability_Attack);
-	SetAssetTags(Tags);;
+	SetAssetTags(Tags);
 }
 
 void URAGA_Attack_Test1::ActivateAbility(
@@ -29,6 +29,7 @@ void URAGA_Attack_Test1::ActivateAbility(
 	const FGameplayEventData* TriggerEventData
 )
 {
+	RA_LOG(LogRefrain, Log, TEXT("Start"));
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
 	AvatarActor = Cast<ARACharacterPlayer>(ActorInfo->AvatarActor.Get());
@@ -82,11 +83,15 @@ void URAGA_Attack_Test1::ActivateAbility(
 	
 	AttackHitTask->EventReceived.AddDynamic(this, &URAGA_Attack_Test1::OnAttackHit);
 	AttackHitTask->ReadyForActivation();
+	
+	bIsAfterAttackHit = true;
 }
 
 void URAGA_Attack_Test1::InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
                                       const FGameplayAbilityActivationInfo ActivationInfo)
 {
+	RA_LOG(LogRefrain, Log, TEXT("Start"));
+	
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
 	
 	if (bCanAcceptComboInput && !bComboInput)
@@ -124,6 +129,7 @@ void URAGA_Attack_Test1::EndAbility(const FGameplayAbilitySpecHandle Handle, con
 	
 	ClearAttackMotionWarpTarget();
 	TargetActor = nullptr;
+	bIsAfterAttackHit = true;
 }
 
 void URAGA_Attack_Test1::OnMontageCompleted()
@@ -180,6 +186,7 @@ void URAGA_Attack_Test1::OnAttackHit(FGameplayEventData Payload)
 		RA_LOG(LogRefrain, Log, TEXT("빗나감"));
 		return;
 	}
+	
 	UAbilitySystemComponent* SourceASC =
 		GetAbilitySystemComponentFromActorInfo();
 	
@@ -211,7 +218,11 @@ void URAGA_Attack_Test1::OnAttackHit(FGameplayEventData Payload)
 	if (!DamageEffectClass)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("DamageEffectClass is not assigned."));
-		return;
+	}
+	
+	if (bComboInput)
+	{
+		PlayAttackMontage();
 	}
 }
 

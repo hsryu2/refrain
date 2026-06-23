@@ -75,7 +75,7 @@ protected:
 	// 콤보 예약이 가능한 상태인지 확인.
 	bool bCanAcceptComboInput;
 	
-	// 몽타주 안에서 Attack 시점 이전인지 이후인지 확인
+	// 몽타주 안에서 Attack 시점 이전인지 이후인지 확인. 몽타주 재생 중이 아닐 땐 true.
 	bool bIsAfterAttackHit;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Damage)
