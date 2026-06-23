@@ -18,7 +18,8 @@
 
 URAGA_Attack_Test1::URAGA_Attack_Test1()
 {
-	AbilityTags.AddTag(RefrainGameplayTags::Ability_Attack);
+	FGameplayTagContainer Tags(RefrainGameplayTags::Ability_Attack);
+	SetAssetTags(Tags);;
 }
 
 void URAGA_Attack_Test1::ActivateAbility(
