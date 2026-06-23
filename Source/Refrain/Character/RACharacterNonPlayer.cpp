@@ -5,6 +5,7 @@
 #include "Components/WidgetComponent.h"
 #include "Refrain/UI/RhythmTargetWidget.h"
 #include "AbilitySystemComponent.h"
+#include "RefrainGameplayTags.h"
 #include "Component/AttackTargetingComponent.h"
 #include "Character/RACharacterPlayer.h"
 ARACharacterNonPlayer::ARACharacterNonPlayer()
@@ -95,6 +96,17 @@ void ARACharacterNonPlayer::BeginPlay()
 	}
 }
 
+void ARACharacterNonPlayer::Die()
+{
+	Super::Die();
+	
+	UAnimMontage* DeathMontage = GetAnimationData()->DeathMontage;
+	if (DeathMontage)
+	{
+		PlayAnimMontage(DeathMontage);
+	}
+}
+
 void ARACharacterNonPlayer::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
@@ -138,26 +150,26 @@ void ARACharacterNonPlayer::PossessedBy(AController* NewController)
 
 void ARACharacterNonPlayer::OnHealthChanged(const FOnAttributeChangeData& Data)
 {
+	if (ASC->HasMatchingGameplayTag(RefrainGameplayTags::State_Dead))
+	{
+		return;
+	}
+	
 	// 체력이 이전보다 줄어들었다면 (피격)
 	if (Data.NewValue < Data.OldValue)
 	{
 		const float DamageAmount = Data.OldValue - Data.NewValue;
 		UE_LOG(LogTemp, Warning, TEXT("[ARACharacterNonPlayer] 피격 당함! 데미지: %f, 남은 체력: %f"), DamageAmount, Data.NewValue);
 		
+		UAnimMontage* HitMontage = GetAnimationData()->HitReactMontage;
 		if (HitMontage)
 		{
-			PlayAnimMontage( HitMontage);
+			PlayAnimMontage(HitMontage);
 		}
 		
 		if (Data.NewValue <= 0.0f)
 		{
-			// TODO: 체력이 0 이하가 되었을 때의 사망 처리 로직
-			UE_LOG(LogTemp, Warning, TEXT("[ARACharacterNonPlayer] 사망!"));
-			
-			if (DeathMontage)
-			{
-				PlayAnimMontage(DeathMontage);
-			}
+			Die();
 		}
 		
 	}

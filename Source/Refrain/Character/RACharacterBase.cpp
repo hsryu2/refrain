@@ -3,6 +3,9 @@
 
 #include "RACharacterBase.h"
 
+#include "AbilitySystemComponent.h"
+#include "RefrainGameplayTags.h"
+
 // Sets default values
 ARACharacterBase::ARACharacterBase()
 {
@@ -52,6 +55,7 @@ UAbilitySystemComponent* ARACharacterBase::GetAbilitySystemComponent() const
 
 void ARACharacterBase::Die()
 {
+	ASC->AddLooseGameplayTag( RefrainGameplayTags::State_Dead);
 	
 }
 

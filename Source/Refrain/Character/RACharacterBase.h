@@ -35,6 +35,7 @@ public:
 	virtual URACharacterAnimationData* GetAnimationData() const { return AnimationData; }
 
 	virtual void Die();
+	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Refrain|Animation")
 	URACharacterAnimationData* AnimationData;
