@@ -81,6 +81,9 @@ void ARACharacterNonPlayer::BeginPlay()
 		// 1. ASC의 ActorInfo를 먼저 초기화
 		ASC->InitAbilityActorInfo(this, this);
 		
+		// 체력 변경 델리게이트 바인딩
+		ASC->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetHealthAttribute()).AddUObject(this, &ARACharacterNonPlayer::OnHealthChanged);
+		
 		// 2. 초기화용 Gameplay Effect가 블루프린트에 등록되어 있다면 자신에게 적용.
 		if (InitStatEffect)
 		{
@@ -134,5 +137,32 @@ void ARACharacterNonPlayer::PossessedBy(AController* NewController)
 			FGameplayAbilitySpec StartSpec(StartAbility);
 			ASC->GiveAbility(StartSpec);
 		}
+	}
+}
+
+void ARACharacterNonPlayer::OnHealthChanged(const FOnAttributeChangeData& Data)
+{
+	// 체력이 이전보다 줄어들었다면 (피격)
+	if (Data.NewValue < Data.OldValue)
+	{
+		const float DamageAmount = Data.OldValue - Data.NewValue;
+		UE_LOG(LogTemp, Warning, TEXT("[ARACharacterNonPlayer] 피격 당함! 데미지: %f, 남은 체력: %f"), DamageAmount, Data.NewValue);
+		
+		if (HitMontage)
+		{
+			PlayAnimMontage( HitMontage);
+		}
+		
+		if (Data.NewValue <= 0.0f)
+		{
+			// TODO: 체력이 0 이하가 되었을 때의 사망 처리 로직
+			UE_LOG(LogTemp, Warning, TEXT("[ARACharacterNonPlayer] 사망!"));
+			
+			if (DeathMontage)
+			{
+				PlayAnimMontage(DeathMontage);
+			}
+		}
+		
 	}
 }

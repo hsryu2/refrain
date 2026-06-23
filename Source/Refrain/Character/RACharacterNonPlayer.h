@@ -8,6 +8,7 @@
 // 6.21 현석 추가 -> NPC ASC, AttributeSet
 #include "AbilitySystemInterface.h"
 #include "GA/Attribute/RAAttributeSet.h"
+#include "GameplayEffectTypes.h"
 
 #include "RACharacterNonPlayer.generated.h"
 
@@ -51,6 +52,15 @@ protected:
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 	
+private:
+	/** 히트 애니메이션 */
+	UPROPERTY(EditDefaultsOnly, Category = "Animation | Montage")
+	TObjectPtr<class UAnimMontage> HitMontage;
+	
+	/** 사망 애니메이션 */
+	UPROPERTY(EditDefaultsOnly, Category = "Animataion | Montage")
+	TObjectPtr<class UAnimMontage> DeathMontage;
+
 private:
 	/** 타이밍 연출을 담당하기 위한 위젯 컴포넌트 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = true))
@@ -103,6 +113,12 @@ private:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Targeting, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAttackTargetingComponent> TargetingComponent;
+	
+	/**
+	 * @brief 체력 속성 변경 시 호출되는 콜백 함수
+	 * @param Data 변경된 속성 데이터
+	 */
+	virtual void OnHealthChanged(const FOnAttributeChangeData& Data);
 	
 	// HP 위젯
 private:
