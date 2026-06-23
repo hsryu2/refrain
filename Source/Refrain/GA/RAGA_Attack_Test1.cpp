@@ -37,11 +37,11 @@ void URAGA_Attack_Test1::ActivateAbility(
 		return;
 	}
 	
-	CurrentCombo = 1;
+	CurrentCombo = 0;
 	bComboInput = false;
-	bCanAcceptComboInput = false;
+	bCanAcceptComboInput = true;
 	
-	PlayAttackMontage();
+	// PlayAttackMontage();
 	
 	// 콤보 시작 -> 콤보 예약 가능 구간
 	UAbilityTask_WaitGameplayEvent* ComboStartTask =
@@ -91,12 +91,21 @@ void URAGA_Attack_Test1::InputPressed(const FGameplayAbilitySpecHandle Handle, c
 	if (bCanAcceptComboInput)
 	{
 		bComboInput = true;
+		bCanAcceptComboInput = false;
 	}
 	
 	if (bComboInput && CurrentCombo < MaxComboCount)
 	{
-		bComboInput = false;
 		CurrentCombo++;
+		RA_LOG(LogRefrain, Log, TEXT("Combo %d"), CurrentCombo);
+		
+		PlayAttackMontage();
+	}
+	
+	if (bComboInput && CurrentCombo == MaxComboCount)
+	{
+		CurrentCombo = 1;
+		RA_LOG(LogRefrain, Log, TEXT("Combo %d"), CurrentCombo);
 		
 		PlayAttackMontage();
 	}
@@ -111,6 +120,7 @@ void URAGA_Attack_Test1::CancelAbility(const FGameplayAbilitySpecHandle Handle, 
 void URAGA_Attack_Test1::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
                                     const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
+	RA_LOG(LogRefrain, Log, TEXT("EndAbility"));
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 	
 	ClearAttackMotionWarpTarget();
@@ -124,12 +134,26 @@ void URAGA_Attack_Test1::OnMontageCompleted()
 
 void URAGA_Attack_Test1::OnMontageInterrupted()
 {
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+	if (!bComboInput)
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+	}
+	else
+	{
+		bComboInput = false;
+	}
 }
 
 void URAGA_Attack_Test1::OnMontageCancelled()
 {
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+	if (!bComboInput)
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+	}
+	else
+	{
+		bComboInput = false;
+	}
 }
 
 
@@ -239,8 +263,9 @@ void URAGA_Attack_Test1::PlayAttackMontage()
 		ASC->ExecuteGameplayCue(RefrainGameplayTags::GameplayCue_Attack, CueParams);
 	}
 	
+	const float BPM = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>()->GetBPM();
 	const float AttackHitNotifyTime = FindGameplayEventNotifyTime(AttackMontage, RefrainGameplayTags::Event_Montage_AttackHit);
-	const float EstimatedPlayRate = CalculateAttackPlayRate(AttackHitNotifyTime, 0.1f);
+	const float EstimatedPlayRate = CalculateAttackPlayRate(AttackHitNotifyTime, 60.f / BPM * 0.9f);
 	
 	// 현재 콤보에 따라서 Montage 실행
 	UAbilityTask_PlayMontageAndWait* MontageTask =
@@ -257,6 +282,8 @@ void URAGA_Attack_Test1::PlayAttackMontage()
 	MontageTask->OnCancelled.AddDynamic(this, &URAGA_Attack_Test1::OnMontageCancelled);
 	
 	MontageTask->ReadyForActivation();
+	
+	bComboInput = false;
 }
 
 void URAGA_Attack_Test1::UpdateAttackMotionWarpTarget()

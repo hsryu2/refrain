@@ -23,6 +23,7 @@ namespace RefrainGameplayTags
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_AttackHit);
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Damage);
 	
-	// 캐릭터가 공격을 받지 않는 상태
+	// 캐릭터 상태
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Untargetable);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_HitReact);
 }
