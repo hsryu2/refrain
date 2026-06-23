@@ -140,6 +140,7 @@ void ARACharacterNonPlayer::PossessedBy(AController* NewController)
 	}
 }
 
+
 void ARACharacterNonPlayer::OnHealthChanged(const FOnAttributeChangeData& Data)
 {
 	// 체력이 이전보다 줄어들었다면 (피격)
