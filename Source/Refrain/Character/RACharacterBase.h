@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "RACharacterBase.generated.h"
 
+class URACharacterAnimationData;
+
 UCLASS()
 class REFRAIN_API ARACharacterBase : public ACharacter
 {
@@ -26,6 +28,10 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+public:
+	virtual URACharacterAnimationData* GetAnimationData() const { return AnimationData; }
+	
 protected:
-
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Refrain|Animation")
+	URACharacterAnimationData* AnimationData;
 };
