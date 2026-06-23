@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Character/RACharacterBase.h"
 #include "Components/ActorComponent.h"
 #include "AttackTargetingComponent.generated.h"
 
@@ -41,12 +42,12 @@ protected:
 	
 	// 타겟의 클래스를 한정하기 위해 사용.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Targeting)
-	TSubclassOf<AActor> TargetActorClass;
+	TSubclassOf<ARACharacterBase> TargetActorClass;
 	
 
 
 private:
-	bool IsVaildTarget(AActor* TargetActor) const;
+	bool IsValidTarget(AActor* TargetActor) const;
 	float CalculateTargetScore(AActor* TargetActor) const;
 		
 };
