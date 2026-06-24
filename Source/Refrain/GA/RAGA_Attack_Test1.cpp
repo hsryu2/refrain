@@ -12,7 +12,7 @@
 #include "Refrain/Component/AttackTargetingComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayEffect.h"
-#include "Animation/AnimNotify_SendGameplayEvent.h"
+#include "Animation/AN_SendGameplayEvent.h"
 #include "Timing/MagicalTimingSubsystem.h"
 
 
@@ -361,7 +361,7 @@ float URAGA_Attack_Test1::FindGameplayEventNotifyTime(const UAnimMontage* Montag
 	
 	for (const FAnimNotifyEvent& NotifyEvent : Montage->Notifies)
 	{
-		const UAnimNotify_SendGameplayEvent* EventNotify = Cast<UAnimNotify_SendGameplayEvent>(NotifyEvent.Notify);
+		const UAN_SendGameplayEvent* EventNotify = Cast<UAN_SendGameplayEvent>(NotifyEvent.Notify);
 		if (EventNotify && EventNotify->EventTag == EventTag)
 		{
 			return NotifyEvent.GetTime();

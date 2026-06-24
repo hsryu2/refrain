@@ -21,8 +21,9 @@ namespace RefrainGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Judge_Good, "Judge.Good", "Good 판정");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Judge_Bad, "Judge.Bad", "Bad 판정");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Judge_Miss, "Judge.Miss", "Miss 판정");
-	
-	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_StartupToAnticipation, "Event.Montage.StartupToAnticipation", "공격 준비 모션이 드러나기 시작하는 시점");
-	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_AnticipationToStrike, "Event.Montage.AnticipationToStrike", "본격적인 타격 모션이 시작되는 시점");
-	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_StrikeToRecovery, "Event.Montage.StrikeToRecovery", "타격 모션이 끝나고 후딜이 시작되는 시점");
+
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_PlayRate, "Event.Montage.PlayRate", "하위 태그들 공통으로 이벤트 호출하기 위한 태그");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_PlayRate_StartupToAnticipation, "Event.Montage.PlayRate.StartupToAnticipation", "공격 준비 모션이 드러나기 시작하는 시점");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_PlayRate_AnticipationToStrike, "Event.Montage.PlayRate.AnticipationToStrike", "본격적인 타격 모션이 시작되는 시점");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_PlayRate_StrikeToRecovery, "Event.Montage.PlayRate.StrikeToRecovery", "타격 모션이 끝나고 후딜이 시작되는 시점");
 }

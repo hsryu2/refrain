@@ -37,6 +37,9 @@ protected:
 	
 	UFUNCTION()
 	void OnAttackHit(FGameplayEventData Payload);
+	
+	UFUNCTION()
+	void OnMontagePlayRate(FGameplayEventData Payload);
 
 protected:	
 	// 공격 애니메이션 실행
@@ -49,7 +52,7 @@ protected:
 	void UpdateAttackMotionWarpTarget();
 	void ClearAttackMotionWarpTarget();
 	
-	// 몽타주 안에서 해당 몽타주 안의 UAnimNotify_SendGameplayEvent 노티파이가 위치한 시간을 반환하는 함수. 실패 시 -1.f 반환
+	// 몽타주 안에서 해당 몽타주 안의 UAN_SendGameplayEvent 노티파이가 위치한 시간을 반환하는 함수. 실패 시 -1.f 반환
 	float FindGameplayEventNotifyTime(const UAnimMontage* Montage, const FGameplayTag EventTag = FGameplayTag::EmptyTag) const;
 
 	// TargetActor 상태 검사 후 null이거나 죽어있으면 새로운 타겟 검색 

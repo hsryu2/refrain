@@ -10,7 +10,7 @@
 #include "RefrainGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
-#include "Animation/AnimNotify_SendGameplayEvent.h"
+#include "Animation/AN_SendGameplayEvent.h"
 #include "Animation/RACharacterAnimationData.h"
 #include "Character/RACharacterBase.h"
 #include "Component/AttackTargetingComponent.h"
@@ -42,11 +42,16 @@ void URAGA_Attack_Test2::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	TargetingComponent = AvatarCharacter->FindComponentByClass<UAttackTargetingComponent>();
 	CurrentCombo = 0;
 	
-	// AT 델리게이트 등록
-	UAbilityTask_WaitGameplayEvent* AttackHitTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, RefrainGameplayTags::Event_Montage_AttackHit, nullptr, false, true);
-		AttackHitTask->EventReceived.AddDynamic(this, &URAGA_Attack_Test2::OnAttackHit);
-		AttackHitTask->ReadyForActivation();
+	// AN_SendGameplayEvent로부터 받을 태그로 델리게이트 등록
+	UAbilityTask_WaitGameplayEvent* AttackHitTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+		this, RefrainGameplayTags::Event_Montage_AttackHit, nullptr, false, true);
+	AttackHitTask->EventReceived.AddDynamic(this, &URAGA_Attack_Test2::OnAttackHit);
+	AttackHitTask->ReadyForActivation();
 	
+	UAbilityTask_WaitGameplayEvent* MontagePlayRateTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+		this, RefrainGameplayTags::Event_Montage_PlayRate, nullptr, false, false);
+	MontagePlayRateTask->EventReceived.AddDynamic(this, &URAGA_Attack_Test2::OnMontagePlayRate);
+	MontagePlayRateTask->ReadyForActivation();
 	
 	PlayAttackMontage();
 }
@@ -92,6 +97,33 @@ void URAGA_Attack_Test2::OnAttackHit(FGameplayEventData Payload)
 	else
 	{
 		RA_LOG(LogRefrain, Log, TEXT("SourceASC or TargetASC Not Found"));
+	}
+}
+
+void URAGA_Attack_Test2::OnMontagePlayRate(FGameplayEventData Payload)
+{
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	if (!ASC)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("ASC Not Found"));
+		return;
+	}
+	
+	if (Payload.EventTag == RefrainGameplayTags::Event_Montage_PlayRate_StartupToAnticipation)
+	{
+		ASC->CurrentMontageSetPlayRate(AnticipationPlayRate);
+	}
+	else if (Payload.EventTag == RefrainGameplayTags::Event_Montage_PlayRate_AnticipationToStrike)
+	{
+		ASC->CurrentMontageSetPlayRate(StrikePlayRate);
+	}
+	else if (Payload.EventTag == RefrainGameplayTags::Event_Montage_PlayRate_StrikeToRecovery)
+	{
+		ASC->CurrentMontageSetPlayRate(RecoveryPlayRate);
+	}
+	else
+	{
+		RA_LOG(LogRefrain, Warning, TEXT("Unknown Montage PlayRate EventTag: %s"), *Payload.EventTag.ToString());
 	}
 }
 
@@ -207,7 +239,7 @@ float URAGA_Attack_Test2::FindGameplayEventNotifyTime(const UAnimMontage* Montag
 	
 	for (const FAnimNotifyEvent& NotifyEvent : Montage->Notifies)
 	{
-		const UAnimNotify_SendGameplayEvent* EventNotify = Cast<UAnimNotify_SendGameplayEvent>(NotifyEvent.Notify);
+		const UAN_SendGameplayEvent* EventNotify = Cast<UAN_SendGameplayEvent>(NotifyEvent.Notify);
 		if (EventNotify && EventNotify->EventTag == EventTag)
 		{
 			return NotifyEvent.GetTime();
@@ -292,9 +324,9 @@ void URAGA_Attack_Test2::CalculatePlayRates(const UAnimMontage* Montage)
 	const float PlayLength = Montage->GetPlayLength();
 	
 	// 몽타주 안에서 태그가 위치한 시간
-	const float MontageTime1 = FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_StartupToAnticipation);
-	const float MontageTime2 = FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_AnticipationToStrike);
-	const float MontageTime3 = FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_StrikeToRecovery);
+	const float MontageTime1 = FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_StartupToAnticipation);
+	const float MontageTime2 = FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_AnticipationToStrike);
+	const float MontageTime3 = FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_StrikeToRecovery);
 	if (MontageTime1 < 0.f || MontageTime2 < 0.f || MontageTime3 < 0.f)
 	{
 		RA_LOG(LogRefrain, Error, TEXT("Montage Notify Time Not Found: %f, %f, %f"), MontageTime1, MontageTime2, MontageTime3);
