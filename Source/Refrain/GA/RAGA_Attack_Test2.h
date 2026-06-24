@@ -100,4 +100,5 @@ protected:
 	float AnticipationPlayRate;
 	float StrikePlayRate;
 	float RecoveryPlayRate;
+	float MontageStartTime;
 };

@@ -166,7 +166,11 @@ void URAGA_Attack_Test2::PlayAttackMontage()
 			this,
 			*FString::Printf(TEXT("AttackMontage_%d"), CurrentCombo),
 			AttackMontage,
-			StartupPlayRate);
+			StartupPlayRate,
+			NAME_None,
+			true,
+			1.f,
+			MontageStartTime);
 	MontageTask->OnCompleted.AddDynamic(this, &URAGA_Attack_Test2::OnMontageCompleted);
 	MontageTask->OnInterrupted.AddDynamic(this, &URAGA_Attack_Test2::OnMontageInterrupted);
 	MontageTask->ReadyForActivation();
@@ -326,6 +330,8 @@ void URAGA_Attack_Test2::CalculatePlayRates(const UAnimMontage* Montage)
 	const float AnticipationToStrikeInBeatProgress = 0.9f;
 	const float StrikeToRecoveryInBeatProgress = 1.1f;
 	
+	const float MaxPlayRate = 3.f;
+	
 	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
 	if (!MagicalTiming || !MagicalTiming->IsMusicPlaying())
 	{
@@ -357,8 +363,16 @@ void URAGA_Attack_Test2::CalculatePlayRates(const UAnimMontage* Montage)
 	float TargetTime1 = BeatProgress < StartupToAnticipationInBeatProgress ?
 		(StartupToAnticipationInBeatProgress - BeatProgress) * SecondsPerBeat :
 		(1.f + StartupToAnticipationInBeatProgress - BeatProgress) * SecondsPerBeat;
-	TargetTime1 = TargetTime1 ? TargetTime1 : UE_KINDA_SMALL_NUMBER;
+	TargetTime1 = FMath::Max(TargetTime1, UE_KINDA_SMALL_NUMBER);
 	StartupPlayRate = MontageTime1 / TargetTime1;
+	
+	// 예외처리 - 초반구간 재생속도가 너무 빠를 경우 앞부분 스킵
+	MontageStartTime = 0.f;
+	if (StartupPlayRate > MaxPlayRate)
+	{
+		MontageStartTime = FMath::Clamp(MontageTime1 - TargetTime1 * MaxPlayRate, 0.f, MontageTime1);
+		StartupPlayRate = MaxPlayRate;
+	}
 	
 	// 이미 박자에 맞는 상태
 	AnticipationPlayRate = (MontageTime2 - MontageTime1) / ((AnticipationToStrikeInBeatProgress - StartupToAnticipationInBeatProgress) * SecondsPerBeat);
