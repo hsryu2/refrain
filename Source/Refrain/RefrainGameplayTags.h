@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "NativeGameplayTags.h"
 
@@ -24,6 +24,9 @@ namespace RefrainGameplayTags
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_HitReact);
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Dead);
 
+	// 사망처리
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Dissolve);
+	
 	// 점수 판정
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Judge_Perfect);
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Judge_Good);
