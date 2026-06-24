@@ -121,6 +121,14 @@ void ARACharacterNonPlayer::Die()
 			PlayAnimMontage(DeathMontage);
 		}
 	}
+	
+	// 소멸 이펙트를 위한 Gameplay Cue 트리거
+	if (ASC)
+	{
+		FGameplayCueParameters CueParams;
+		CueParams.Location = GetActorLocation();
+		ASC->ExecuteGameplayCue(RefrainGameplayTags::GameplayCue_Dissolve, CueParams);
+	}
 }
 
 void ARACharacterNonPlayer::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
