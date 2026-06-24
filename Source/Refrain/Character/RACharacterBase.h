@@ -15,20 +15,13 @@ class REFRAIN_API ARACharacterBase : public ACharacter, public IAbilitySystemInt
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	ARACharacterBase();
 
+// 재정의 함수
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 public:
@@ -36,10 +29,12 @@ public:
 
 	virtual void Die();
 	
+// 블루프린트에서 설정해줘야 하는 변수
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Refrain|Animation")
 	URACharacterAnimationData* AnimationData;
 	
+protected:
 	UPROPERTY(VisibleAnywhere, Category="GAS")
 	TObjectPtr<UAbilitySystemComponent> ASC;
 };

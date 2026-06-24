@@ -5,13 +5,13 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
-#include "AnimNotify_SendGameplayEvent.generated.h"
+#include "AN_SendGameplayEvent.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class REFRAIN_API UAnimNotify_SendGameplayEvent : public UAnimNotify
+class REFRAIN_API UAN_SendGameplayEvent : public UAnimNotify
 {
 	GENERATED_BODY()
 	
