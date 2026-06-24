@@ -8,6 +8,9 @@
 #include "RefrainGameplayTags.h"
 #include "Component/AttackTargetingComponent.h"
 #include "Character/RACharacterPlayer.h"
+#include "Animation/RACharacterAnimationData.h"
+#include "Components/CapsuleComponent.h"
+
 ARACharacterNonPlayer::ARACharacterNonPlayer()
 {
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -100,10 +103,23 @@ void ARACharacterNonPlayer::Die()
 {
 	Super::Die();
 	
-	UAnimMontage* DeathMontage = GetAnimationData()->DeathMontage;
-	if (DeathMontage)
+	// 사망 시 더 이상 피격되거나 캐릭터와 충돌하지 않도록 콜리전 끄기
+	if (UCapsuleComponent* CapsuleComp = GetCapsuleComponent())
 	{
-		PlayAnimMontage(DeathMontage);
+		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+	
+	if (USkeletalMeshComponent* MeshComp = GetMesh())
+	{
+		MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+	
+	if (const URACharacterAnimationData* AnimData = GetAnimationData())
+	{
+		if (UAnimMontage* DeathMontage = AnimData->DeathMontage)
+		{
+			PlayAnimMontage(DeathMontage);
+		}
 	}
 }
 
@@ -161,10 +177,12 @@ void ARACharacterNonPlayer::OnHealthChanged(const FOnAttributeChangeData& Data)
 		const float DamageAmount = Data.OldValue - Data.NewValue;
 		UE_LOG(LogTemp, Warning, TEXT("[ARACharacterNonPlayer] 피격 당함! 데미지: %f, 남은 체력: %f"), DamageAmount, Data.NewValue);
 		
-		UAnimMontage* HitMontage = GetAnimationData()->HitReactMontage;
-		if (HitMontage)
+		if (const URACharacterAnimationData* AnimData = GetAnimationData())
 		{
-			PlayAnimMontage(HitMontage);
+			if (UAnimMontage* HitMontage = AnimData->HitReactMontage)
+			{
+				PlayAnimMontage(HitMontage);
+			}																			
 		}
 		
 		if (Data.NewValue <= 0.0f)
