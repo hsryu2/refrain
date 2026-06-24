@@ -11,8 +11,10 @@ class ARACharacterBase;
 class ARACharacterPlayer;
 
 /**
- * 공격 애니메이션 재생 중 입력이 들어오면 즉시 결과 판정 후 다음 콤보 공격 실행 예약.
- * 
+ * 몽타주 속도 설정 후 BPM에 맞춰 타격까지 재생하는 함수. 콤보 실행.
+ * 몽타주 추가 시 애니메이션데이터 배열에 추가, 몽타주에 이벤트 태그 설정
+ * 콤보 입력은 애니메이션 재생 시작시부터 NextComboStart 전까지 최초 1회만 받음
+ * TODO: 판정 타이밍 저장 기능 완성 안 됨(대미지 관련 기능 포함)
  */
 UCLASS()
 class REFRAIN_API URAGA_ComboAttack : public UGameplayAbility
