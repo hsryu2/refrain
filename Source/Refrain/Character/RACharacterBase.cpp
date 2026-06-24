@@ -27,25 +27,22 @@ ARACharacterBase::ARACharacterBase()
 	
 }
 
-// Called when the game starts or when spawned
 void ARACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	// 설정된 값이 없을 때
+	ensureMsgf(AnimationData, TEXT("AnimationData is not set on %s"), *GetNameSafe(this));
 }
 
-// Called every frame
 void ARACharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
-// Called to bind functionality to input
 void ARACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
 UAbilitySystemComponent* ARACharacterBase::GetAbilitySystemComponent() const
