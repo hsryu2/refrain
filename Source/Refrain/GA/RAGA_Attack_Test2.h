@@ -51,9 +51,6 @@ protected:
 	
 	// 몽타주 안에서 해당 몽타주 안의 UAnimNotify_SendGameplayEvent 노티파이가 위치한 시간을 반환하는 함수. 실패 시 -1.f 반환
 	float FindGameplayEventNotifyTime(const UAnimMontage* Montage, const FGameplayTag EventTag = FGameplayTag::EmptyTag) const;
-	
-	// 몽타주 안의 노티파이까지 시간과 공격이 적중해야 할 시간을 비교해서 몽타주 Play Rate(선딜)을 결정
-	float CalculateAttackPlayRate(float NotifyTime, float MinimumStartupDelay = 0.f) const;
 
 	// TargetActor 상태 검사 후 null이거나 죽어있으면 새로운 타겟 검색 
 	void SetTargetActor();

@@ -217,27 +217,6 @@ float URAGA_Attack_Test2::FindGameplayEventNotifyTime(const UAnimMontage* Montag
 	return -1.f;
 }
 
-float URAGA_Attack_Test2::CalculateAttackPlayRate(float NotifyTime, float MinimumStartupDelay) const
-{
-	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
-	if (!MagicalTiming)
-	{
-		RA_LOG(LogRefrain, Error, TEXT("MagicalTimingSubsystem Not Found"));
-		return 1.f;
-	}
-	if (!MagicalTiming->IsMusicPlaying())
-	{
-		RA_LOG(LogRefrain, Warning, TEXT("Music is not playing"));
-		return 1.f;
-	}
-	
-	const float TargetTime = MagicalTiming->GetTimeUntilNextHit(MinimumStartupDelay);
-	
-	const float EstimatedPlayRate = NotifyTime / TargetTime;
-	
-	return EstimatedPlayRate;
-}
-
 void URAGA_Attack_Test2::SetTargetActor()
 {
 	if (!TargetActor)
@@ -296,6 +275,11 @@ float URAGA_Attack_Test2::GetDamageAmount() const
 
 void URAGA_Attack_Test2::CalculatePlayRates(const UAnimMontage* Montage)
 {
+	// 실제 박자 대비 애니메이션이 전환될 타이밍
+	const float StartupToAnticipationInBeatProgress = 0.4f;
+	const float AnticipationToStrikeInBeatProgress = 0.9f;
+	const float StrikeToRecoveryInBeatProgress = 1.1f;
+	
 	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
 	if (!MagicalTiming || !MagicalTiming->IsMusicPlaying())
 	{
@@ -304,23 +288,36 @@ void URAGA_Attack_Test2::CalculatePlayRates(const UAnimMontage* Montage)
 		return;
 	}
 	
-	const float Time1 = FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_StartupToAnticipation);
-	const float Time2 = FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_AnticipationToStrike);
-	const float Time3 = FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_StrikeToRecovery);
-	if (Time1 < 0.f || Time2 < 0.f || Time3 < 0.f)
+	// 몽타주 내의 정보
+	const float PlayLength = Montage->GetPlayLength();
+	
+	// 몽타주 안에서 태그가 위치한 시간
+	const float MontageTime1 = FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_StartupToAnticipation);
+	const float MontageTime2 = FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_AnticipationToStrike);
+	const float MontageTime3 = FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_StrikeToRecovery);
+	if (MontageTime1 < 0.f || MontageTime2 < 0.f || MontageTime3 < 0.f)
 	{
-		RA_LOG(LogRefrain, Error, TEXT("Montage Notify Time Not Found: %f, %f, %f"), Time1, Time2, Time3);
+		RA_LOG(LogRefrain, Error, TEXT("Montage Notify Time Not Found: %f, %f, %f"), MontageTime1, MontageTime2, MontageTime3);
 		StartupPlayRate = AnticipationPlayRate = StrikePlayRate = RecoveryPlayRate = 1.f;
 		return;
 	}
 	
-	const float BPM = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>()->GetBPM();
-	const float PlayLength = Montage->GetPlayLength();
+	// 현재 재생 상태 정보
+	const float BPM = MagicalTiming->GetBPM();
+	const float SecondsPerBeat = MagicalTiming->GetSecondsPerBeat();
+	const float BeatProgress = MagicalTiming->GetBeatProgress();
 	
+	// PlayRate 계산 - Startup에서 박자에 맞게 맞춤
+	float TargetTime1 = BeatProgress < StartupToAnticipationInBeatProgress ?
+		(StartupToAnticipationInBeatProgress - BeatProgress) * SecondsPerBeat :
+		(1.f + StartupToAnticipationInBeatProgress - BeatProgress) * SecondsPerBeat;
+	TargetTime1 = TargetTime1 ? TargetTime1 : UE_KINDA_SMALL_NUMBER;
+	StartupPlayRate = MontageTime1 / TargetTime1;
 	
+	// 이미 박자에 맞는 상태
+	AnticipationPlayRate = (MontageTime2 - MontageTime1) / (AnticipationToStrikeInBeatProgress - StartupToAnticipationInBeatProgress);
+	StrikePlayRate = (MontageTime3 - MontageTime2) / (StrikeToRecoveryInBeatProgress - AnticipationToStrikeInBeatProgress);
 	
-	StartupPlayRate;
-	AnticipationPlayRate;
-	StrikePlayRate;
-	RecoveryPlayRate;
+	// 몽타주 전체 재생 시간과 BPM 비교 - 2박에 걸쳐 재생될 수 있는 속도
+	RecoveryPlayRate = PlayLength * 2.f / SecondsPerBeat;
 }
