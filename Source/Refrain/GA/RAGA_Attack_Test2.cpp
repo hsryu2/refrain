@@ -28,10 +28,10 @@ URAGA_Attack_Test2::URAGA_Attack_Test2()
 
 void URAGA_Attack_Test2::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
+	RA_LOG(LogRefrain, Log, TEXT("Start"));
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
 	// 변수 초기화
-	RA_LOG(LogRefrain, Log, TEXT("Start"));
 	AvatarCharacter = Cast<ARACharacterBase>(ActorInfo->AvatarActor.Get());
 	if (!AvatarCharacter)
 	{
@@ -66,6 +66,8 @@ void URAGA_Attack_Test2::InputPressed(const FGameplayAbilitySpecHandle Handle, c
 
 void URAGA_Attack_Test2::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
+	RA_LOG(LogRefrain, Log, TEXT("Start"));
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 	
 	ClearAttackMotionWarpTarget();
@@ -141,7 +143,10 @@ void URAGA_Attack_Test2::PlayAttackMontage()
 	
 	// 타겟팅
 	SetTargetActor();
-	UpdateAttackMotionWarpTarget();
+	if (TargetActor)
+	{
+		UpdateAttackMotionWarpTarget();
+	}
 	
 	// 공격 GE 실행
 	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
@@ -276,8 +281,17 @@ void URAGA_Attack_Test2::SetJudgement()
 	if (!MagicalTiming)
 	{
 		RA_LOG(LogRefrain, Error, TEXT("MagicalTimingSubsystem Not Found"));
+		JudgementTag = RefrainGameplayTags::Judge_Miss;
 		return;
 	}
+	
+	if (!MagicalTiming->IsMusicPlaying())
+	{
+		RA_LOG(LogRefrain, Warning, TEXT("Music Not Playing"));
+		JudgementTag = RefrainGameplayTags::Judge_Miss;
+		return;
+	}
+	
 	const float TimingDifference = MagicalTiming->JudgeTiming();
 	
 	if (!TargetActor)
@@ -315,7 +329,7 @@ void URAGA_Attack_Test2::CalculatePlayRates(const UAnimMontage* Montage)
 	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
 	if (!MagicalTiming || !MagicalTiming->IsMusicPlaying())
 	{
-		RA_LOG(LogRefrain, Error, TEXT("Music Not Playing"));
+		RA_LOG(LogRefrain, Warning, TEXT("Music Not Playing"));
 		StartupPlayRate = AnticipationPlayRate = StrikePlayRate = RecoveryPlayRate = 1.f;
 		return;
 	}
@@ -347,9 +361,15 @@ void URAGA_Attack_Test2::CalculatePlayRates(const UAnimMontage* Montage)
 	StartupPlayRate = MontageTime1 / TargetTime1;
 	
 	// 이미 박자에 맞는 상태
-	AnticipationPlayRate = (MontageTime2 - MontageTime1) / (AnticipationToStrikeInBeatProgress - StartupToAnticipationInBeatProgress);
-	StrikePlayRate = (MontageTime3 - MontageTime2) / (StrikeToRecoveryInBeatProgress - AnticipationToStrikeInBeatProgress);
+	AnticipationPlayRate = (MontageTime2 - MontageTime1) / ((AnticipationToStrikeInBeatProgress - StartupToAnticipationInBeatProgress) * SecondsPerBeat);
+	StrikePlayRate = (MontageTime3 - MontageTime2) / ((StrikeToRecoveryInBeatProgress - AnticipationToStrikeInBeatProgress) * SecondsPerBeat);
 	
 	// 몽타주 전체 재생 시간과 BPM 비교 - 2박에 걸쳐 재생될 수 있는 속도
-	RecoveryPlayRate = PlayLength * 2.f / SecondsPerBeat;
+	RecoveryPlayRate = PlayLength / SecondsPerBeat;
+	
+	// RA_LOG(LogRefrain, Log, TEXT("BPM: %.2f SecondsPerBeat: %.2f BeatProgress: %.2f, PlayLength: %.2f"), BPM, SecondsPerBeat, BeatProgress, PlayLength);
+	// RA_LOG(LogRefrain, Log, TEXT("TargetTime1: %.2f"), TargetTime1);
+	// RA_LOG(LogRefrain, Log, TEXT("MontageTime1: %.2f MontageTime2: %.2f MontageTime3: %.2f"), MontageTime1, MontageTime2, MontageTime3);
+	RA_LOG(LogRefrain, Log, TEXT("StartupPlayRate: %.2f AnticipationPlayRate: %.2f StrikePlayRate: %.2f RecoveryPlayRate: %.2f"),
+		StartupPlayRate, AnticipationPlayRate, StrikePlayRate, RecoveryPlayRate);
 }

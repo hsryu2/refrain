@@ -12,8 +12,17 @@ void UAN_SendGameplayEvent::Notify(USkeletalMeshComponent* MeshComp, UAnimSequen
 {
 	Super::Notify(MeshComp, Animation, EventReference);
 	
+	UWorld* World = MeshComp->GetWorld();
+	if (!World || 
+		!(World->WorldType == EWorldType::Game || World->WorldType == EWorldType::PIE))
+	{
+		RA_LOG(LogRefrain, Warning, TEXT("World Is Not Valid"));
+		return;
+	}
+	
 	if (!MeshComp || !MeshComp->GetOwner())
 	{
+		RA_LOG(LogRefrain, Warning, TEXT("MeshComp Or Owner Is Not Valid"));
 		return;
 	}
 	
@@ -26,6 +35,7 @@ void UAN_SendGameplayEvent::Notify(USkeletalMeshComponent* MeshComp, UAnimSequen
 	UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(MeshComp->GetOwner());
 	if (!IsValid(ASC))
 	{
+		RA_LOG(LogRefrain, Warning, TEXT("ASC Is Not Valid"));
 		return;
 	}
 	
