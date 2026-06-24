@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "RAGA_Attack_Test2.h"
+#include "RAGA_ComboAttack.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
@@ -18,7 +18,7 @@
 
 class UMotionWarpingComponent;
 
-URAGA_Attack_Test2::URAGA_Attack_Test2()
+URAGA_ComboAttack::URAGA_ComboAttack()
 {
 	FGameplayTagContainer Tags(RefrainGameplayTags::Ability_Attack);
 	SetAssetTags(Tags);;
@@ -26,7 +26,7 @@ URAGA_Attack_Test2::URAGA_Attack_Test2()
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
-void URAGA_Attack_Test2::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void URAGA_ComboAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	RA_LOG(LogRefrain, Log, TEXT("Start"));
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
@@ -45,23 +45,23 @@ void URAGA_Attack_Test2::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	// AN_SendGameplayEvent로부터 받을 태그로 델리게이트 등록
 	UAbilityTask_WaitGameplayEvent* AttackHitTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this, RefrainGameplayTags::Event_Montage_AttackHit, nullptr, false, true);
-	AttackHitTask->EventReceived.AddDynamic(this, &URAGA_Attack_Test2::OnAttackHit);
+	AttackHitTask->EventReceived.AddDynamic(this, &URAGA_ComboAttack::OnAttackHit);
 	AttackHitTask->ReadyForActivation();
 	
 	UAbilityTask_WaitGameplayEvent* MontagePlayRateTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this, RefrainGameplayTags::Event_Montage_PlayRate, nullptr, false, false);
-	MontagePlayRateTask->EventReceived.AddDynamic(this, &URAGA_Attack_Test2::OnMontagePlayRate);
+	MontagePlayRateTask->EventReceived.AddDynamic(this, &URAGA_ComboAttack::OnMontagePlayRate);
 	MontagePlayRateTask->ReadyForActivation();
 	
 	UAbilityTask_WaitGameplayEvent* NextComboStartTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this, RefrainGameplayTags::Event_Montage_NextComboStart, nullptr, false, true);
-	NextComboStartTask->EventReceived.AddDynamic(this, &URAGA_Attack_Test2::OnNextComboStart);
+	NextComboStartTask->EventReceived.AddDynamic(this, &URAGA_ComboAttack::OnNextComboStart);
 	NextComboStartTask->ReadyForActivation();
 	
 	Attack();
 }
 
-void URAGA_Attack_Test2::InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+void URAGA_ComboAttack::InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
 	
@@ -71,7 +71,7 @@ void URAGA_Attack_Test2::InputPressed(const FGameplayAbilitySpecHandle Handle, c
 	}
 }
 
-void URAGA_Attack_Test2::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void URAGA_ComboAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	RA_LOG(LogRefrain, Log, TEXT("Start"));
 	
@@ -81,12 +81,12 @@ void URAGA_Attack_Test2::EndAbility(const FGameplayAbilitySpecHandle Handle, con
 	TargetActor = nullptr;
 }
 
-void URAGA_Attack_Test2::OnMontageCompleted()
+void URAGA_ComboAttack::OnMontageCompleted()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
-void URAGA_Attack_Test2::OnMontageInterrupted()
+void URAGA_ComboAttack::OnMontageInterrupted()
 {
 	if (bIsMontageInterruptedByCombo)
 	{
@@ -96,7 +96,7 @@ void URAGA_Attack_Test2::OnMontageInterrupted()
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }
 
-void URAGA_Attack_Test2::OnAttackHit(FGameplayEventData Payload)
+void URAGA_ComboAttack::OnAttackHit(FGameplayEventData Payload)
 {
 	// 대미지 적용
 	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
@@ -114,7 +114,7 @@ void URAGA_Attack_Test2::OnAttackHit(FGameplayEventData Payload)
 	}
 }
 
-void URAGA_Attack_Test2::OnMontagePlayRate(FGameplayEventData Payload)
+void URAGA_ComboAttack::OnMontagePlayRate(FGameplayEventData Payload)
 {
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
 	if (!ASC)
@@ -141,7 +141,7 @@ void URAGA_Attack_Test2::OnMontagePlayRate(FGameplayEventData Payload)
 	}
 }
 
-void URAGA_Attack_Test2::OnNextComboStart(FGameplayEventData Payload)
+void URAGA_ComboAttack::OnNextComboStart(FGameplayEventData Payload)
 {
 	if (bHasQueuedAttackInput)
 	{
@@ -150,14 +150,14 @@ void URAGA_Attack_Test2::OnNextComboStart(FGameplayEventData Payload)
 	}
 }
 
-void URAGA_Attack_Test2::Attack()
+void URAGA_ComboAttack::Attack()
 {
 	RA_LOG(LogRefrain, Log, TEXT("Current Combo: %d"), CurrentCombo);
 	PlayAttackMontage();
 	bHasQueuedAttackInput = false;
 }
 
-void URAGA_Attack_Test2::PlayAttackMontage()
+void URAGA_ComboAttack::PlayAttackMontage()
 {
 	// 다음 공격 몽타주
 	UAnimMontage* AttackMontage = GetNextAttackAnimMontage();
@@ -199,12 +199,12 @@ void URAGA_Attack_Test2::PlayAttackMontage()
 			true,
 			1.f,
 			MontageStartTime);
-	MontageTask->OnCompleted.AddDynamic(this, &URAGA_Attack_Test2::OnMontageCompleted);
-	MontageTask->OnInterrupted.AddDynamic(this, &URAGA_Attack_Test2::OnMontageInterrupted);
+	MontageTask->OnCompleted.AddDynamic(this, &URAGA_ComboAttack::OnMontageCompleted);
+	MontageTask->OnInterrupted.AddDynamic(this, &URAGA_ComboAttack::OnMontageInterrupted);
 	MontageTask->ReadyForActivation();
 }
 
-UAnimMontage* URAGA_Attack_Test2::GetNextAttackAnimMontage() const
+UAnimMontage* URAGA_ComboAttack::GetNextAttackAnimMontage() const
 {
 	const ARACharacterBase* RACharacter = Cast<ARACharacterBase>(AvatarCharacter);
 	const URACharacterAnimationData* AnimationData = RACharacter->GetAnimationData();
@@ -221,7 +221,7 @@ UAnimMontage* URAGA_Attack_Test2::GetNextAttackAnimMontage() const
 	return AnimationData->AttackMontages[CurrentCombo % MontageArrayNum];
 }
 
-void URAGA_Attack_Test2::UpdateAttackMotionWarpTarget()
+void URAGA_ComboAttack::UpdateAttackMotionWarpTarget()
 {
 	UMotionWarpingComponent* MotionWarpingComponent = AvatarCharacter->FindComponentByClass<UMotionWarpingComponent>();
 	if (!MotionWarpingComponent)
@@ -258,7 +258,7 @@ void URAGA_Attack_Test2::UpdateAttackMotionWarpTarget()
 	}
 }
 
-void URAGA_Attack_Test2::ClearAttackMotionWarpTarget()
+void URAGA_ComboAttack::ClearAttackMotionWarpTarget()
 {
 	UMotionWarpingComponent* MotionWarpingComponent = AvatarCharacter->FindComponentByClass<UMotionWarpingComponent>();
 	if (MotionWarpingComponent)
@@ -267,7 +267,7 @@ void URAGA_Attack_Test2::ClearAttackMotionWarpTarget()
 	}
 }
 
-float URAGA_Attack_Test2::FindGameplayEventNotifyTime(const UAnimMontage* Montage, const FGameplayTag EventTag) const
+float URAGA_ComboAttack::FindGameplayEventNotifyTime(const UAnimMontage* Montage, const FGameplayTag EventTag) const
 {
 	if (!Montage)
 	{
@@ -286,7 +286,7 @@ float URAGA_Attack_Test2::FindGameplayEventNotifyTime(const UAnimMontage* Montag
 	return -1.f;
 }
 
-void URAGA_Attack_Test2::SetTargetActor()
+void URAGA_ComboAttack::SetTargetActor()
 {
 	if (!TargetActor)
 	{
@@ -307,7 +307,7 @@ void URAGA_Attack_Test2::SetTargetActor()
 	}
 }
 
-void URAGA_Attack_Test2::SetJudgement()
+void URAGA_ComboAttack::SetJudgement()
 {
 	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
 	if (!MagicalTiming)
@@ -346,12 +346,12 @@ void URAGA_Attack_Test2::SetJudgement()
 	RA_LOG(LogRefrain, Log, TEXT("JudgementTag: %s"), *JudgementTag.ToString());
 }
 
-float URAGA_Attack_Test2::GetDamageAmount() const
+float URAGA_ComboAttack::GetDamageAmount() const
 {
 	return 10.0f;
 }
 
-void URAGA_Attack_Test2::CalculatePlayRates(const UAnimMontage* Montage)
+void URAGA_ComboAttack::CalculatePlayRates(const UAnimMontage* Montage)
 {
 	// 실제 박자 대비 애니메이션이 전환될 타이밍
 	const float StartupToAnticipationInBeatProgress = 0.4f;
@@ -416,7 +416,7 @@ void URAGA_Attack_Test2::CalculatePlayRates(const UAnimMontage* Montage)
 		StartupPlayRate, AnticipationPlayRate, StrikePlayRate, RecoveryPlayRate);
 }
 
-void URAGA_Attack_Test2::SetNextCombo()
+void URAGA_ComboAttack::SetNextCombo()
 {
 	SetJudgement();
 	CurrentCombo++;

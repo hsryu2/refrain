@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
-#include "RAGA_Attack_Test2.generated.h"
+#include "RAGA_ComboAttack.generated.h"
 
 class UAttackTargetingComponent;
 class ARACharacterBase;
@@ -15,12 +15,12 @@ class ARACharacterPlayer;
  * 
  */
 UCLASS()
-class REFRAIN_API URAGA_Attack_Test2 : public UGameplayAbility
+class REFRAIN_API URAGA_ComboAttack : public UGameplayAbility
 {
 	GENERATED_BODY()
 	
 public:
-	URAGA_Attack_Test2();
+	URAGA_ComboAttack();
 	
 protected:
 // 재정의 함수
