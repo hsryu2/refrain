@@ -16,7 +16,6 @@ void UAN_SendGameplayEvent::Notify(USkeletalMeshComponent* MeshComp, UAnimSequen
 	if (!World || 
 		!(World->WorldType == EWorldType::Game || World->WorldType == EWorldType::PIE))
 	{
-		RA_LOG(LogRefrain, Warning, TEXT("World Is Not Valid"));
 		return;
 	}
 	

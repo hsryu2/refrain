@@ -36,4 +36,8 @@ namespace RefrainGameplayTags
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_PlayRate_AnticipationToStrike);
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_PlayRate_StrikeToRecovery);
 	
+	// 다음 콤보로 넘어가는 이벤트
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_NextComboStart);
+
+	
 }

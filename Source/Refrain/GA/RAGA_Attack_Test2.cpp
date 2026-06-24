@@ -53,15 +53,22 @@ void URAGA_Attack_Test2::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	MontagePlayRateTask->EventReceived.AddDynamic(this, &URAGA_Attack_Test2::OnMontagePlayRate);
 	MontagePlayRateTask->ReadyForActivation();
 	
-	PlayAttackMontage();
+	UAbilityTask_WaitGameplayEvent* NextComboStartTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+		this, RefrainGameplayTags::Event_Montage_NextComboStart, nullptr, false, true);
+	NextComboStartTask->EventReceived.AddDynamic(this, &URAGA_Attack_Test2::OnNextComboStart);
+	NextComboStartTask->ReadyForActivation();
+	
+	Attack();
 }
 
 void URAGA_Attack_Test2::InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
 	
-	SetJudgement();
-	CurrentCombo++;
+	if (!bHasQueuedAttackInput)
+	{
+		SetNextCombo();
+	}
 }
 
 void URAGA_Attack_Test2::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
@@ -81,6 +88,11 @@ void URAGA_Attack_Test2::OnMontageCompleted()
 
 void URAGA_Attack_Test2::OnMontageInterrupted()
 {
+	if (bIsMontageInterruptedByCombo)
+	{
+		bIsMontageInterruptedByCombo = false;
+		return;
+	}
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }
 
@@ -127,6 +139,22 @@ void URAGA_Attack_Test2::OnMontagePlayRate(FGameplayEventData Payload)
 	{
 		RA_LOG(LogRefrain, Warning, TEXT("Unknown Montage PlayRate EventTag: %s"), *Payload.EventTag.ToString());
 	}
+}
+
+void URAGA_Attack_Test2::OnNextComboStart(FGameplayEventData Payload)
+{
+	if (bHasQueuedAttackInput)
+	{
+		bIsMontageInterruptedByCombo = true;
+		Attack();
+	}
+}
+
+void URAGA_Attack_Test2::Attack()
+{
+	RA_LOG(LogRefrain, Log, TEXT("Current Combo: %d"), CurrentCombo);
+	PlayAttackMontage();
+	bHasQueuedAttackInput = false;
 }
 
 void URAGA_Attack_Test2::PlayAttackMontage()
@@ -386,4 +414,11 @@ void URAGA_Attack_Test2::CalculatePlayRates(const UAnimMontage* Montage)
 	// RA_LOG(LogRefrain, Log, TEXT("MontageTime1: %.2f MontageTime2: %.2f MontageTime3: %.2f"), MontageTime1, MontageTime2, MontageTime3);
 	RA_LOG(LogRefrain, Log, TEXT("StartupPlayRate: %.2f AnticipationPlayRate: %.2f StrikePlayRate: %.2f RecoveryPlayRate: %.2f"),
 		StartupPlayRate, AnticipationPlayRate, StrikePlayRate, RecoveryPlayRate);
+}
+
+void URAGA_Attack_Test2::SetNextCombo()
+{
+	SetJudgement();
+	CurrentCombo++;
+	bHasQueuedAttackInput = true;
 }

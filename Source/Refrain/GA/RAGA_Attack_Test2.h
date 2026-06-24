@@ -40,8 +40,14 @@ protected:
 	
 	UFUNCTION()
 	void OnMontagePlayRate(FGameplayEventData Payload);
+	
+	UFUNCTION()
+	void OnNextComboStart(FGameplayEventData Payload);
 
-protected:	
+protected:
+	// 공격
+	void Attack();
+	
 	// 공격 애니메이션 실행
 	void PlayAttackMontage();
 	
@@ -66,6 +72,9 @@ protected:
 	
 	// 애니메이션 재생 속도 계산 함수
 	void CalculatePlayRates(const UAnimMontage* Montage);
+	
+	// 다음 콤보 예약
+	void SetNextCombo();
 
 protected:
 // 블루프린트에서 설정할 변수
@@ -90,7 +99,10 @@ protected:
 	int CurrentCombo = 0;
 	
 	// 콤보 예약을 한 상태인지 확인.
-	bool bGoNextCombo;
+	bool bHasQueuedAttackInput = false;
+	
+	// 콤보로 인해 기존 몽타주가 중단될 때 이를 확인하는 변수
+	bool bIsMontageInterruptedByCombo = false;
 	
 	// 입력 타이밍 판정 결과 저장
 	FGameplayTag JudgementTag;
