@@ -1,24 +1,40 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AnimNotify_SendGameplayEvent.h"
+#include "AN_SendGameplayEvent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "Refrain.h"
 #include "Abilities/GameplayAbilityTypes.h"
 
-void UAnimNotify_SendGameplayEvent::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
+void UAN_SendGameplayEvent::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
                                     const FAnimNotifyEventReference& EventReference)
 {
 	Super::Notify(MeshComp, Animation, EventReference);
 	
-	if (!MeshComp || !MeshComp->GetOwner() || !EventTag.IsValid())
+	UWorld* World = MeshComp->GetWorld();
+	if (!World || 
+		!(World->WorldType == EWorldType::Game || World->WorldType == EWorldType::PIE))
 	{
+		return;
+	}
+	
+	if (!MeshComp || !MeshComp->GetOwner())
+	{
+		RA_LOG(LogRefrain, Warning, TEXT("MeshComp Or Owner Is Not Valid"));
+		return;
+	}
+	
+	if (!EventTag.IsValid())
+	{
+		RA_LOG(LogRefrain, Warning, TEXT("EventTag Is Not Valid"));
 		return;
 	}
 	
 	UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(MeshComp->GetOwner());
 	if (!IsValid(ASC))
 	{
+		RA_LOG(LogRefrain, Warning, TEXT("ASC Is Not Valid"));
 		return;
 	}
 	
@@ -29,11 +45,4 @@ void UAnimNotify_SendGameplayEvent::Notify(USkeletalMeshComponent* MeshComp, UAn
 	Payload.Target = MeshComp->GetOwner();
 	
 	ASC->HandleGameplayEvent(EventTag, &Payload);
-	
-	/*UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
-	MeshComp->GetOwner(),
-	EventTag,
-	Payload
-	);*/
-	
 }

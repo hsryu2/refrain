@@ -4,23 +4,25 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
-#include "RAGA_Attack_Test2.generated.h"
+#include "RAGA_ComboAttack.generated.h"
 
 class UAttackTargetingComponent;
 class ARACharacterBase;
 class ARACharacterPlayer;
 
 /**
- * 공격 애니메이션 재생 중 입력이 들어오면 즉시 결과 판정 후 다음 콤보 공격 실행 예약.
- * 
+ * 몽타주 속도 설정 후 BPM에 맞춰 타격까지 재생하는 함수. 콤보 실행.
+ * 몽타주 추가 시 애니메이션데이터 배열에 추가, 몽타주에 이벤트 태그 설정
+ * 콤보 입력은 애니메이션 재생 시작시부터 NextComboStart 전까지 최초 1회만 받음
+ * TODO: 판정 타이밍 저장 기능 완성 안 됨(대미지 관련 기능 포함)
  */
 UCLASS()
-class REFRAIN_API URAGA_Attack_Test2 : public UGameplayAbility
+class REFRAIN_API URAGA_ComboAttack : public UGameplayAbility
 {
 	GENERATED_BODY()
 	
 public:
-	URAGA_Attack_Test2();
+	URAGA_ComboAttack();
 	
 protected:
 // 재정의 함수
@@ -37,8 +39,17 @@ protected:
 	
 	UFUNCTION()
 	void OnAttackHit(FGameplayEventData Payload);
+	
+	UFUNCTION()
+	void OnMontagePlayRate(FGameplayEventData Payload);
+	
+	UFUNCTION()
+	void OnNextComboStart(FGameplayEventData Payload);
 
-protected:	
+protected:
+	// 공격
+	void Attack();
+	
 	// 공격 애니메이션 실행
 	void PlayAttackMontage();
 	
@@ -49,11 +60,8 @@ protected:
 	void UpdateAttackMotionWarpTarget();
 	void ClearAttackMotionWarpTarget();
 	
-	// 몽타주 안에서 해당 몽타주 안의 UAnimNotify_SendGameplayEvent 노티파이가 위치한 시간을 반환하는 함수. 실패 시 -1.f 반환
+	// 몽타주 안에서 해당 몽타주 안의 UAN_SendGameplayEvent 노티파이가 위치한 시간을 반환하는 함수. 실패 시 -1.f 반환
 	float FindGameplayEventNotifyTime(const UAnimMontage* Montage, const FGameplayTag EventTag = FGameplayTag::EmptyTag) const;
-	
-	// 몽타주 안의 노티파이까지 시간과 공격이 적중해야 할 시간을 비교해서 몽타주 Play Rate(선딜)을 결정
-	float CalculateAttackPlayRate(float NotifyTime, float MinimumStartupDelay = 0.f) const;
 
 	// TargetActor 상태 검사 후 null이거나 죽어있으면 새로운 타겟 검색 
 	void SetTargetActor();
@@ -66,6 +74,9 @@ protected:
 	
 	// 애니메이션 재생 속도 계산 함수
 	void CalculatePlayRates(const UAnimMontage* Montage);
+	
+	// 다음 콤보 예약
+	void SetNextCombo();
 
 protected:
 // 블루프린트에서 설정할 변수
@@ -90,7 +101,10 @@ protected:
 	int CurrentCombo = 0;
 	
 	// 콤보 예약을 한 상태인지 확인.
-	bool bGoNextCombo;
+	bool bHasQueuedAttackInput = false;
+	
+	// 콤보로 인해 기존 몽타주가 중단될 때 이를 확인하는 변수
+	bool bIsMontageInterruptedByCombo = false;
 	
 	// 입력 타이밍 판정 결과 저장
 	FGameplayTag JudgementTag;
@@ -100,4 +114,5 @@ protected:
 	float AnticipationPlayRate;
 	float StrikePlayRate;
 	float RecoveryPlayRate;
+	float MontageStartTime;
 };
