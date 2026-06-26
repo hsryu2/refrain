@@ -85,17 +85,19 @@ void URAGA_NPCAttack::OnAttackHit(FGameplayEventData Payload)
 	}
 	
 	// 공격 타겟이 있는지 확인.
-	AActor* TargetActor = nullptr;
+	//AActor* TargetActor = nullptr;
+	
+	TArray<AActor*> HitTargets;
 	
 	UAttackTargetingComponent* TargetingComponent =
 		NPC->FindComponentByClass<UAttackTargetingComponent>();
 	
 	if (TargetingComponent)
 	{
-		TargetActor = TargetingComponent->FindAttackTarget();
+		HitTargets = TargetingComponent->HitSweep();
 	}
 	
-	if (!TargetActor)
+	if (HitTargets.IsEmpty())
 	{
 		return;
 	}
@@ -104,36 +106,33 @@ void URAGA_NPCAttack::OnAttackHit(FGameplayEventData Payload)
 	UAbilitySystemComponent* SourceASC =
 		GetAbilitySystemComponentFromActorInfo();
 	
-	UAbilitySystemComponent* TargetASC =
-		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
-	
-	if (!SourceASC || !TargetASC)
+	if (!SourceASC)
 	{
 		return;
 	}
-	// GE Spec Handle이 있는지 확인.
-	FGameplayEffectSpecHandle DamageSpec =
-		MakeOutgoingGameplayEffectSpec(DamageEffectClass, GetAbilityLevel());
 	
-	if (!DamageSpec.IsValid())
+	for (AActor* TargetActor : HitTargets)
 	{
-		return;
-	}
-	// 위에 모든 조건이 통과되면 데미지 전달.
-	DamageSpec.Data->SetSetByCallerMagnitude(
-		RefrainGameplayTags::Data_Damage,
-		DamageAmount
-	);
-	
-	SourceASC->ApplyGameplayEffectSpecToTarget(
-		*DamageSpec.Data.Get(),
-		TargetASC
-	);
-	
-	UE_LOG(LogTemp, Log, TEXT("Apply Damage: Target=%s Damage=%.1f"), *GetNameSafe(TargetActor), DamageAmount);
-	if (!DamageEffectClass)
-	{
-		UE_LOG(LogTemp,Log, TEXT("DamageEffectClass is not assigned."));
-		return;
+		UAbilitySystemComponent* TargetASC =
+			UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+		if (!TargetASC)
+		{
+			continue;
+		}
+		
+		// 플레이어가 회피 상태라면 무시임. 아직 태그 상태를 확인 안해서 일단 주석처리.
+		//if (TargetASC->HasMatchingGameplayTag(RefrainGameplayTags::State_Untargetable))
+		//{
+		//	UE_LOG(LogTemp, Log, TEXT("Target %s Perfect Dodged!"), *GetNameSafe(TargetActor));
+		//	continue; // 이 타겟은 데미지 무시, 다음 타겟으로 넘어감
+		//}
+		
+		FGameplayEffectSpecHandle DamageSpec = MakeOutgoingGameplayEffectSpec(DamageEffectClass, GetAbilityLevel());
+		if (DamageSpec.IsValid())
+		{
+			DamageSpec.Data->SetSetByCallerMagnitude(RefrainGameplayTags::Data_Damage, DamageAmount);
+			SourceASC->ApplyGameplayEffectSpecToTarget(*DamageSpec.Data.Get(), TargetASC);
+			UE_LOG(LogTemp, Log, TEXT("Apply Damage to %s"), *GetNameSafe(TargetActor));
+		}
 	}
 }

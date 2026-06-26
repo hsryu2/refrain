@@ -5,6 +5,8 @@
 #include "Engine/OverlapResult.h"
 #include "Refrain/Character/RACharacterNonPlayer.h"
 
+#include "DrawDebugHelpers.h"
+
 // Sets default values for this component's properties
 UAttackTargetingComponent::UAttackTargetingComponent()
 {
@@ -77,6 +79,59 @@ AActor* UAttackTargetingComponent::FindAttackTarget() const
 void UAttackTargetingComponent::SetTargetActorClass(TSubclassOf<AActor> InTargetActorClass)
 {
 	TargetActorClass = InTargetActorClass;
+}
+
+TArray<AActor*> UAttackTargetingComponent::HitSweep() const
+{
+	TArray<AActor*> HitActors;
+	AActor* Owner = GetOwner();
+	if (!Owner)
+	{
+		return HitActors;
+	}
+	
+	FVector OwnerLocation = Owner->GetActorLocation();
+	FVector ForwardVector = Owner->GetActorForwardVector();
+	
+	// 히트스윕 시작 위치와 끝 위치
+	FVector StartLocation = OwnerLocation + (ForwardVector * SweepStartOffset);
+	FVector EndLocation = StartLocation + (ForwardVector * SweepDistance);
+	
+	TArray<FHitResult> HitResults;
+	FCollisionShape Sphere = FCollisionShape::MakeSphere(SphereSize); 
+	
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(Owner);
+	
+	bool bHit = GetWorld()->SweepMultiByChannel(
+		HitResults,
+		StartLocation,
+		EndLocation,
+		FQuat::Identity,
+		TargetCollisionChannel,
+		Sphere,
+		QueryParams
+	);
+	
+	// 히트스윕 확인용
+	FColor DrawColor = bHit ? FColor::Green : FColor::Red;
+	
+	DrawDebugSphere(GetWorld(), StartLocation, SphereSize, 12, DrawColor, false, 2.0f);
+	DrawDebugSphere(GetWorld(), EndLocation, SphereSize, 12, DrawColor, false, 2.0f);
+	DrawDebugLine(GetWorld(), StartLocation, EndLocation, DrawColor, false, 2.0f, 0, 2.0f);
+	
+	if (bHit)
+	{
+		for (const FHitResult& Result : HitResults)
+		{
+			AActor* TargetActor = Result.GetActor();
+			if (IsValidTarget(TargetActor) && !HitActors.Contains(TargetActor))
+			{
+				HitActors.Add(TargetActor);
+			}
+		}
+	}
+	return HitActors;
 }
 
 
@@ -164,7 +219,7 @@ float UAttackTargetingComponent::CalculateTargetScore(AActor* TargetActor) const
 	float ForwardScore = FMath::Clamp(ForwardDot, 0.0f, 1.0f);
 	
 	// 전방에 있는 적이면 점수를 더 줌.
-	return ForwardScore * 2.0f + DistanceScore; 
+	return ForwardScore * 3.0f + DistanceScore; 
 }
 
 

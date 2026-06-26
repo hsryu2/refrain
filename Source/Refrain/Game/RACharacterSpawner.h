@@ -32,6 +32,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 	TSubclassOf<class ARACharacterNonPlayer> CharacterClassToSpawn;
 
+	/** @brief 소환진(Summon Circle) 클래스 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+	TSubclassOf<class AActor> SummonCircleClass;
+
+	/** @brief 소환진 생성 후 실제 몬스터가 나오는 딜레이 시간 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+	float SummonDelay = 2.0f;
+
 	/** @brief 최대로 생성할 NPC의 수 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 	int32 MaxSpawnCount = 10;
@@ -63,5 +71,6 @@ private:
 	// --- 내부 함수 ---
 	void CheckAndSpawn();
 	void SpawnMonsters(int32 SpawnCount);
+	void SpawnMonsterAtLocation(FVector SpawnLocation);
 	int32 GetCurrentMonsterCount();
 };
