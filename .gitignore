@@ -8,6 +8,9 @@ Content/RamsterZ_FreeAnims_Volume1
 
 # AI mcp
 .ai/
+.codex/
+.agents/
+.mcp.json
 
 # 플러그인
 Plugins/
