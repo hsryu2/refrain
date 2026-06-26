@@ -44,29 +44,47 @@ void ARACharacterSpawner::SpawnMonsters(int32 SpawnCount)
 	UWorld* World = GetWorld();
 	if (!World || !CharacterClassToSpawn) return;
 
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = this;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
 	for (int32 i = 0; i < SpawnCount; ++i)
 	{
 		// 지정된 범위 내에서 랜덤 값 추출
 		float RandomX = FMath::FRandRange(MinX, MaxX);
 		float RandomY = FMath::FRandRange(MinY, MaxY);
-		
-		// Z축(위아래)은 0으로 두고 X, Y만 설정합니다.
-		FVector SpawnLocation = FVector(RandomX, RandomY, 0.0f);
+		FVector SpawnLocation = FVector(RandomX, RandomY, 0.0f) + GetActorLocation();
 
-		// 스포너 액터의 현재 위치를 더해주면, 
-		// 맵 어디에 스포너를 배치하든 그 주변을 기준으로 생성됩니다.
-		SpawnLocation += GetActorLocation();
-
-		AActor* NewMonster = World->SpawnActor<AActor>(CharacterClassToSpawn, SpawnLocation, FRotator::ZeroRotator, SpawnParams);
-        
-		if (NewMonster)
+		// 1. 소환진 클래스가 설정되어 있다면 먼저 스폰
+		if (SummonCircleClass)
 		{
-			SpawnedMonsters.Add(NewMonster);
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			World->SpawnActor<AActor>(SummonCircleClass, SpawnLocation, FRotator::ZeroRotator, SpawnParams);
+			
+			// 2. 타이머를 돌려서 SummonDelay 이후에 실제 몬스터를 해당 위치에 스폰
+			FTimerHandle DelayTimerHandle;
+			FTimerDelegate TimerDel = FTimerDelegate::CreateUObject(this, &ARACharacterSpawner::SpawnMonsterAtLocation, SpawnLocation);
+			World->GetTimerManager().SetTimer(DelayTimerHandle, TimerDel, SummonDelay, false);
 		}
+		else
+		{
+			// 소환진이 안 설정되어 있으면 즉시 스폰
+			SpawnMonsterAtLocation(SpawnLocation);
+		}
+	}
+}
+
+void ARACharacterSpawner::SpawnMonsterAtLocation(FVector SpawnLocation)
+{
+	UWorld* World = GetWorld();
+	if (!World || !CharacterClassToSpawn) return;
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	AActor* NewMonster = World->SpawnActor<AActor>(CharacterClassToSpawn, SpawnLocation, FRotator::ZeroRotator, SpawnParams);
+	
+	if (NewMonster)
+	{
+		SpawnedMonsters.Add(NewMonster);
 	}
 }
 
