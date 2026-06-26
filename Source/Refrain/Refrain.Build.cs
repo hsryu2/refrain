@@ -15,6 +15,7 @@ public class Refrain : ModuleRules
 			"Core", 
 			"CoreUObject", 
 			"Engine", 
+			"AudioMixer",
 			"InputCore", 
 			"EnhancedInput", 
 			"GameplayAbilities", 
@@ -22,7 +23,8 @@ public class Refrain : ModuleRules
 			"GameplayTasks", 
 			"Niagara",
 			"MotionWarping",
-			"UMG"
+			"UMG",
+			"DeveloperSettings"
 		});
 		
 
@@ -33,5 +35,6 @@ public class Refrain : ModuleRules
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
 
 		// To include OnlineSubsystemSteam, add it to the plugins section in your uproject file with the Enabled attribute set to true
+
 	}
 }

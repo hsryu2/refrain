@@ -7,21 +7,13 @@
 		{
 			"Name": "Refrain",
 			"Type": "Runtime",
-			"LoadingPhase": "Default",
+			"LoadingPhase": "PreDefault",
 			"AdditionalDependencies": [
 				"Engine",
 				"AudioMixer",
 				"GameplayAbilities",
 				"UMG",
 				"DeveloperSettings"
-			]
-		},
-		{
-			"Name": "RefrainEditor",
-			"Type": "Editor",
-			"LoadingPhase": "PreDefault",
-			"AdditionalDependencies": [
-				"IKRigDeveloper"
 			]
 		}
 	],
