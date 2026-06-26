@@ -6,6 +6,7 @@
 #include "Components/AudioComponent.h"
 #include "Engine/AssetManager.h"
 #include "Engine/StreamableManager.h"
+#include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialParameterCollection.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
@@ -133,10 +134,10 @@ bool UMagicalTimingSubsystem::StartMusic()
 		return false;
 	}
 
-	// AudioComponent 생성
-	AudioComponent = UGameplayStatics::CreateSound2D(
+	// UAudioComponent 생성 및 포인터 저장
+	MusicAudioComponent = UGameplayStatics::CreateSound2D(
 		GetWorld(), MusicSound, MusicVolume, 1.f, 0.f, nullptr, false, false);
-	if (!IsValid(AudioComponent))
+	if (!IsValid(MusicAudioComponent))
 	{
 		RA_LOG(LogRefrain, Error, TEXT("Failed to create audio component"));
 		return false;
@@ -145,23 +146,23 @@ bool UMagicalTimingSubsystem::StartMusic()
 	// 재생
 	FQuartzQuantizationBoundary QuantizationBoundary(EQuartzCommandQuantization::Bar);
 	UQuartzClockHandle* RawClockHandle = MusicClockHandle.Get();
-	AudioComponent->PlayQuantized(
+	MusicAudioComponent->PlayQuantized(
 		GetWorld(),
 		RawClockHandle,
 		QuantizationBoundary,
 		FOnQuartzCommandEventBP(),
 		MusicData->StartOffset);
 	
-	return IsValid(AudioComponent);
+	return IsValid(MusicAudioComponent);
 }
 
 bool UMagicalTimingSubsystem::StopMusic()
 {
-	if (IsValid(AudioComponent))
+	if (IsValid(MusicAudioComponent))
 	{
-		AudioComponent->Stop();
-		AudioComponent->DestroyComponent();
-		AudioComponent = nullptr;
+		MusicAudioComponent->Stop();
+		MusicAudioComponent->DestroyComponent();
+		MusicAudioComponent = nullptr;
 	}
 	
 	if (IsValid(MusicClockHandle))
@@ -171,6 +172,39 @@ bool UMagicalTimingSubsystem::StopMusic()
 		MusicClockHandle = nullptr;
 	}
 
+	return true;
+}
+
+bool UMagicalTimingSubsystem::PlaySFXQuantized(USoundBase* InSound, EQuartzCommandQuantization InQuantization)
+{
+	if (!IsMusicPlaying())
+	{
+		RA_LOG(LogRefrain, Error, TEXT("Music Not Playing"));
+		return false;
+	}
+	if (!IsValid(InSound))
+	{
+		RA_LOG(LogRefrain, Error, TEXT("Sound is not valid"));
+		return false;
+	}
+	
+	// UAudioComponent 생성
+	UAudioComponent* SFXAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), InSound);
+	if (!IsValid(SFXAudioComponent))
+	{
+		RA_LOG(LogRefrain, Error, TEXT("Failed to create audio component"));
+		return false;
+	}
+	
+	// 재생
+	FQuartzQuantizationBoundary QuantizationBoundary(InQuantization);
+	UQuartzClockHandle* RawClockHandle = MusicClockHandle.Get();
+	SFXAudioComponent->PlayQuantized(
+		GetWorld(),
+		RawClockHandle,
+		QuantizationBoundary,
+		FOnQuartzCommandEventBP());
+	
 	return true;
 }
 
@@ -185,7 +219,7 @@ float UMagicalTimingSubsystem::GetBeatProgress()
 
 bool UMagicalTimingSubsystem::IsMusicPlaying()
 {
-	return IsValid(AudioComponent) && AudioComponent->IsPlaying() && IsValid(MusicClockHandle);
+	return IsValid(MusicClockHandle) && IsValid(MusicAudioComponent) && MusicAudioComponent->IsPlaying();
 }
 
 float UMagicalTimingSubsystem::JudgeTiming(EQuartzCommandQuantization TargetQuantization, float Multiplier)

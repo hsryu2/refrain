@@ -4,11 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "MagicalMusicData.h"
+#include "Quartz/AudioMixerClockHandle.h"
+#include "Sound/QuartzQuantizationUtilities.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "MagicalTimingSubsystem.generated.h"
 
+class USoundBase;
 class UAudioComponent;
-class UQuartzClockHandle;
 struct FStreamableHandle;
 /**
  * 
@@ -39,14 +41,19 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Magical|Control")
 	bool StopMusic();
+	
+// 게임 로직 - 효과음 재생
+public:
+	UFUNCTION(BlueprintCallable, Category = "Magical|Control")
+	bool PlaySFXQuantized(USoundBase* InSound, EQuartzCommandQuantization InQuantization = EQuartzCommandQuantization::Beat);
 
 // Getter
 public:
 	UFUNCTION(BlueprintCallable, Category = "Magical|Info")
-	FORCEINLINE float GetBPM() { return MusicData ? MusicData->BPM : 0.f;}
+	float GetBPM() { return MusicData ? MusicData->BPM : 0.f;}
 	
 	UFUNCTION(BlueprintCallable, Category = "Magical|Info")
-	FORCEINLINE float GetSecondsPerBeat() { return MusicData ? 60.f / MusicData->BPM : 0.f;}
+	float GetSecondsPerBeat() { return MusicData ? 60.f / MusicData->BPM : 0.f;}
 
 	// 현재 박자 내의 진행 정도를 0.f ~ 1.f 사이의 값으로 반환하는 함수 
 	UFUNCTION(BlueprintCallable, Category = "Magical|Info")
@@ -54,7 +61,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Magical|Info")
 	bool IsMusicPlaying();
-	
+
+	UFUNCTION(BlueprintCallable, Category = "Magical|Quratz")
+	UQuartzClockHandle* GetMusicClockHandle() const { return MusicClockHandle;}
 	
 // 게임 로직 - 공격 시 판정
 public:
@@ -90,7 +99,7 @@ private:
 	TObjectPtr<UQuartzClockHandle> MusicClockHandle;
 	
 	UPROPERTY(Transient)
-	TObjectPtr<UAudioComponent> AudioComponent;
+	TObjectPtr<UAudioComponent> MusicAudioComponent;
 	
 private:
 	// 머티리얼 파라미터 컬렉션 포인터 저장
