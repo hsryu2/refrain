@@ -10,8 +10,6 @@
 #include "Character/RACharacterPlayer.h"
 #include "Animation/RACharacterAnimationData.h"
 #include "Components/CapsuleComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "TimerManager.h"
 
 ARACharacterNonPlayer::ARACharacterNonPlayer()
 {
@@ -116,41 +114,14 @@ void ARACharacterNonPlayer::Die()
 		MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 	
-	// 이동 중지 및 AI 동작 정지를 위해 컨트롤러 빙의 해제
-	if (UCharacterMovementComponent* MovementComp = GetCharacterMovement())
-	{
-		MovementComp->StopMovementImmediately();
-		MovementComp->DisableMovement();
-	}
-	
-	if (AController* AIController = GetController())
-	{
-		AIController->UnPossess();
-	}
-
-	
-	float MontageDuration = 0.f;
 	if (const URACharacterAnimationData* AnimData = GetAnimationData())
 	{
 		if (UAnimMontage* DeathMontage = AnimData->DeathMontage)
 		{
-			MontageDuration = PlayAnimMontage(DeathMontage);
+			PlayAnimMontage(DeathMontage);
 		}
 	}
 	
-	// 애니메이션이 있으면 해당 시간만큼 대기 후 디졸브, 없으면 즉시 디졸브
-	if (MontageDuration > 0.f)
-	{
-		GetWorld()->GetTimerManager().SetTimer(DeathTimerHandle, this, &ARACharacterNonPlayer::TriggerDissolve, MontageDuration, false);
-	}
-	else
-	{
-		TriggerDissolve();
-	}
-}
-
-void ARACharacterNonPlayer::TriggerDissolve()
-{
 	// 소멸 이펙트를 위한 Gameplay Cue 트리거
 	if (ASC)
 	{
