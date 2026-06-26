@@ -24,6 +24,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Targeting)
 	void SetTargetActorClass(TSubclassOf<AActor> InTargetActorClass);
 	
+	UFUNCTION(BlueprintCallable, Category = Targeting)
+	TArray<AActor*> HitSweep() const;
+	
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -33,8 +36,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Targeting)
 	float SearchRadius = 700.0f;
 	
+	// 타겟찾는 반경 360도
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Targeting)
-	float MaxTargetAngle = 270.0f;
+	float MaxTargetAngle = 360.0f;
 	
 	// 타겟팅할 콜리전채널을 확인.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Targeting)
@@ -44,8 +48,15 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Targeting)
 	TSubclassOf<ARACharacterBase> TargetActorClass;
 	
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Targeting)
+	float SweepDistance = 75.0f; 
 
-
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Targeting)
+	float SweepStartOffset  = 75.0f; 
+	
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Targeting)
+	float SphereSize  = 75.0f; 
+	
 private:
 	bool IsValidTarget(AActor* TargetActor) const;
 	float CalculateTargetScore(AActor* TargetActor) const;
