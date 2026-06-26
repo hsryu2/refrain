@@ -7,7 +7,7 @@
 		{
 			"Name": "Refrain",
 			"Type": "Runtime",
-			"LoadingPhase": "PreDefault",
+			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
 				"Engine",
 				"AudioMixer",

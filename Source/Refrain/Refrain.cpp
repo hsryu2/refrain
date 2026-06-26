@@ -3,19 +3,6 @@
 #include "Refrain.h"
 #include "Modules/ModuleManager.h"
 
-class FRefrainModule : public FDefaultGameModuleImpl
-{
-public:
-	virtual void StartupModule() override
-	{
-		FDefaultGameModuleImpl::StartupModule();
-
-#if WITH_EDITOR
-		FModuleManager::Get().LoadModulePtr<IModuleInterface>(TEXT("IKRigDeveloper"));
-#endif
-	}
-};
-
-IMPLEMENT_PRIMARY_GAME_MODULE(FRefrainModule, Refrain, "Refrain");
+IMPLEMENT_PRIMARY_GAME_MODULE(FDefaultGameModuleImpl, Refrain, "Refrain");
 
 DEFINE_LOG_CATEGORY(LogRefrain);
