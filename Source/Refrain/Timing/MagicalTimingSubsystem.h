@@ -45,7 +45,7 @@ public:
 // 게임 로직 - 효과음 재생
 public:
 	UFUNCTION(BlueprintCallable, Category = "Magical|Control")
-	bool PlaySFXQuantized(USoundBase* InSound, EQuartzCommandQuantization InQuantization = EQuartzCommandQuantization::Beat);
+	bool PlaySFXQuantized(USoundBase* InSound, EQuartzCommandQuantization InQuantization = EQuartzCommandQuantization::Beat, float InMultiplier = 1.f);
 
 // Getter
 public:

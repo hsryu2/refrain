@@ -175,7 +175,7 @@ bool UMagicalTimingSubsystem::StopMusic()
 	return true;
 }
 
-bool UMagicalTimingSubsystem::PlaySFXQuantized(USoundBase* InSound, EQuartzCommandQuantization InQuantization)
+bool UMagicalTimingSubsystem::PlaySFXQuantized(USoundBase* InSound, EQuartzCommandQuantization InQuantization, float InMultiplier)
 {
 	if (!IsMusicPlaying())
 	{
@@ -197,7 +197,10 @@ bool UMagicalTimingSubsystem::PlaySFXQuantized(USoundBase* InSound, EQuartzComma
 	}
 	
 	// 재생
-	FQuartzQuantizationBoundary QuantizationBoundary(InQuantization);
+	FQuartzQuantizationBoundary QuantizationBoundary(
+		InQuantization,
+		FMath::Max(1.f, InMultiplier),
+		EQuarztQuantizationReference::CurrentTimeRelative);
 	UQuartzClockHandle* RawClockHandle = MusicClockHandle.Get();
 	SFXAudioComponent->PlayQuantized(
 		GetWorld(),

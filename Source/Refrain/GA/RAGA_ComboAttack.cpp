@@ -132,7 +132,6 @@ void URAGA_ComboAttack::OnMontagePlayRate(FGameplayEventData Payload)
 	else if (Payload.EventTag == RefrainGameplayTags::Event_Montage_PlayRate_AnticipationToStrike)
 	{
 		ASC->CurrentMontageSetPlayRate(StrikePlayRate);
-		SetHitSound();
 	}
 	else if (Payload.EventTag == RefrainGameplayTags::Event_Montage_PlayRate_StrikeToRecovery)
 	{
@@ -177,6 +176,11 @@ void URAGA_ComboAttack::PlayAttackMontage()
 	if (TargetActor)
 	{
 		UpdateAttackMotionWarpTarget();
+	}
+
+	if (TargetActor)
+	{
+		SetHitSound();
 	}
 	
 	// 공격 GE 실행
@@ -364,6 +368,7 @@ void URAGA_ComboAttack::CalculatePlayRates(const UAnimMontage* Montage)
 	const float MaxPlayRate = 3.f;
 	
 	MontageStartTime = 0.f;
+	HitSoundBeatMultiplier = 1.f;
 	
 	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
 	if (!MagicalTiming || !MagicalTiming->IsMusicPlaying())
@@ -398,6 +403,7 @@ void URAGA_ComboAttack::CalculatePlayRates(const UAnimMontage* Montage)
 		(1.f + StartupToAnticipationInBeatProgress - BeatProgress) * SecondsPerBeat;
 	TargetTime1 = FMath::Max(TargetTime1, UE_KINDA_SMALL_NUMBER);
 	StartupPlayRate = MontageTime1 / TargetTime1;
+	HitSoundBeatMultiplier = BeatProgress < StartupToAnticipationInBeatProgress ? 1.f : 2.f;
 	
 	// 예외처리 - 초반구간 재생속도가 너무 빠를 경우 앞부분 스킵
 	if (StartupPlayRate > MaxPlayRate)
@@ -434,7 +440,14 @@ void URAGA_ComboAttack::SetHitSound()
 		RA_LOG(LogRefrain, Warning, TEXT("HitSound Not Found"));
 		return;
 	}
+
+	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
+	if (!MagicalTiming)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("MagicalTimingSubsystem Not Found"));
+		return;
+	}
 	
-	RA_LOG(LogRefrain, Log, TEXT("HitSound"));
-	GetWorld()->GetSubsystem<UMagicalTimingSubsystem>()->PlaySFXQuantized(HitSound);
+	RA_LOG(LogRefrain, Log, TEXT("HitSound Queued"));
+	MagicalTiming->PlaySFXQuantized(HitSound, EQuartzCommandQuantization::Beat, HitSoundBeatMultiplier);
 }

@@ -122,4 +122,5 @@ protected:
 	float StrikePlayRate;
 	float RecoveryPlayRate;
 	float MontageStartTime;
+	float HitSoundBeatMultiplier = 1.f;
 };
