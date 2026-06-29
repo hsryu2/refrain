@@ -12,6 +12,7 @@
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Animation/AN_SendGameplayEvent.h"
 #include "Animation/RACharacterAnimationData.h"
+#include "Attribute/RAAttributeSet.h"
 #include "Character/RACharacterBase.h"
 #include "Component/AttackTargetingComponent.h"
 #include "Timing/MagicalTimingSubsystem.h"
@@ -366,9 +367,19 @@ FGameplayTag URAGA_ComboAttack::SetJudgement()
 
 float URAGA_ComboAttack::GetDamageAmount() const
 {
-	float BaseDamage = 10.0f;
-	float Multiplier = 1.0f;
+	float BaseDamage = 0.0f;
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	if (ASC)
+	{
+		const URAAttributeSet*  AttributeSet = ASC->GetSet<URAAttributeSet>();
+		if (AttributeSet)
+		{
+			BaseDamage = AttributeSet->GetAttackPower();
+		}
+	}
 	
+	float Multiplier = 1.0f;
+
 	if (CurrentJudgementTag == RefrainGameplayTags::Judge_Perfect)
 	{
 		Multiplier = 1.5f;

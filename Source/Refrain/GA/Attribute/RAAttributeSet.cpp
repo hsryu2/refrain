@@ -6,7 +6,7 @@
 #include "GameplayEffectExtension.h"
 
 URAAttributeSet::URAAttributeSet() 
-	: AttackPower(100.0f)
+	: AttackPower(0.0f)
 	, Health(0.0f)
 	, MaxHealth(0.0f)
 {
