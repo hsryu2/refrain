@@ -22,7 +22,7 @@ namespace RefrainGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Judge_Perfect, "Judge.Perfect", "Perfect 판정");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Judge_Good, "Judge.Good", "Good 판정");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Judge_Bad, "Judge.Bad", "Bad 판정");
-	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Judge_None, "Judge.None", "공격 대상이 없을 때");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Judge_Miss, "Judge.Miss", "공격 대상이 없을 때");
 
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_PlayRate, "Event.Montage.PlayRate", "하위 태그들 공통으로 이벤트 호출하기 위한 태그");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_PlayRate_StartupToAnticipation, "Event.Montage.PlayRate.StartupToAnticipation", "공격 준비 모션이 드러나기 시작하는 시점");
