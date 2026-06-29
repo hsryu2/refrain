@@ -34,19 +34,19 @@ public:
 	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 protected:
-	UPROPERTY(BlueprintReadOnly, Category="Attack", Meta=(AllowPrivateAccess=true))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attack", Meta=(AllowPrivateAccess=true))
 	FGameplayAttributeData AttackPower;
 	
-	UPROPERTY(BlueprintReadOnly, Category="Status", Meta=(AllowPrivateAccess=true))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Status", Meta=(AllowPrivateAccess=true))
 	FGameplayAttributeData Health;
 	
-	UPROPERTY(BlueprintReadOnly, Category="Status", Meta=(AllowPrivateAccess=true))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Status", Meta=(AllowPrivateAccess=true))
 	FGameplayAttributeData MaxHealth;
 	
 	UPROPERTY()
 	FGameplayAttributeData Damage;
 	
-	UPROPERTY(BlueprintReadOnly, Category="Status", meta=(AllowPrivateAccess=true))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Status", meta=(AllowPrivateAccess=true))
 	FGameplayAttributeData Defense;
 	
 	
