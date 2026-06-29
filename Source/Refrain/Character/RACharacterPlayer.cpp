@@ -8,6 +8,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "MotionWarpingComponent.h"
+#include "RACharacterNonPlayer.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -17,7 +18,9 @@
 #include "Refrain/Component/AttackTargetingComponent.h"
 #include "Refrain/Player/RAPlayerState.h"
 #include "Component/AttackTargetingComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Player/RAPlayerController.h"
+#include "UI/NPCHealthBarWidget.h"
 
 class ARAPlayerController;
 // Sets default values
@@ -95,7 +98,16 @@ void ARACharacterPlayer::BeginPlay()
 void ARACharacterPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
+	// 틱마다 타겟팅 컴포넌트를 이욜해 타겟 저장
+	AActor* FoundTarget = TargetingComponent->FindAttackTarget();
+	ARACharacterNonPlayer* NewTarget = Cast<ARACharacterNonPlayer>(FoundTarget);
+	
+	// 기존 타겟과 다르면 타겟 업데이트.
+	if (CurrentTarget != NewTarget)
+	{
+		UpdateTarget(NewTarget);
+	}
 }
 
 void ARACharacterPlayer::PossessedBy(AController* NewController)
@@ -171,6 +183,39 @@ void ARACharacterPlayer::GASInputReleased(int32 InputId)
 			ASC->AbilitySpecInputReleased(*Spec);
 		}
 	}
+}
+
+void ARACharacterPlayer::UpdateTarget(ARACharacterNonPlayer* NewTarget)
+{
+	// 기존 타겟이 있었다면, 그 타겟의 체력바를 숨김.
+	if (CurrentTarget)
+	{
+		UWidgetComponent* HealthBarComp = CurrentTarget->GetHealthWidgetComponent();
+		if (HealthBarComp)
+		{
+			HealthBarComp->SetVisibility(false);
+		}
+	}
+	
+	// 새로운 타겟을 현재 타겟으로 변경.
+	CurrentTarget = NewTarget;
+	
+	if (CurrentTarget)
+	{
+		UWidgetComponent* HealthBarComp = CurrentTarget->GetHealthWidgetComponent();
+		if (HealthBarComp)
+		{
+			HealthBarComp->SetVisibility(true);
+			
+			UNPCHealthBarWidget* HealthBarWidget = Cast<UNPCHealthBarWidget>(HealthBarComp->GetUserWidgetObject());
+			if (HealthBarWidget)
+			{
+				UAbilitySystemComponent* TargetASC = CurrentTarget->GetAbilitySystemComponent();
+				HealthBarWidget->SetOwnerASC(TargetASC);
+			}
+		}
+	}
+	
 }
 
 // Called to bind functionality to input

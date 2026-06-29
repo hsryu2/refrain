@@ -11,6 +11,8 @@
 #include "Player/RAPlayerState.h"
 #include "RACharacterPlayer.generated.h"
 
+class ARACharacterNonPlayer;
+
 UCLASS()
 class REFRAIN_API ARACharacterPlayer : public ARACharacterBase
 {
@@ -93,4 +95,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=MotionWarping)
 	TObjectPtr<class UMotionWarpingComponent> MotionWarpingComponent;
 	
+private:
+	// 현재 타겟팅 중인 NPC
+	UPROPERTY()
+	TObjectPtr<ARACharacterNonPlayer> CurrentTarget;
+	
+	// 타겟이 변경되었을 때 처리하는 함수.
+	void UpdateTarget(ARACharacterNonPlayer* NewTarget);
 };
