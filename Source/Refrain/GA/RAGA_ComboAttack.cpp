@@ -46,7 +46,7 @@ void URAGA_ComboAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	SetTargetActor();
 	
 	// 첫 타에 대한 타이밍 판정 수행
-	SetJudgement();
+	CurrentJudgementTag = SetJudgement();
 	
 	// AN_SendGameplayEvent로부터 받을 태그로 델리게이트 등록
 	UAbilityTask_WaitGameplayEvent* AttackHitTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
@@ -159,6 +159,11 @@ void URAGA_ComboAttack::OnNextComboStart(FGameplayEventData Payload)
 void URAGA_ComboAttack::Attack()
 {
 	RA_LOG(LogRefrain, Log, TEXT("Current Combo: %d"), CurrentCombo);
+	if (CurrentCombo > 0)
+	{
+		CurrentJudgementTag = QueuedJudgementTag;
+	}
+	
 	PlayAttackMontage();
 	bHasQueuedAttackInput = false;
 }
@@ -313,21 +318,24 @@ void URAGA_ComboAttack::SetTargetActor()
 	}
 }
 
-void URAGA_ComboAttack::SetJudgement()
+FGameplayTag URAGA_ComboAttack::SetJudgement()
 {
 	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
+	
+	FGameplayTag ResultTag;
+	
 	if (!MagicalTiming)
 	{
 		RA_LOG(LogRefrain, Error, TEXT("MagicalTimingSubsystem Not Found"));
-		JudgementTag = RefrainGameplayTags::Judge_Miss;
-		return;
+		ResultTag = RefrainGameplayTags::Judge_Miss;
+		return ResultTag;
 	}
 	
 	if (!MagicalTiming->IsMusicPlaying())
 	{
 		RA_LOG(LogRefrain, Warning, TEXT("Music Not Playing"));
-		JudgementTag = RefrainGameplayTags::Judge_Miss;
-		return;
+		ResultTag = RefrainGameplayTags::Judge_Miss;
+		return ResultTag;
 	}
 	
 	// 입력 타이밍 오차를 절대값으로 확인.
@@ -336,27 +344,49 @@ void URAGA_ComboAttack::SetJudgement()
 	
 	if (!TargetActor)
 	{
-		JudgementTag = RefrainGameplayTags::Judge_Miss;
+		ResultTag = RefrainGameplayTags::Judge_Miss;
 	}
 	else if (AbsTimingDifference < 0.05f)
 	{
-		JudgementTag = RefrainGameplayTags::Judge_Perfect;
+		ResultTag = RefrainGameplayTags::Judge_Perfect;
 	}
 	else if (AbsTimingDifference < 0.2f)
 	{
-		JudgementTag = RefrainGameplayTags::Judge_Good;
+		ResultTag = RefrainGameplayTags::Judge_Good;
 	}
 	else
 	{
-		JudgementTag = RefrainGameplayTags::Judge_Bad;
+		ResultTag = RefrainGameplayTags::Judge_Bad;
 	}
 	
-	RA_LOG(LogRefrain, Log, TEXT("[콤보 %d] 입력 타이밍 오차: %.3f초 -> 판정 결과: %s"), CurrentCombo, TimingDifference, *JudgementTag.ToString());
+	RA_LOG(LogRefrain, Log, TEXT("[콤보 %d] 입력 타이밍 오차: %.3f초 -> 판정 결과: %s"), CurrentCombo, TimingDifference, *ResultTag.ToString());
+	
+	return ResultTag;
 }
 
 float URAGA_ComboAttack::GetDamageAmount() const
 {
-	return 10.0f;
+	float BaseDamage = 10.0f;
+	float Multiplier = 1.0f;
+	
+	if (CurrentJudgementTag == RefrainGameplayTags::Judge_Perfect)
+	{
+		Multiplier = 1.5f;
+	}
+	else if (CurrentJudgementTag == RefrainGameplayTags::Judge_Good)
+	{
+		Multiplier = 1.2f;
+	}
+	else if (CurrentJudgementTag == RefrainGameplayTags::Judge_Bad)
+	{
+		Multiplier = 0.8f;
+	}
+	else if (CurrentJudgementTag == RefrainGameplayTags::Judge_Miss)
+	{
+		Multiplier = 0.5f;
+	}
+	
+	return BaseDamage * Multiplier;
 }
 
 void URAGA_ComboAttack::CalculatePlayRates(const UAnimMontage* Montage)
@@ -426,7 +456,7 @@ void URAGA_ComboAttack::CalculatePlayRates(const UAnimMontage* Montage)
 
 void URAGA_ComboAttack::SetNextCombo()
 {
-	SetJudgement();
 	CurrentCombo++;
+	QueuedJudgementTag = SetJudgement();
 	bHasQueuedAttackInput = true;
 }
