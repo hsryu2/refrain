@@ -22,11 +22,11 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
 
 public:
 	virtual URACharacterAnimationData* GetAnimationData() const { return AnimationData; }
-
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	virtual void Die();
 	
 // 블루프린트에서 설정해줘야 하는 변수
