@@ -5,6 +5,8 @@
 
 #include "AbilitySystemComponent.h"
 #include "Refrain/GA/Attribute/RAAttributeSet.h"
+//#include "GameFramework/GameplayMessageSubsystem.h"
+#include "GameplayEffect.h"
 
 ARAPlayerState::ARAPlayerState()
 {
@@ -14,6 +16,23 @@ ARAPlayerState::ARAPlayerState()
 	//ASC->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 	
 	AttributeSet = CreateDefaultSubobject<URAAttributeSet>(TEXT("AttributeSet"));
+}
+
+void ARAPlayerState::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (ASC && InitStatEffect)
+	{
+		FGameplayEffectContextHandle ContextHandle = ASC->MakeEffectContext();
+		ContextHandle.AddInstigator(GetPawn(), GetPawn());
+
+		FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(InitStatEffect, 1.0f, ContextHandle);
+		if (SpecHandle.IsValid())
+		{
+			ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		}
+	}
 }
 
 class UAbilitySystemComponent* ARAPlayerState::GetAbilitySystemComponent() const

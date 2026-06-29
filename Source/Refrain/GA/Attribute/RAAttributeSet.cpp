@@ -7,8 +7,8 @@
 
 URAAttributeSet::URAAttributeSet() 
 	: AttackPower(100.0f)
-	, Health(100.0f)
-	, MaxHealth(100.0f)
+	, Health(0.0f)
+	, MaxHealth(0.0f)
 {
 	
 }
@@ -31,9 +31,16 @@ void URAAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, f
 {
 	Super::PostAttributeChange(Attribute, OldValue, NewValue);
 	
-	if (Attribute == GetMaxHealthAttribute() && GetHealth() > NewValue)
+	if (Attribute == GetMaxHealthAttribute())
 	{
-		SetHealth(NewValue);
+		if (GetHealth() == 0.0f)
+		{
+			SetHealth(NewValue);
+		}
+		else if (GetHealth() > NewValue)
+		{
+			SetHealth(NewValue);
+		}
 	}
 }
 
