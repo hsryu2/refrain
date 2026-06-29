@@ -36,6 +36,16 @@ ARACharacterNonPlayer::ARACharacterNonPlayer()
 	
 	TargetingComponent = CreateDefaultSubobject<UAttackTargetingComponent>(TEXT("TargetingComponent"));
 	TargetingComponent->SetTargetActorClass(ARACharacterPlayer::StaticClass());
+	
+	// 체력바 위젯
+	HealthWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthWidget"));
+	HealthWidget->SetupAttachment(GetMesh());
+	
+	HealthWidget->SetWidgetSpace(EWidgetSpace::Screen);
+	HealthWidget->SetDrawSize(FVector2D(150,20));
+	HealthWidget->SetRelativeLocation(FVector(0.0f, 0.0f, 200.0f));
+	// 타겟팅 됐을 때만 보일 수 있도록 평상시에는 위젯 비활성화.
+	HealthWidget->SetVisibility(false);
 }
 
 void ARACharacterNonPlayer::SetRhythmWidgetVisibility(bool bShow)

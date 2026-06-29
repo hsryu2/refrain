@@ -67,7 +67,7 @@ protected:
 	void SetTargetActor();
 	
 	// 타이밍 판정 및 저장
-	void SetJudgement();
+	FGameplayTag SetJudgement();
 	
 	// 대미지 계산
 	float GetDamageAmount() const;
@@ -114,7 +114,10 @@ protected:
 	bool bIsMontageInterruptedByCombo = false;
 	
 	// 입력 타이밍 판정 결과 저장
-	FGameplayTag JudgementTag;
+	// 입력 타이밍 판정 결과를 분리해서 저장
+	// 다음 입력의 것을 받아두는 것.
+	FGameplayTag CurrentJudgementTag;
+	FGameplayTag QueuedJudgementTag;
 	
 	// 애니메이션 구간별 재생 속도
 	float StartupPlayRate;

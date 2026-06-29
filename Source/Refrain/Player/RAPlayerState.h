@@ -16,6 +16,7 @@ class REFRAIN_API ARAPlayerState : public APlayerState, public IAbilitySystemInt
 	GENERATED_BODY()
 public:
 	ARAPlayerState();
+	virtual void BeginPlay() override;
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	
 	
@@ -25,5 +26,10 @@ protected:
 	
 	UPROPERTY()
 	TObjectPtr<class URAAttributeSet> AttributeSet;
+
+private:
+	/** 플레이어 전용 스탯 초기화 GE */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS|Init", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class UGameplayEffect> InitStatEffect;
 	
 };

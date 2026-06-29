@@ -9,6 +9,8 @@
 #include "AbilitySystemInterface.h"
 #include "GA/Attribute/RAAttributeSet.h"
 #include "GameplayEffectTypes.h"
+#include "AbilitySystemComponent.h"
+
 
 #include "RACharacterNonPlayer.generated.h"
 
@@ -36,6 +38,8 @@ public:
 	오프의 기준은 NPC의 공격이 다 끝날 때 등 입니다.\n 추가적으로, 아직은 공격을 할 떄 켜고 끄는 기능 밖에 없어 공격 속도와 동기화가 되어있거나 하지 않습니다!
 	 */
 	void SetRhythmWidgetVisibility(bool bShow);
+	
+	UWidgetComponent* GetHealthWidgetComponent() const {return HealthWidget;}
 	
 protected:
 	// --- override ---
@@ -107,8 +111,8 @@ private:
 	 */
 	virtual void OnHealthChanged(const FOnAttributeChangeData& Data);
 	
+protected:
 	// HP 위젯
-private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = true))
 	UWidgetComponent* HealthWidget;
 };
