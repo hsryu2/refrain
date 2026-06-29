@@ -1,0 +1,69 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "UI/MainMenu/RAMainMenuWidget.h"
+
+#include "Refrain.h"
+#include "Components/WidgetSwitcher.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Components/Button.h"
+#include "Components/Widget.h"
+#include "Math/UnrealMathUtility.h"
+
+#include "UI/MainMenu/RAMenuButtonWidget.h"
+
+void URAMainMenuWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	// 호버 이벤트 바인딩
+	if (Btn_Continue) Btn_Continue->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+	if (Btn_NewGame) Btn_NewGame->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+	if (Btn_Settings) Btn_Settings->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+	if (Btn_Credits) Btn_Credits->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+	if (Btn_ExitGame) Btn_ExitGame->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+
+	// 초기 위치 설정 (선택된 인덱스 기준)
+	TargetTranslationY = SelectedIndex * MenuSpacing;
+	CurrentTranslationY = TargetTranslationY;
+}
+
+void URAMainMenuWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	// 하이라이트 위젯 부드러운 이동 (FInterpTo 사용)
+	if (SelectionHighlight)
+	{
+		CurrentTranslationY = FMath::FInterpTo(CurrentTranslationY, TargetTranslationY, InDeltaTime, 12.0f);
+		SelectionHighlight->SetRenderTranslation(FVector2D(0.0f, CurrentTranslationY));
+	}
+}
+
+void URAMainMenuWidget::UpdateHighlightPosition(int32 MenuIndex)
+{
+	// 같은 버튼에 다시 마우스를 올린 거라면 무시
+	if (SelectedIndex == MenuIndex)
+	{
+		return;
+	}
+
+	TArray<URAMenuButtonWidget*> MenuButtons = {Btn_Continue, Btn_NewGame, Btn_Settings, Btn_Credits, Btn_ExitGame};
+	
+	// 1. 이전에 선택되어 있던 버튼만 찾아서 애니메이션 끄기 (역재생)
+	if (MenuButtons.IsValidIndex(SelectedIndex) && MenuButtons[SelectedIndex])
+	{
+		MenuButtons[SelectedIndex]->OnSelectionStateChanged(false);
+	}
+
+	// 2. 방금 새로 마우스가 올라간 버튼만 애니메이션 켜기 (정재생)
+	if (MenuButtons.IsValidIndex(MenuIndex) && MenuButtons[MenuIndex])
+	{
+		MenuButtons[MenuIndex]->OnSelectionStateChanged(true);
+	}
+
+	// 3. 사다리꼴의 이동 및 현재 인덱스 갱신
+	SelectedIndex = MenuIndex;
+	TargetTranslationY = MenuIndex * MenuSpacing;
+}
+
