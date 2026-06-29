@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Action Magical Girl UI</title>
+    <style>
+        /* 폰트 임포트: 원본 느낌을 살리기 위해 길쭉하고 각진 폰트 사용 */
+        @import url('https://fonts.googleapis.com/css2?family=Teko:wght@500;700&display=swap');
+        
+        :root {
+            /* 마법소녀 테마 컬러 팔레트 */
+            --hot-pink: #FF007F;
+            --neon-purple: #9D00FF;
+            --space-navy: #0B0C10;
+            --star-white: #F0F8FF;
+            --cyan-glow: #00FFFF;
+        }
+
+        body, html {
+            margin: 0; padding: 0; height: 100%; width: 100%;
+            background-color: #000;
+            display: flex; justify-content: center; align-items: center;
+            font-family: 'Teko', sans-serif;
+            overflow: hidden;
+        }
+
+        /* 전체 화면 컨테이너 (16:9 비율 유지) */
+        .screen {
+            width: 100vw; height: 100vh;
+            position: relative;
+            /* 사이버펑크 야간 도시 느낌의 어두운 배경 대체 */
+            background: radial-gradient(circle at 70% 50%, #2a0845 0%, #0B0C10 70%);
+            overflow: hidden;
+        }
+
+        /* 중앙 네온 로고 (마법소녀 테마 텍스트) */
+        .center-logo {
+            position: absolute; top: 50%; left: 65%;
+            transform: translate(-50%, -50%) rotate(-5deg);
+            z-index: 2;
+            text-align: center;
+            line-height: 0.85;
+            user-select: none;
+        }
+        .center-logo h1 {
+            margin: 0; font-size: 8rem; color: transparent;
+            -webkit-text-stroke: 3px var(--hot-pink);
+            text-shadow: 0 0 15px var(--hot-pink), 0 0 30px var(--hot-pink);
+            font-weight: 700; text-transform: uppercase;
+        }
+        .center-logo h1.sub {
+            font-size: 10rem; color: var(--star-white);
+            -webkit-text-stroke: 0;
+            text-shadow: 0 0 15px var(--neon-purple), 0 0 40px var(--neon-purple);
+        }
+
+        /* -------------------------------------
+           왼쪽 메인 메뉴 패널 (사선 깎기 적용)
+        -------------------------------------- */
+        .left-panel {
+            position: absolute; top: 0; left: -10%; width: 45%; height: 100%;
+            background-color: rgba(11, 12, 16, 0.95); /* 노란색 대신 우주 남색 */
+            transform: skewX(-15deg); /* UE의 Shear X: -0.15 와 동일한 효과 */
+            z-index: 3;
+            border-right: 8px solid var(--neon-purple);
+            box-shadow: 15px 0 40px rgba(157, 0, 255, 0.4);
+            display: flex; flex-direction: column; justify-content: center;
+        }
+
+        .menu-container {
+            transform: skewX(15deg); /* 글씨는 똑바로 보이게 역으로 기울임 */
+            margin-left: 25%;
+            display: flex; flex-direction: column; gap: 5px;
+        }
+
+        .menu-item {
+            font-size: 3.5rem; color: var(--hot-pink); /* 핫핑크 텍스트 */
+            text-transform: uppercase; cursor: pointer;
+            transition: all 0.2s; position: relative; width: fit-content;
+            line-height: 1.1; letter-spacing: 2px;
+        }
+        
+        /* 선택된 메뉴 (보라색 사선 배경) */
+        .menu-item.active {
+            color: var(--star-white);
+            background-color: var(--neon-purple);
+            padding: 5px 60px 5px 20px;
+            transform: skewX(-15deg);
+            margin-left: -20px;
+            box-shadow: 0 0 15px var(--neon-purple);
+        }
+        .menu-item.active span {
+            display: block; transform: skewX(15deg);
+        }
+
+        .menu-item:hover:not(.active) {
+            color: var(--cyan-glow);
+            text-shadow: 0 0 15px var(--cyan-glow);
+        }
+
+        /* 하단 배너 (핫핑크 사선 배경) */
+        .early-access {
+            background-color: var(--hot-pink);
+            color: var(--star-white);
+            transform: skewX(-15deg);
+            padding: 10px 60px 10px 20px; margin-top: 40px;
+            font-size: 3rem; font-weight: bold; width: fit-content;
+            margin-left: -20px;
+            box-shadow: 0 0 20px rgba(255, 0, 127, 0.6);
+            letter-spacing: 2px; cursor: pointer;
+        }
+        .early-access span {
+            display: block; transform: skewX(15deg);
+        }
+        .early-access:hover { background-color: var(--star-white); color: var(--hot-pink); }
+
+        /* -------------------------------------
+           오른쪽 유틸리티 메뉴 
+        -------------------------------------- */
+        .utility-menu {
+            position: absolute; right: 2%; top: 55%;
+            transform: translateY(-50%); z-index: 3;
+            display: flex; flex-direction: column; gap: 15px; align-items: flex-end;
+        }
+        .util-btn {
+            display: flex; align-items: center; gap: 15px; cursor: pointer;
+        }
+        .util-text {
+            color: var(--star-white); font-size: 1.5rem; text-shadow: 2px 2px 4px #000;
+            font-family: sans-serif; font-weight: bold;
+        }
+        .util-icon-box {
+            background-color: var(--star-white); width: 60px; height: 60px;
+            transform: skewX(-15deg); display: flex; justify-content: center; align-items: center;
+            border: 4px solid var(--neon-purple);
+            box-shadow: 0 0 15px var(--neon-purple);
+            transition: all 0.2s;
+        }
+        .util-icon-box span {
+            transform: skewX(15deg); font-size: 1.8rem;
+        }
+        .util-btn:hover .util-icon-box {
+            background-color: var(--hot-pink); border-color: var(--star-white);
+        }
+
+        /* -------------------------------------
+           우측 하단 소셜 메뉴
+        -------------------------------------- */
+        .social-panel {
+            position: absolute; bottom: 0; right: -5%; width: 45%; height: 90px;
+            background-color: var(--hot-pink);
+            transform: skewX(20deg);
+            z-index: 3;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: -5px -5px 25px rgba(255, 0, 127, 0.5);
+        }
+        .social-icons {
+            transform: skewX(-20deg);
+            display: flex; gap: 40px; margin-right: 15%;
+        }
+        .social-icons span {
+            color: var(--space-navy); font-size: 2rem; cursor: pointer; font-weight: bold;
+            transition: color 0.2s;
+        }
+        .social-icons span:hover { color: var(--star-white); }
+        
+        /* -------------------------------------
+           마법소녀 테마 반짝임 장식 (Sparkle)
+        -------------------------------------- */
+        .sparkle {
+            position: absolute; background: var(--cyan-glow);
+            width: 3px; height: 25px; z-index: 4;
+            box-shadow: 0 0 15px var(--cyan-glow);
+            border-radius: 50%;
+        }
+        .sparkle.h { width: 25px; height: 3px; }
+        
+        .s1 { top: 25%; left: 45%; }
+        .s2 { top: 65%; left: 85%; transform: scale(1.5); }
+        .s3 { top: 40%; left: 90%; transform: scale(0.8); }
+
+    </style>
+</head>
+<body>
+    <div class="screen">
+        
+        <!-- 중앙 타이틀 -->
+        <div class="center-logo">
+            <h1>MAGICAL</h1>
+            <h1 class="sub">STRIKE</h1>
+        </div>
+
+        <!-- 왼쪽 사선 메인 메뉴 -->
+        <div class="left-panel">
+            <div class="menu-container">
+                <div class="menu-item active"><span>CONTINUE</span></div>
+                <div class="menu-item">NEW GAME</div>
+                <div class="menu-item">MULTIPLAYER</div>
+                <div class="menu-item">SETTINGS</div>
+                <div class="menu-item">CREDITS</div>
+                <div class="menu-item">EXIT GAME</div>
+                
+                <div class="early-access"><span>SEASON 1: AWAKENING</span></div>
+            </div>
+        </div>
+
+        <!-- 오른쪽 유틸리티 메뉴 -->
+        <div class="utility-menu">
+            <div class="util-btn">
+                <div class="util-text">Patch Notes</div>
+                <div class="util-icon-box"><span>📝</span></div>
+            </div>
+            <div class="util-btn">
+                <div class="util-text">Playtest Signup</div>
+                <div class="util-icon-box"><span>🎮</span></div>
+            </div>
+            <div class="util-btn">
+                <div class="util-text">Give Feedback</div>
+                <div class="util-icon-box"><span>📢</span></div>
+            </div>
+        </div>
+
+        <!-- 우측 하단 소셜 메뉴 -->
+        <div class="social-panel">
+            <div class="social-icons">
+                <span>Discord</span>
+                <span>YouTube</span>
+                <span>TikTok</span>
+                <span>Insta</span>
+            </div>
+        </div>
+        
+        <!-- 마법소녀 특유의 반짝임(십자) 파티클 효과 데코 -->
+        <div class="sparkle s1"></div>
+        <div class="sparkle h s1" style="transform: translate(-11px, 11px);"></div>
+        
+        <div class="sparkle s2"></div>
+        <div class="sparkle h s2" style="transform: translate(-11px, 11px) scale(1.5);"></div>
+
+        <div class="sparkle s3"></div>
+        <div class="sparkle h s3" style="transform: translate(-11px, 11px) scale(0.8);"></div>
+        
+    </div>
+</body>
+</html>
