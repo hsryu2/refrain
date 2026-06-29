@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "RAGA_ComboAttack.h"
@@ -41,6 +41,12 @@ void URAGA_ComboAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	}
 	TargetingComponent = AvatarCharacter->FindComponentByClass<UAttackTargetingComponent>();
 	CurrentCombo = 0;
+	
+	// 타겟이 있어야 판정이 인정되므로 먼저 타겟팅을 수행
+	SetTargetActor();
+	
+	// 첫 타에 대한 타이밍 판정 수행
+	SetJudgement();
 	
 	// AN_SendGameplayEvent로부터 받을 태그로 델리게이트 등록
 	UAbilityTask_WaitGameplayEvent* AttackHitTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
@@ -324,17 +330,19 @@ void URAGA_ComboAttack::SetJudgement()
 		return;
 	}
 	
+	// 입력 타이밍 오차를 절대값으로 확인.
 	const float TimingDifference = MagicalTiming->JudgeTiming();
+	const float AbsTimingDifference = FMath::Abs(TimingDifference);
 	
 	if (!TargetActor)
 	{
 		JudgementTag = RefrainGameplayTags::Judge_Miss;
 	}
-	else if (TimingDifference < 0.05f)
+	else if (AbsTimingDifference < 0.05f)
 	{
 		JudgementTag = RefrainGameplayTags::Judge_Perfect;
 	}
-	else if (TimingDifference < 0.2f)
+	else if (AbsTimingDifference < 0.2f)
 	{
 		JudgementTag = RefrainGameplayTags::Judge_Good;
 	}
@@ -343,7 +351,7 @@ void URAGA_ComboAttack::SetJudgement()
 		JudgementTag = RefrainGameplayTags::Judge_Bad;
 	}
 	
-	RA_LOG(LogRefrain, Log, TEXT("JudgementTag: %s"), *JudgementTag.ToString());
+	RA_LOG(LogRefrain, Log, TEXT("[콤보 %d] 입력 타이밍 오차: %.3f초 -> 판정 결과: %s"), CurrentCombo, TimingDifference, *JudgementTag.ToString());
 }
 
 float URAGA_ComboAttack::GetDamageAmount() const
