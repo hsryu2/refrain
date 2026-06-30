@@ -5,12 +5,16 @@
 #include "Components/WidgetComponent.h"
 #include "Refrain/UI/RhythmTargetWidget.h"
 #include "AbilitySystemComponent.h"
+#include "AIController.h"
+#include "BrainComponent.h"
 #include "Refrain.h"
 #include "RefrainGameplayTags.h"
 #include "Component/AttackTargetingComponent.h"
 #include "Character/RACharacterPlayer.h"
 #include "Animation/RACharacterAnimationData.h"
+#include "Component/CombatManagerComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 ARACharacterNonPlayer::ARACharacterNonPlayer()
 {
@@ -115,6 +119,23 @@ void ARACharacterNonPlayer::BeginPlay()
 
 void ARACharacterNonPlayer::Die()
 {
+	// 편하게 화면의 0번째 플레이어를 찾아옵니다.
+	if (ARACharacterPlayer* Player = Cast<ARACharacterPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0)))
+	{
+		if (UCombatManagerComponent* CombatManager = Player->FindComponentByClass<UCombatManagerComponent>())
+		{
+			// 명단에서 지워달라고 요청합니다. (이 안에서 토큰도 알아서 회수됨!)
+			UE_LOG(LogTemp, Warning, TEXT("토근 떨굼"));
+			CombatManager->UnRegisterNPC(this);
+		}
+	}
+	if (AAIController* AIController = Cast<AAIController>(GetController()))
+	{
+		if (UBrainComponent* BrainComp = AIController->GetBrainComponent())
+		{
+			BrainComp->StopLogic(TEXT("Dead")); // 행동 트리 완전 정지
+		}
+	}
 	Super::Die();
 	
 	// 사망 시 더 이상 피격되거나 캐릭터와 충돌하지 않도록 콜리전 끄기

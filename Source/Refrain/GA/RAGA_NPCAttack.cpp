@@ -73,19 +73,19 @@ void URAGA_NPCAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const 
 	}
 	
 	// 토큰 반납.
-	if (AAIController* AIController = Cast<AAIController>(NPC->GetController()))
-	{
-		if (UBlackboardComponent* BlackboardComp = AIController->GetBlackboardComponent())
-		{
-			if (ARACharacterPlayer* Player = Cast<ARACharacterPlayer>(BlackboardComp->GetValueAsObject(TEXT("Player"))))
-			{
-				if (UCombatManagerComponent* CombatManager = Player->FindComponentByClass<UCombatManagerComponent>())
-				{
-					CombatManager->ReleaseToken(NPC);
-				}
-			}
-		}
-	}
+	//if (AAIController* AIController = Cast<AAIController>(NPC->GetController()))
+	//{
+	//	if (UBlackboardComponent* BlackboardComp = AIController->GetBlackboardComponent())
+	//	{
+	//		if (ARACharacterPlayer* Player = Cast<ARACharacterPlayer>(BlackboardComp->GetValueAsObject(TEXT("Player"))))
+	//		{
+	//			if (UCombatManagerComponent* CombatManager = Player->FindComponentByClass<UCombatManagerComponent>())
+	//			{
+	//				CombatManager->ReleaseToken(NPC);
+	//			}
+	//		}
+	//	}
+	//}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

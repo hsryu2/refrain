@@ -6,6 +6,7 @@
 #include "Character/RACharacterPlayer.h"
 #include "AbilitySystemComponent.h"
 #include "GameplayTagContainer.h"
+#include "Engine/Engine.h"
 
 // Sets default values for this component's properties
 UCombatManagerComponent::UCombatManagerComponent()
@@ -24,7 +25,7 @@ void UCombatManagerComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	
+	OwnerPlayer = Cast<ARACharacterPlayer>(GetOwner());
 }
 
 
@@ -38,6 +39,11 @@ void UCombatManagerComponent::TickComponent(float DeltaTime, ELevelTick TickType
 
 bool UCombatManagerComponent::RequestMainAttackToken(ARACharacterNonPlayer* RequestingNPC)
 {
+	if (CurrentMainAttacker == RequestingNPC)
+	{
+		return true;
+	}
+	
 	// 누군가 공격중이라면 false
 	if (CurrentMainAttacker != nullptr)
 	{
@@ -45,15 +51,20 @@ bool UCombatManagerComponent::RequestMainAttackToken(ARACharacterNonPlayer* Requ
 	}
 	// 토큰 부여
 	CurrentMainAttacker = RequestingNPC;
-	
+	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("%s 가 토큰 줍기 성공!"), *RequestingNPC->GetName()));
 	// true로 반환하여 BT 혹은 공격 Ability를 실행하도록 할 수 있을 것으로 보임.
 	return true;
 }
 
 bool UCombatManagerComponent::RequestCounterAttackToken(ARACharacterNonPlayer* RequestingNPC)
 {
+	if (CurrentCounterAttacker == RequestingNPC)
+	{
+		return true;
+	}
+	
 	// 누군가 공격중이라면 false
-	if (CurrentMainAttacker != nullptr)
+	if (CurrentCounterAttacker != nullptr)
 	{
 		return false;
 	}
@@ -68,7 +79,8 @@ void UCombatManagerComponent::ReleaseToken(ARACharacterNonPlayer* ReleasingNPC)
 {
 	if (CurrentMainAttacker == ReleasingNPC)
 	{
-		CurrentMainAttacker = nullptr;                                                                                    
+		CurrentMainAttacker = nullptr;
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("토큰 반납 완료!! 이제 남는 토큰 있음!"));
 	}
 	else if (CurrentCounterAttacker == ReleasingNPC)
 	{
