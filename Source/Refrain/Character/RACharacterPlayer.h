@@ -61,7 +61,6 @@ protected:
 	TObjectPtr<class UInputAction> DodgeAction;
 	
 public:
-	UAnimMontage* GetAttackMontage(int32 ComboIndex) const;
 	UAnimMontage* GetDodgeMontage() const;
 	
 // 기본 동작

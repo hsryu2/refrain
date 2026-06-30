@@ -243,7 +243,7 @@ UAnimMontage* URAGA_ComboAttack::GetNextAttackAnimMontage() const
 	if (AnimationData->AttackMontages.IsEmpty())
 	{
 		RA_LOG(LogRefrain, Warning, TEXT("AttackMontages Array Empty"));
-		return AnimationData->AttackMontage_1;
+		return nullptr;
 	}
 	
 	const int MontageArrayNum = AnimationData->AttackMontages.Num();

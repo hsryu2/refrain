@@ -265,26 +265,6 @@ void ARACharacterPlayer::SetIMC()
 	}
 }
 
-UAnimMontage* ARACharacterPlayer::GetAttackMontage(int32 ComboIndex) const
-{
-	if (!AnimationData)
-	{
-		return nullptr;
-	}
-	switch (ComboIndex)
-	{
-	case 1:
-		return AnimationData->AttackMontage_1;
-	case 2:
-		return AnimationData->AttackMontage_2;
-	case 3:
-		return AnimationData->AttackMontage_3;
-	default:
-		return nullptr;
-	}
-
-}
-
 UAnimMontage* ARACharacterPlayer::GetDodgeMontage() const
 {
 	return AnimationData->DodgeMontage;
