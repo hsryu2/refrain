@@ -37,6 +37,7 @@ protected:
 	UFUNCTION()
 	void OnMontageInterrupted();
 	
+	// 대미지 전달 시점
 	UFUNCTION()
 	void OnAttackHit(FGameplayEventData Payload);
 	
@@ -79,7 +80,7 @@ protected:
 	void SetNextCombo();
 	
 	// 타격 효과음 재생
-	void SetHitSound();
+	void QueueHitSound();
 
 protected:
 // 블루프린트에서 설정할 변수
