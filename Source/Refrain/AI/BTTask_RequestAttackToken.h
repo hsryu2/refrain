@@ -1,0 +1,24 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "BehaviorTree/BTTaskNode.h"
+#include "BTTask_RequestAttackToken.generated.h"
+
+/**
+ * 
+ */
+UCLASS()
+class REFRAIN_API UBTTask_RequestAttackToken : public UBTTaskNode
+{
+	GENERATED_BODY()
+	
+public:
+	UBTTask_RequestAttackToken();
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+	
+protected:
+	UPROPERTY(EditAnywhere, Category=Combat)
+	bool bIsCounterAttack = false;
+};

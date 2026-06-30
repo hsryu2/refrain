@@ -34,7 +34,7 @@ protected:
 	
 	// 검색 반경
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Targeting)
-	float SearchRadius = 700.0f;
+	float SearchRadius = 250.0f;
 	
 	// 타겟찾는 반경 360도
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Targeting)

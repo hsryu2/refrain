@@ -13,7 +13,8 @@
 				"AudioMixer",
 				"GameplayAbilities",
 				"UMG",
-				"DeveloperSettings"
+				"DeveloperSettings",
+				"AIModule"
 			]
 		}
 	],

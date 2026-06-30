@@ -4,11 +4,15 @@
 #include "RAGA_NPCAttack.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AIController.h"
 #include "RefrainGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Character/RACharacterNonPlayer.h"
+#include "Character/RACharacterPlayer.h"
 #include "Component/AttackTargetingComponent.h"
+#include "Component/CombatManagerComponent.h"
 
 URAGA_NPCAttack::URAGA_NPCAttack()
 {
@@ -67,7 +71,22 @@ void URAGA_NPCAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const 
 	{
 		NPC->SetRhythmWidgetVisibility(false);
 	}
-
+	
+	// 토큰 반납.
+	//if (AAIController* AIController = Cast<AAIController>(NPC->GetController()))
+	//{
+	//	if (UBlackboardComponent* BlackboardComp = AIController->GetBlackboardComponent())
+	//	{
+	//		if (ARACharacterPlayer* Player = Cast<ARACharacterPlayer>(BlackboardComp->GetValueAsObject(TEXT("Player"))))
+	//		{
+	//			if (UCombatManagerComponent* CombatManager = Player->FindComponentByClass<UCombatManagerComponent>())
+	//			{
+	//				CombatManager->ReleaseToken(NPC);
+	//			}
+	//		}
+	//	}
+	//}
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
