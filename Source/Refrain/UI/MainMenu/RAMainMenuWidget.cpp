@@ -80,7 +80,15 @@ void URAMainMenuWidget::UpdateHighlightPosition(int32 MenuIndex)
 
 void URAMainMenuWidget::OnNewGameClicked(int32 MenuIndex)
 {
-    UGameplayStatics::OpenLevel(GetWorld(), FName(*NewGameLevel.GetAssetName()));
+	if (!NewGameLevel.IsNull())
+	{
+	    UGameplayStatics::OpenLevel(GetWorld(), FName(*NewGameLevel.GetAssetName()));
+	}
+	else
+	{
+		// 맵을 넣지 않았다면 경고 처리
+		RA_LOG(LogRefrain, Warning, TEXT("Game Level이 지정되지 않았습니다 !"));
+	}
 }
 
 void URAMainMenuWidget::OnExitGameClicked(int32 MenuIndex)
