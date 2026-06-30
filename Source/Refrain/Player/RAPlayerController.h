@@ -8,6 +8,8 @@
 #include "UI/RAHealthBarWidget.h"
 #include "RAPlayerController.generated.h"
 
+class URAPauseMenuWidget;
+
 /**
  * 
  */
@@ -23,8 +25,13 @@ public:
 
 	void InitHealthHUD(UAbilitySystemComponent* InASC);
 	
+	/** @brief 일시정지 메뉴 토글 */
+	UFUNCTION(BlueprintCallable, Category = "Menu")
+	void TogglePauseMenu();
+	
 protected:
 	virtual void BeginPlay() override;
+	virtual void SetupInputComponent() override;
 
 	UPROPERTY(VisibleAnywhere, Category = Input, BlueprintReadOnly)
 	TObjectPtr<class UInputMappingContext> InputMappingContext;
@@ -35,4 +42,18 @@ protected:
 	
 	UPROPERTY()
 	TObjectPtr<URAHealthBarWidget> HealthBarWidget;
+
+	//  /@ --- Pause UI ---
+	/** @brief 일시정지 메뉴 위젯 클래스 */
+	UPROPERTY(EditDefaultsOnly, Category=UI)
+	TSubclassOf<URAPauseMenuWidget> PauseMenuWidgetClass;
+
+	/** @brief 일시정지 메뉴 위젯 */
+	UPROPERTY()
+	TObjectPtr<URAPauseMenuWidget> PauseMenuWidget;
+
+	/** @brief 일시정지를 위한 키 매핑 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input)
+	TObjectPtr<class UInputAction> PauseAction;
+	// --- Pause UI --- @/
 };

@@ -4,6 +4,10 @@
 #include "RAPlayerController.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "UI/PauseMenu/RAPauseMenuWidget.h"
+#include "UObject/ConstructorHelpers.h"
 
 ARAPlayerController::ARAPlayerController()
 {
@@ -51,4 +55,61 @@ void ARAPlayerController::BeginPlay()
 
 	FInputModeGameOnly GameOnlyInputMode;
 	SetInputMode(GameOnlyInputMode);
+}
+
+void ARAPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
+	{
+		EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Started, this, &ARAPlayerController::TogglePauseMenu);
+	}
+}
+
+void ARAPlayerController::TogglePauseMenu()
+{
+	if (UGameplayStatics::IsGamePaused(this))
+	{
+		// Unpause
+		SetPause(false);
+		
+		if (PauseMenuWidget)
+		{
+			PauseMenuWidget->RemoveFromParent();
+		}
+		
+		FInputModeGameOnly GameOnlyInputMode;
+		SetInputMode(GameOnlyInputMode);
+		bShowMouseCursor = false;
+	}
+	else
+	{
+		// Pause
+		SetPause(true);
+		
+		if (PauseMenuWidgetClass)
+		{
+			if (!PauseMenuWidget)
+			{
+				PauseMenuWidget = CreateWidget<URAPauseMenuWidget>(this, PauseMenuWidgetClass);
+			}
+			
+			if (PauseMenuWidget)
+			{
+				if (!PauseMenuWidget->IsInViewport())
+				{
+					PauseMenuWidget->AddToViewport();
+				}
+			}
+		}
+		
+		FInputModeGameAndUI GameAndUIInputMode;
+		if (PauseMenuWidget)
+		{
+			GameAndUIInputMode.SetWidgetToFocus(PauseMenuWidget->TakeWidget());
+		}
+		SetInputMode(GameAndUIInputMode);
+		bShowMouseCursor = true;
+	}
 }
