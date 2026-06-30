@@ -37,6 +37,7 @@ protected:
 	UFUNCTION()
 	void OnMontageInterrupted();
 	
+	// 대미지 전달 시점
 	UFUNCTION()
 	void OnAttackHit(FGameplayEventData Payload);
 	

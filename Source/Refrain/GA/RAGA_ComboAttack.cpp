@@ -17,6 +17,7 @@
 #include "Character/RACharacterBase.h"
 #include "Component/AttackTargetingComponent.h"
 #include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
 #include "Timing/MagicalTimingSubsystem.h"
 
 class UMotionWarpingComponent;
@@ -120,6 +121,16 @@ void URAGA_ComboAttack::OnAttackHit(FGameplayEventData Payload)
 	else
 	{
 		RA_LOG(LogRefrain, Log, TEXT("SourceASC or TargetASC Not Found"));
+	}
+	
+	// 노래 재생 중이 아닐 때 타격음 재생
+	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
+	if (!MagicalTiming || !MagicalTiming->IsMusicPlaying())
+	{
+		if (HitSound)
+		{
+			UGameplayStatics::PlaySound2D(this, HitSound);
+		}
 	}
 }
 
@@ -489,7 +500,6 @@ void URAGA_ComboAttack::QueueHitSound()
 		RA_LOG(LogRefrain, Warning, TEXT("HitSound Not Found"));
 		return;
 	}
-
 	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
 	if (!MagicalTiming)
 	{
@@ -497,14 +507,11 @@ void URAGA_ComboAttack::QueueHitSound()
 		return;
 	}
 	
+	// 서브시스템에 타격음 재생 예약
 	if (MagicalTiming->IsMusicPlaying())
 	{
 		RA_LOG(LogRefrain, Log, TEXT("HitSound Queued"));
 		MagicalTiming->PlaySFXQuantized(HitSound, EQuartzCommandQuantization::Beat, HitSoundBeatMultiplier);
-	}
-	else
-	{
-		
 	}
 }
 
