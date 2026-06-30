@@ -8,6 +8,7 @@
 
 /**
  * @brief NPC(RACharacterNonPlayer)를 레벨에 소환하고 관리하는 스포너 액터 클래스입니다.
+ * @note 블루프린트 클래스에서 값을 설정합니다. SpawnInterval이 SummonDelay와 보다 같거나 작으면 스폰 명령이 중첩되므로 유의하세요.
  * @author Sejong
  * @date 2026-06-22
  */

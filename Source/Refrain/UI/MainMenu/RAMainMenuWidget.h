@@ -98,4 +98,28 @@ protected:
 	void UpdateHighlightPosition(int32 MenuIndex);
 
 	// --- 설정 메뉴 UI 바인딩 @/
+	
+	// /@ --- 버튼 클릭 이벤트 ---
+	
+	/** 
+	 * @brief NewGame에서 이동할 맵 이름 
+	 * @note UE에서 지정하세요.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level")
+	TSoftObjectPtr<UWorld> NewGameLevel;
+	
+	/**
+	 * @brief 게임 시작 버튼(처음부터) 클릭 이벤트
+	 * @details 에디터에서 이동할 맵을 지정합니다.
+	 * @param MenuIndex 버튼 인덱스
+	 */
+	UFUNCTION()
+	void OnNewGameClicked(int32 MenuIndex);
+	
+	/** 
+	 * @brief 게임 종료 버튼 클릭 이벤트
+	 * @param MenuIndex 버튼 인덱스
+	 */
+	UFUNCTION()
+	void OnExitGameClicked(int32 MenuIndex);
 };
