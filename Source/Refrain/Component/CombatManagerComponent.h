@@ -36,7 +36,7 @@ public:
 	
 	// NPC가 일반 공격 토큰을 반환할 때 호출
 	UFUNCTION(BlueprintCallable, Category="Combat Token")
-	bool ReleaseToken(ARACharacterNonPlayer* RequestingNPC);
+	void ReleaseToken(ARACharacterNonPlayer* ReleasingNPC);
 	
 	// 플레이어가 카운터를 성공했을 때 호출. 
 	UFUNCTION(BlueprintCallable, Category="Combat Token")
@@ -52,7 +52,7 @@ private:
 	
 	// 전투중인 NPC 목록
 	UPROPERTY()
-	TArray<ARACharacterNonPlayer> EngagedNPCs;
+	TArray<ARACharacterNonPlayer*> EngagedNPCs;
 	
 	// 현재 공격 토큰을 쥐고 있는 NPC
 	UPROPERTY()
@@ -60,5 +60,5 @@ private:
 	
 	// 현재 카운터 공격 토큰을 쥐고있는 NPC
 	UPROPERTY()
-	TObjectPtr<ARACharacterPlayer> CurrentCounterAttacker;
+	TObjectPtr<ARACharacterNonPlayer> CurrentCounterAttacker;
 };
