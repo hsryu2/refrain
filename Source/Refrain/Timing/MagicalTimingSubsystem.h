@@ -41,6 +41,12 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Magical|Control")
 	bool StopMusic();
+
+	UFUNCTION(BlueprintCallable, Category = "Magical|Control")
+	void PauseMusic();
+
+	UFUNCTION(BlueprintCallable, Category = "Magical|Control")
+	void ResumeMusic();
 	
 // 게임 로직 - 효과음 재생
 public:

@@ -34,7 +34,7 @@ public:
 	
 	/** 
 	 * @brief 메인 메뉴에서 버튼에 대한 상태를 처리하기 위한 이벤트 
-	 * @notew 에디터에서 구현합니다.
+	 * @note 에디터에서 구현합니다.
 	 * @param bIsSelected 선택되었는지 여부, True: 선택됨 / False: 선택 해제됨
 	 */
 	UFUNCTION(BlueprintImplementableEvent, Category = "Menu")

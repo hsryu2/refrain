@@ -24,7 +24,8 @@ public class Refrain : ModuleRules
 			"Niagara",
 			"MotionWarping",
 			"UMG",
-			"DeveloperSettings"
+			"DeveloperSettings",
+			"AIModule"
 		});
 		
 
