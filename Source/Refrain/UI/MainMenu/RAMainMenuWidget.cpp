@@ -4,10 +4,11 @@
 #include "UI/MainMenu/RAMainMenuWidget.h"
 
 #include "Refrain.h"
-#include "Components/WidgetSwitcher.h"
-#include "Kismet/KismetSystemLibrary.h"
 #include "Components/Button.h"
 #include "Components/Widget.h"
+#include "Components/WidgetSwitcher.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "Math/UnrealMathUtility.h"
 
 #include "UI/MainMenu/RAMenuButtonWidget.h"
@@ -18,10 +19,20 @@ void URAMainMenuWidget::NativeConstruct()
 
 	// 호버 이벤트 바인딩
 	if (Btn_Continue) Btn_Continue->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
-	if (Btn_NewGame) Btn_NewGame->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+	if (Btn_NewGame) 
+	{
+		Btn_NewGame->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+		Btn_NewGame->OnMenuButtonClickedEvent.AddDynamic(this, &URAMainMenuWidget::OnNewGameClicked);
+	}
 	if (Btn_Settings) Btn_Settings->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
 	if (Btn_Credits) Btn_Credits->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
-	if (Btn_ExitGame) Btn_ExitGame->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+	if (Btn_ExitGame) 
+	{
+		Btn_ExitGame->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+		
+		// 게임 종료 버튼 클릭 이벤트 바인딩!
+		Btn_ExitGame->OnMenuButtonClickedEvent.AddDynamic(this, &URAMainMenuWidget::OnExitGameClicked);
+	}
 
 	// 초기 위치 설정 (선택된 인덱스 기준)
 	TargetTranslationY = SelectedIndex * MenuSpacing;
@@ -65,5 +76,15 @@ void URAMainMenuWidget::UpdateHighlightPosition(int32 MenuIndex)
 	// 3. 사다리꼴의 이동 및 현재 인덱스 갱신
 	SelectedIndex = MenuIndex;
 	TargetTranslationY = MenuIndex * MenuSpacing;
+}
+
+void URAMainMenuWidget::OnNewGameClicked(int32 MenuIndex)
+{
+    UGameplayStatics::OpenLevel(GetWorld(), FName(*NewGameLevel.GetAssetName()));
+}
+
+void URAMainMenuWidget::OnExitGameClicked(int32 MenuIndex)
+{
+	UKismetSystemLibrary::QuitGame(GetWorld(), GetOwningPlayer(), EQuitPreference::Quit, false);
 }
 
