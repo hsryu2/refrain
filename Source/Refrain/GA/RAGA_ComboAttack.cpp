@@ -240,15 +240,15 @@ UAnimMontage* URAGA_ComboAttack::GetNextAttackAnimMontage() const
 	const URACharacterAnimationData* AnimationData = RACharacter->GetAnimationData();
 	check(AnimationData);
 	
-	if (AnimationData->AttackMontages.IsEmpty())
+	if (AnimationData->ComboAttacks.IsEmpty())
 	{
 		RA_LOG(LogRefrain, Warning, TEXT("AttackMontages Array Empty"));
 		return nullptr;
 	}
 	
-	const int MontageArrayNum = AnimationData->AttackMontages.Num();
+	const int MontageArrayNum = AnimationData->ComboAttacks.Num();
 	
-	return AnimationData->AttackMontages[CurrentCombo % MontageArrayNum];
+	return AnimationData->ComboAttacks[CurrentCombo % MontageArrayNum].Montage;
 }
 
 void URAGA_ComboAttack::UpdateAttackMotionWarpTarget()
