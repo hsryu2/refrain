@@ -42,6 +42,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Combat Token")
 	void OnPlayerCounterSuccess();
 	
+	UFUNCTION(BlueprintCallable, Category="Combat Position")
+	bool GetWaitLocation(ARACharacterNonPlayer* NPC, FVector& OutLocation);
+	
+	UPROPERTY(EditAnywhere, Category="CombatPosition")
+	float WaitCircleRadius = 600.0f;
+	
 	void RegisterNPC(ARACharacterNonPlayer* NPC);
 	void UnRegisterNPC(ARACharacterNonPlayer* NPC);
 	

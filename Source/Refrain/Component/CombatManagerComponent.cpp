@@ -101,6 +101,36 @@ void UCombatManagerComponent::OnPlayerCounterSuccess()
 	}
 }
 
+bool UCombatManagerComponent::GetWaitLocation(ARACharacterNonPlayer* NPC, FVector& OutLocation)
+{
+	if (!OwnerPlayer || !NPC) return false;
+	
+	// 등록 되어있는 NPC인지 확인.
+	int32 NPCIndex = EngagedNPCs.Find(NPC);
+	
+	// 등록되지 않은 NPC라면 임의로 추가.
+	if (NPCIndex == INDEX_NONE)
+	{
+		RegisterNPC(NPC);
+		NPCIndex = EngagedNPCs.Find(NPC);
+	}
+	
+	// 겹치지 않게 자리 배분해주기.
+	int32 TotalNPCs = EngagedNPCs.Num();
+	if (TotalNPCs == 0) return false;
+	
+	float AngleDegree = (360.0f / TotalNPCs) * NPCIndex;
+	
+	FVector PlayerLocation = OwnerPlayer->GetActorLocation();
+	FVector ForwardDir = OwnerPlayer->GetActorForwardVector();
+	
+	FVector RotatedDir = ForwardDir.RotateAngleAxis(AngleDegree, FVector::UpVector);
+	
+	OutLocation = PlayerLocation + (RotatedDir * WaitCircleRadius);
+	
+	return true;
+}
+
 void UCombatManagerComponent::RegisterNPC(ARACharacterNonPlayer* NPC)
 {
 	if (NPC && !EngagedNPCs.Contains(NPC))
