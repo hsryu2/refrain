@@ -79,7 +79,7 @@ protected:
 	void SetNextCombo();
 	
 	// 타격 효과음 재생
-	void SetHitSound();
+	void QueueHitSound();
 
 protected:
 // 블루프린트에서 설정할 변수

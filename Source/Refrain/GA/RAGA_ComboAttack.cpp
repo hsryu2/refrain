@@ -192,7 +192,7 @@ void URAGA_ComboAttack::PlayAttackMontage()
 
 	if (TargetActor)
 	{
-		SetHitSound();
+		QueueHitSound();
 	}
 	
 	// 공격 GE 실행
@@ -482,7 +482,7 @@ void URAGA_ComboAttack::SetNextCombo()
 	bHasQueuedAttackInput = true;
 }
 
-void URAGA_ComboAttack::SetHitSound()
+void URAGA_ComboAttack::QueueHitSound()
 {
 	if (!HitSound)
 	{
@@ -497,6 +497,14 @@ void URAGA_ComboAttack::SetHitSound()
 		return;
 	}
 	
-	RA_LOG(LogRefrain, Log, TEXT("HitSound Queued"));
-	MagicalTiming->PlaySFXQuantized(HitSound, EQuartzCommandQuantization::Beat, HitSoundBeatMultiplier);
+	if (MagicalTiming->IsMusicPlaying())
+	{
+		RA_LOG(LogRefrain, Log, TEXT("HitSound Queued"));
+		MagicalTiming->PlaySFXQuantized(HitSound, EQuartzCommandQuantization::Beat, HitSoundBeatMultiplier);
+	}
+	else
+	{
+		
+	}
 }
+
