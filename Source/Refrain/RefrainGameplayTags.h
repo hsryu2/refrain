@@ -42,5 +42,8 @@ namespace RefrainGameplayTags
 	// 다음 콤보로 넘어가는 이벤트
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_NextComboStart);
 
+	// NPC가 공격중인 상태.
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Attacking);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Counterable);
 	
 }
