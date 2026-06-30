@@ -2,21 +2,12 @@
 
 
 #include "RAGameMode.h"
+#include "Player/RAPlayerController.h"
 #include "Player/RAPlayerState.h"
 
 ARAGameMode::ARAGameMode()
 {
-	static ConstructorHelpers::FClassFinder<APawn> DefaultPawnClassRef(TEXT("/Game/Refrain/Player/BluePrint/BP_RACharacterPlayer.BP_RACharacterPlayer_C"));
-	if (DefaultPawnClassRef.Class)
-	{
-		DefaultPawnClass = DefaultPawnClassRef.Class;
-	}
-
-	static ConstructorHelpers::FClassFinder<APlayerController> PlayerControllerClassRef(TEXT("/Script/Refrain.RAPlayerController"));
-	if (PlayerControllerClassRef.Class)
-	{
-		PlayerControllerClass = PlayerControllerClassRef.Class;
-	}
+	PlayerControllerClass = ARAPlayerController::StaticClass();
 	PlayerStateClass = ARAPlayerState::StaticClass();
 }
 

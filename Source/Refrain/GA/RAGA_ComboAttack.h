@@ -77,12 +77,19 @@ protected:
 	
 	// 다음 콤보 예약
 	void SetNextCombo();
+	
+	// 타격 효과음 재생
+	void SetHitSound();
 
 protected:
 // 블루프린트에서 설정할 변수
 	// 대미지 GE
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Damage)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Damage)
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
+	
+	// 타격음
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Sound)
+	TObjectPtr<USoundBase> HitSound;
 	
 protected:
 	// 실행한 캐릭터
@@ -118,4 +125,5 @@ protected:
 	float StrikePlayRate;
 	float RecoveryPlayRate;
 	float MontageStartTime;
+	float HitSoundBeatMultiplier = 1.f;
 };

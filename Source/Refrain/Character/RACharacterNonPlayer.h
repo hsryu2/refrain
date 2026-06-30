@@ -50,9 +50,6 @@ protected:
 	virtual void BeginPlay() override;
 	
 	virtual void Die() override;
-	
-	FTimerHandle DeathTimerHandle;
-	virtual void TriggerDissolve();
 #if WITH_EDITOR
 	/** 디테일 패널에서 수정을 감지하기 위한 함수 */
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
