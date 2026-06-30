@@ -7,6 +7,7 @@
 #include "EnhancedInputComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/PauseMenu/RAPauseMenuWidget.h"
+#include "Timing/MagicalTimingSubsystem.h"
 #include "UObject/ConstructorHelpers.h"
 
 ARAPlayerController::ARAPlayerController()
@@ -73,6 +74,11 @@ void ARAPlayerController::TogglePauseMenu()
 	{
 		// Unpause
 		SetPause(false);
+
+		if (UMagicalTimingSubsystem* TimingSubsystem = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>())
+		{
+			TimingSubsystem->ResumeMusic();
+		}
 		
 		if (PauseMenuWidget)
 		{
@@ -87,6 +93,11 @@ void ARAPlayerController::TogglePauseMenu()
 	{
 		// Pause
 		SetPause(true);
+
+		if (UMagicalTimingSubsystem* TimingSubsystem = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>())
+		{
+			TimingSubsystem->PauseMusic();
+		}
 		
 		if (PauseMenuWidgetClass)
 		{

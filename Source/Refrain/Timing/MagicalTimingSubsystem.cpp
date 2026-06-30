@@ -175,6 +175,34 @@ bool UMagicalTimingSubsystem::StopMusic()
 	return true;
 }
 
+void UMagicalTimingSubsystem::PauseMusic()
+{
+	if (IsValid(MusicAudioComponent))
+	{
+		MusicAudioComponent->SetPaused(true);
+	}
+	
+	if (IsValid(MusicClockHandle))
+	{
+		UQuartzClockHandle* RawClockHandle = MusicClockHandle.Get();
+		MusicClockHandle->PauseClock(GetWorld(), RawClockHandle);
+	}
+}
+
+void UMagicalTimingSubsystem::ResumeMusic()
+{
+	if (IsValid(MusicAudioComponent))
+	{
+		MusicAudioComponent->SetPaused(false);
+	}
+	
+	if (IsValid(MusicClockHandle))
+	{
+		UQuartzClockHandle* RawClockHandle = MusicClockHandle.Get();
+		MusicClockHandle->ResumeClock(GetWorld(), RawClockHandle);
+	}
+}
+
 bool UMagicalTimingSubsystem::PlaySFXQuantized(USoundBase* InSound, EQuartzCommandQuantization InQuantization, float InMultiplier)
 {
 	if (!IsMusicPlaying())
