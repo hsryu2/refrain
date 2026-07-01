@@ -12,8 +12,7 @@ class UBehaviorTreeComponent;
 class UGameplayAbility;
 
 /**
- * Activates a gameplay ability on the controlled pawn and keeps the BT task
- * running until that same ability ends.
+ * GA를 실행하고 이 GA가 끝날 때 태스크를 종료하는 태스크
  */
 UCLASS()
 class REFRAIN_API UBTTask_ActivateAbilityAndWait : public UBTTaskNode
@@ -28,6 +27,7 @@ public:
 	virtual void OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTNodeResult::Type TaskResult) override;
 
 protected:
+	// 적용할 GA 클래스
 	UPROPERTY(EditAnywhere, Category=Ability)
 	TSubclassOf<UGameplayAbility> AbilityClass;
 
