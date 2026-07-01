@@ -24,7 +24,11 @@ void URAMainMenuWidget::NativeConstruct()
 		Btn_NewGame->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
 		Btn_NewGame->OnMenuButtonClickedEvent.AddDynamic(this, &URAMainMenuWidget::OnNewGameClicked);
 	}
-	if (Btn_Settings) Btn_Settings->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+	if (Btn_Settings) 
+	{
+		Btn_Settings->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+		Btn_Settings->OnMenuButtonClickedEvent.AddDynamic(this, &URAMainMenuWidget::OnSettingsClicked);
+	}
 	if (Btn_Credits) Btn_Credits->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
 	if (Btn_ExitGame) 
 	{
@@ -91,8 +95,27 @@ void URAMainMenuWidget::OnNewGameClicked(int32 MenuIndex)
 	}
 }
 
+void URAMainMenuWidget::OnSettingsClicked(int32 MenuIndex)
+{
+	if (SettingsMenuClass)
+	{
+		if (!SettingsMenuInstance)
+		{
+			SettingsMenuInstance = CreateWidget<UUserWidget>(GetOwningPlayer(), SettingsMenuClass);
+		}
+
+		if (SettingsMenuInstance && !SettingsMenuInstance->IsInViewport())
+		{
+			SettingsMenuInstance->AddToViewport(10);
+		}
+	}
+	else
+	{
+		RA_LOG(LogRefrain, Warning, TEXT("Settings Menu Class is not set."));
+	}
+}
+
 void URAMainMenuWidget::OnExitGameClicked(int32 MenuIndex)
 {
 	UKismetSystemLibrary::QuitGame(GetWorld(), GetOwningPlayer(), EQuitPreference::Quit, false);
 }
-
