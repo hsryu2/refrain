@@ -79,7 +79,7 @@ public:
 	
 	// 다음 타격 타이밍까지 남은 시간을 반환하는 함수 (공격 모션 재생용)
 	UFUNCTION(BlueprintCallable, Category = "Magical|Timing", meta = (CPP_Default_Quantization = "Beat"))
-	float GetTimeUntilNextHit(float MinimumStartupDelay, EQuartzCommandQuantization TargetQuantization = EQuartzCommandQuantization::Beat, float Multiplier = 1.f);
+	float GetTimeUntilNextBeat(float MinimumStartupDelay, EQuartzCommandQuantization TargetQuantization = EQuartzCommandQuantization::Beat, float Multiplier = 1.f);
 
 // 내부 로직에 필요한 함수
 private:
