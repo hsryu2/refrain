@@ -50,6 +50,7 @@ protected:
 	virtual void BeginPlay() override;
 	
 	virtual void Die() override;
+	
 #if WITH_EDITOR
 	/** 디테일 패널에서 수정을 감지하기 위한 함수 */
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
@@ -103,7 +104,7 @@ private:
 	TSubclassOf<class UGameplayEffect> InitStatEffect;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Targeting, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UAttackTargetingComponent> TargetingComponent;
+	TObjectPtr<class UAttackHitSweepComponent> AttackHitSweepComponent;
 	
 	/**
 	 * @brief 체력 속성 변경 시 호출되는 콜백 함수

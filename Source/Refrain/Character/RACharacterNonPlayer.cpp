@@ -12,8 +12,10 @@
 #include "Component/AttackTargetingComponent.h"
 #include "Character/RACharacterPlayer.h"
 #include "Animation/RACharacterAnimationData.h"
+#include "Component/AttackHitSweepComponent.h"
 #include "Component/NPCCombatStateComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 ARACharacterNonPlayer::ARACharacterNonPlayer()
@@ -38,8 +40,8 @@ ARACharacterNonPlayer::ARACharacterNonPlayer()
 		RhythmTargetWidget->SetVisibility(false);
 	}
 	
-	TargetingComponent = CreateDefaultSubobject<UAttackTargetingComponent>(TEXT("TargetingComponent"));
-	TargetingComponent->SetTargetActorClass(ARACharacterPlayer::StaticClass());
+	AttackHitSweepComponent = CreateDefaultSubobject<UAttackHitSweepComponent>(TEXT("AttackHitSweepComponent"));
+	AttackHitSweepComponent->SetTargetActorClass(ARACharacterPlayer::StaticClass());
 	
 	// 체력바 위젯
 	HealthWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthWidget"));

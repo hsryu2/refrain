@@ -11,6 +11,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/RACharacterNonPlayer.h"
 #include "Character/RACharacterPlayer.h"
+#include "Component/AttackHitSweepComponent.h"
 #include "Component/AttackTargetingComponent.h"
 #include "Component/NPCCombatStateComponent.h"
 
@@ -108,12 +109,12 @@ void URAGA_NPCAttack::OnAttackHit(FGameplayEventData Payload)
 	
 	TArray<AActor*> HitTargets;
 	
-	UAttackTargetingComponent* TargetingComponent =
-		NPC->FindComponentByClass<UAttackTargetingComponent>();
+	UAttackHitSweepComponent* AttackHitSweepComponent =
+		NPC->FindComponentByClass<UAttackHitSweepComponent>();
 	
-	if (TargetingComponent)
+	if (AttackHitSweepComponent)
 	{
-		HitTargets = TargetingComponent->HitSweep();
+		HitTargets = AttackHitSweepComponent->HitSweep();
 	}
 	
 	if (HitTargets.IsEmpty())
