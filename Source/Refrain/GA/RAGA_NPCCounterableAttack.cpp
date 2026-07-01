@@ -20,6 +20,8 @@ URAGA_NPCCounterableAttack::URAGA_NPCCounterableAttack()
 	FGameplayTagContainer Tags(RefrainGameplayTags::State_Attacking_Counterable);
 	SetAssetTags(Tags);
 	
+	ActivationOwnedTags.AddTag(RefrainGameplayTags::State_Attacking_Counterable);
+	
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
@@ -60,6 +62,7 @@ void URAGA_NPCCounterableAttack::Attack()
 	if (!IsValid(AttackMontage))
 	{
 		RA_LOG(LogRefrain, Error, TEXT("AttackMontage Is Not Valid"));
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
 	
