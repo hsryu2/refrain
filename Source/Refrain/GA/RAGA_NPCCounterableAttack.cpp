@@ -116,17 +116,19 @@ void URAGA_NPCCounterableAttack::PlayAttackMontage()
 
 float URAGA_NPCCounterableAttack::CalculatePlayRate(const UAnimMontage* Montage)
 {
-	const FGameplayTag TargetTag = RefrainGameplayTags::Event_Montage_AttackHit;
-	const float TargetProgressOnTargetTagNotify = 1.1f;
-	const float TargetBeatMultiplier = 2.f;
-	const float MinPlayRate = 0.5f;
-	const float MaxPlayRate = 2.f;
+	// AttackHit 이벤트를 정박 이후(0.1박)에 발동시키는 게 목표
+	const FGameplayTag TargetTag = RefrainGameplayTags::Event_Montage_AttackHit;		// 몽타주 안에서 검색할 태그
+	const float TargetProgressOnTargetTagNotify = 0.1f;									// 검색한 태그가 위치할 박자 진행도
+	const float TargetBeatMultiplier = 2.f;												// 2박짜리 공격
+	const float MinPlayRate = 0.5f;														// 최소 PlayRate
+	const float MaxPlayRate = 2.f;														// 최대 PlayRate
 	
 	// 기본값
 	MontagePlayRate = 1.f;
 	MontageStartTime = 0.f;
 	MontageWaitTime = 0.f;
 	
+	// 검색한 태그가 위치한 시간
 	const float NotifyTime = FindGameplayEventNotifyTime(Montage, TargetTag);
 	if (NotifyTime <= 0.f)
 	{
@@ -146,22 +148,24 @@ float URAGA_NPCCounterableAttack::CalculatePlayRate(const UAnimMontage* Montage)
 		RA_LOG(LogRefrain, Warning, TEXT("Music Not Playing"));
 		return -1.f;
 	}
+	const float SecondsPerBeat = MagicalTimingSubsystem->GetSecondsPerBeat(); 
 	
-	// 목표 박자 시간
-	float TargetBeatTime = MagicalTimingSubsystem->GetTimeUntilNextHit(0.f, EQuartzCommandQuantization::Beat, TargetBeatMultiplier);
+	// 목표 박자(정박) 시간
+	const float TargetBeatTime = MagicalTimingSubsystem->GetTimeUntilNextBeat(0.f, EQuartzCommandQuantization::Beat, TargetBeatMultiplier);
 	
 	// 계산식...
-	MontagePlayRate = (TargetBeatTime * TargetProgressOnTargetTagNotify) / NotifyTime;
+	const float DesiredNotifyTime = TargetBeatTime + (TargetProgressOnTargetTagNotify * SecondsPerBeat);		// 태그가 발동될 목표 시간
+	MontagePlayRate = NotifyTime / DesiredNotifyTime;
 
 	if (MontagePlayRate > MaxPlayRate)
 	{
-		MontageStartTime = (MontagePlayRate - MaxPlayRate) / NotifyTime;
+		MontageStartTime = NotifyTime - (MaxPlayRate * DesiredNotifyTime);
 
 		MontagePlayRate = MaxPlayRate;
 	}
 	else if (MontagePlayRate < MinPlayRate)
 	{
-		MontageWaitTime = (MinPlayRate - MontagePlayRate) / NotifyTime;
+		MontageWaitTime = DesiredNotifyTime - (NotifyTime / MinPlayRate);
 		
 		MontagePlayRate = MinPlayRate;
 	}
