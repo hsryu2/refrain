@@ -18,11 +18,11 @@
 #include "Refrain/Component/AttackTargetingComponent.h"
 #include "Refrain/Player/RAPlayerState.h"
 #include "Component/AttackTargetingComponent.h"
-#include "Component/CombatManagerComponent.h"
+#include "Component/NPCCombatStateComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Player/RAPlayerController.h"
 #include "UI/NPCHealthBarWidget.h"
-#include "Component/CombatManagerComponent.h"
+#include "Component/NPCCombatStateComponent.h"
 
 class ARAPlayerController;
 // Sets default values
@@ -86,7 +86,7 @@ ARACharacterPlayer::ARACharacterPlayer()
 	// 컴포넌트
 	TargetingComponent = CreateDefaultSubobject<UAttackTargetingComponent>(TEXT("TargetingComponent"));
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
-	CombatManagerComponent = CreateDefaultSubobject<UCombatManagerComponent>(TEXT("CombatManagerComponent"));
+	CombatManagerComponent = CreateDefaultSubobject<UNPCCombatStateComponent>(TEXT("CombatManagerComponent"));
 }
 
 // Called when the game starts or when spawned
@@ -266,26 +266,6 @@ void ARACharacterPlayer::SetIMC()
 		}
 
 	}
-}
-
-UAnimMontage* ARACharacterPlayer::GetAttackMontage(int32 ComboIndex) const
-{
-	if (!AnimationData)
-	{
-		return nullptr;
-	}
-	switch (ComboIndex)
-	{
-	case 1:
-		return AnimationData->AttackMontage_1;
-	case 2:
-		return AnimationData->AttackMontage_2;
-	case 3:
-		return AnimationData->AttackMontage_3;
-	default:
-		return nullptr;
-	}
-
 }
 
 UAnimMontage* ARACharacterPlayer::GetDodgeMontage() const

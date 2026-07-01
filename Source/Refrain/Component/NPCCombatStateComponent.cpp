@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Component/CombatManagerComponent.h"
+#include "Component/NPCCombatStateComponent.h"
 #include "Character/RACharacterNonPlayer.h"
 #include "Character/RACharacterPlayer.h"
 #include "AbilitySystemComponent.h"
@@ -9,7 +9,7 @@
 #include "Engine/Engine.h"
 
 // Sets default values for this component's properties
-UCombatManagerComponent::UCombatManagerComponent()
+UNPCCombatStateComponent::UNPCCombatStateComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -20,7 +20,7 @@ UCombatManagerComponent::UCombatManagerComponent()
 
 
 // Called when the game starts
-void UCombatManagerComponent::BeginPlay()
+void UNPCCombatStateComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -30,14 +30,14 @@ void UCombatManagerComponent::BeginPlay()
 
 
 // Called every frame
-void UCombatManagerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UNPCCombatStateComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
 }
 
-bool UCombatManagerComponent::RequestMainAttackToken(ARACharacterNonPlayer* RequestingNPC)
+bool UNPCCombatStateComponent::RequestMainAttackToken(ARACharacterNonPlayer* RequestingNPC)
 {
 	if (CurrentMainAttacker == RequestingNPC)
 	{
@@ -56,7 +56,7 @@ bool UCombatManagerComponent::RequestMainAttackToken(ARACharacterNonPlayer* Requ
 	return true;
 }
 
-bool UCombatManagerComponent::RequestCounterAttackToken(ARACharacterNonPlayer* RequestingNPC)
+bool UNPCCombatStateComponent::RequestCounterAttackToken(ARACharacterNonPlayer* RequestingNPC)
 {
 	if (CurrentCounterAttacker == RequestingNPC)
 	{
@@ -75,7 +75,7 @@ bool UCombatManagerComponent::RequestCounterAttackToken(ARACharacterNonPlayer* R
 	return true;
 }
 
-void UCombatManagerComponent::ReleaseToken(ARACharacterNonPlayer* ReleasingNPC)
+void UNPCCombatStateComponent::ReleaseToken(ARACharacterNonPlayer* ReleasingNPC)
 {
 	if (CurrentMainAttacker == ReleasingNPC)
 	{
@@ -88,7 +88,7 @@ void UCombatManagerComponent::ReleaseToken(ARACharacterNonPlayer* ReleasingNPC)
 	}
 }
 
-void UCombatManagerComponent::OnPlayerCounterSuccess()
+void UNPCCombatStateComponent::OnPlayerCounterSuccess()
 {
 	// 카운터 토큰을 가진 적 처리
 	if (CurrentCounterAttacker)
@@ -113,7 +113,7 @@ void UCombatManagerComponent::OnPlayerCounterSuccess()
 	}
 }
 
-bool UCombatManagerComponent::GetWaitLocation(ARACharacterNonPlayer* NPC, FVector& OutLocation)
+bool UNPCCombatStateComponent::GetWaitLocation(ARACharacterNonPlayer* NPC, FVector& OutLocation)
 {
 	if (!OwnerPlayer || !NPC) return false;
 	
@@ -143,7 +143,7 @@ bool UCombatManagerComponent::GetWaitLocation(ARACharacterNonPlayer* NPC, FVecto
 	return true;
 }
 
-void UCombatManagerComponent::RegisterNPC(ARACharacterNonPlayer* NPC)
+void UNPCCombatStateComponent::RegisterNPC(ARACharacterNonPlayer* NPC)
 {
 	if (NPC && !EngagedNPCs.Contains(NPC))
 	{
@@ -151,7 +151,7 @@ void UCombatManagerComponent::RegisterNPC(ARACharacterNonPlayer* NPC)
 	}
 }
 
-void UCombatManagerComponent::UnRegisterNPC(ARACharacterNonPlayer* NPC)
+void UNPCCombatStateComponent::UnRegisterNPC(ARACharacterNonPlayer* NPC)
 {
 	if (NPC)
 	{

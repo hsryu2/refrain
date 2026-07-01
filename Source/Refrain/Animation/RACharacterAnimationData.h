@@ -6,6 +6,24 @@
 #include "Engine/DataAsset.h"
 #include "RACharacterAnimationData.generated.h"
 
+USTRUCT(BlueprintType)
+struct FRAComboAttackData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UAnimMontage> Montage;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FVector MotionWarpLocationOffset = FVector::ZeroVector;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float KnockbackDistance = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float DamageMultiplier = 1.f;
+};
+
 /**
  * 
  */
@@ -16,16 +34,10 @@ class REFRAIN_API URACharacterAnimationData : public UDataAsset
 	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attack")
-	TArray<TObjectPtr<UAnimMontage>> AttackMontages;
-	
+	TArray<FRAComboAttackData> ComboAttacks;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attack")
-	TObjectPtr<UAnimMontage> AttackMontage_1;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attack")
-	TObjectPtr<UAnimMontage> AttackMontage_2;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attack")
-	TObjectPtr<UAnimMontage> AttackMontage_3;
+	TObjectPtr<UAnimMontage> CounterAttack;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="HitReact")
 	TObjectPtr<UAnimMontage> HitReactMontage;

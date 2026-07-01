@@ -7,16 +7,12 @@
 
 #include "DrawDebugHelpers.h"
 
-// Sets default values for this component's properties
 UAttackTargetingComponent::UAttackTargetingComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
 
 	// 타겟 NPC로 설정.
 	TargetActorClass = ARACharacterNonPlayer::StaticClass();
-	// ...
 }
 
 AActor* UAttackTargetingComponent::FindAttackTarget() const
@@ -79,69 +75,6 @@ AActor* UAttackTargetingComponent::FindAttackTarget() const
 void UAttackTargetingComponent::SetTargetActorClass(TSubclassOf<AActor> InTargetActorClass)
 {
 	TargetActorClass = InTargetActorClass;
-}
-
-TArray<AActor*> UAttackTargetingComponent::HitSweep() const
-{
-	TArray<AActor*> HitActors;
-	AActor* Owner = GetOwner();
-	if (!Owner)
-	{
-		return HitActors;
-	}
-	
-	FVector OwnerLocation = Owner->GetActorLocation();
-	FVector ForwardVector = Owner->GetActorForwardVector();
-	
-	// 히트스윕 시작 위치와 끝 위치
-	FVector StartLocation = OwnerLocation + (ForwardVector * SweepStartOffset);
-	FVector EndLocation = StartLocation + (ForwardVector * SweepDistance);
-	
-	TArray<FHitResult> HitResults;
-	FCollisionShape Sphere = FCollisionShape::MakeSphere(SphereSize); 
-	
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(Owner);
-	
-	bool bHit = GetWorld()->SweepMultiByChannel(
-		HitResults,
-		StartLocation,
-		EndLocation,
-		FQuat::Identity,
-		TargetCollisionChannel,
-		Sphere,
-		QueryParams
-	);
-	
-	// 히트스윕 확인용
-	FColor DrawColor = bHit ? FColor::Green : FColor::Red;
-	
-	DrawDebugSphere(GetWorld(), StartLocation, SphereSize, 12, DrawColor, false, 2.0f);
-	DrawDebugSphere(GetWorld(), EndLocation, SphereSize, 12, DrawColor, false, 2.0f);
-	DrawDebugLine(GetWorld(), StartLocation, EndLocation, DrawColor, false, 2.0f, 0, 2.0f);
-	
-	if (bHit)
-	{
-		for (const FHitResult& Result : HitResults)
-		{
-			AActor* TargetActor = Result.GetActor();
-			if (IsValidTarget(TargetActor) && !HitActors.Contains(TargetActor))
-			{
-				HitActors.Add(TargetActor);
-			}
-		}
-	}
-	return HitActors;
-}
-
-
-// Called when the game starts
-void UAttackTargetingComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-	
 }
 
 bool UAttackTargetingComponent::IsValidTarget(AActor* TargetActor) const

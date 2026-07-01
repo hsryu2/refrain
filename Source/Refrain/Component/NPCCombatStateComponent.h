@@ -4,19 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "CombatManagerComponent.generated.h"
+#include "NPCCombatStateComponent.generated.h"
 
 class ARACharacterPlayer;
 class ARACharacterNonPlayer;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class REFRAIN_API UCombatManagerComponent : public UActorComponent
+class REFRAIN_API UNPCCombatStateComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UCombatManagerComponent();
+	UNPCCombatStateComponent();
 
 protected:
 	// Called when the game starts
