@@ -23,14 +23,26 @@ void URAAT_RhythmTargetWidgetProgress::Activate()
 {
 	Super::Activate();
 	
-	if (!RhythmTargetWidget || Duration <= 0.f)
+	if (!RhythmTargetWidget)
 	{
 		RA_LOG(LogRefrain, Error, TEXT("RhythmTargetWidget Not Found"));
 		EndTask();
 		return;
 	}
+	if (Duration <= 0.f)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("Duration <= 0.f"));
+		EndTask();
+		return;
+	}
 	
 	RhythmTargetWidgetInstance = Cast<URhythmTargetWidget>(RhythmTargetWidget->GetUserWidgetObject());
+	if (!RhythmTargetWidgetInstance)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("RhythmTargetWidget Cast Failed"));
+		EndTask();
+		return;
+	}
 	
 	RhythmTargetWidgetInstance->UpdateProgress(0.f);
 }

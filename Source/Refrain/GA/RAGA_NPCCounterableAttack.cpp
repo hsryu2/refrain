@@ -85,16 +85,17 @@ void URAGA_NPCCounterableAttack::Attack()
 	{
 		RA_LOG(LogRefrain, Error, TEXT("RhythmTargetWidget Not Found"));
 	}
-	
-	// 위젯 업데이트하는 태스크
-	URAAT_RhythmTargetWidgetProgress* RhythmTask =
-		URAAT_RhythmTargetWidgetProgress::PlayRhythmTargetProgress(
-			this,
-			RhythmTargetWidget,
-			TargetBeatTime
-		);
-	RhythmTask->ReadyForActivation();
-	
+	else
+	{
+		// 위젯 업데이트하는 태스크
+		URAAT_RhythmTargetWidgetProgress* RhythmTask =
+			URAAT_RhythmTargetWidgetProgress::PlayRhythmTargetProgress(
+				this,
+				RhythmTargetWidget,
+				TargetBeatTime
+			);
+		RhythmTask->ReadyForActivation();
+	}
 }
 
 void URAGA_NPCCounterableAttack::PlayAttackMontage()
