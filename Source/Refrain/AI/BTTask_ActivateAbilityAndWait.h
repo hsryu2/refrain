@@ -14,7 +14,7 @@ class UGameplayAbility;
 /**
  * GA를 실행하고 이 GA가 끝날 때 태스크를 종료하는 태스크
  */
-UCLASS()
+UCLASS(Blueprintable, BlueprintType)
 class REFRAIN_API UBTTask_ActivateAbilityAndWait : public UBTTaskNode
 {
 	GENERATED_BODY()
