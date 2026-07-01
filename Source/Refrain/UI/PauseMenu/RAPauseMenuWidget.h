@@ -58,6 +58,14 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level")
 	TSoftObjectPtr<UWorld> MainMenuLevel;
 
+	/** @brief 설정 메뉴 클래스 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
+	TSubclassOf<UUserWidget> SettingsMenuClass;
+
+	/** @brief 생성된 설정 메뉴 인스턴스 */
+	UPROPERTY()
+	TObjectPtr<UUserWidget> SettingsMenuInstance;
+
 	UFUNCTION()
 	void OnResumeClicked(int32 MenuIndex);
 

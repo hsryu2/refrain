@@ -78,8 +78,22 @@ void URAPauseMenuWidget::OnResumeClicked(int32 MenuIndex)
 }
 void URAPauseMenuWidget::OnSettingsClicked(int32 MenuIndex)
 {
-	// TODO: 설정 메뉴 호출 로직 구현
-	UE_LOG(LogTemp, Warning, TEXT("Settings Menu not implemented yet."));
+	if (SettingsMenuClass)
+	{
+		if (!SettingsMenuInstance)
+		{
+			SettingsMenuInstance = CreateWidget<UUserWidget>(GetOwningPlayer(), SettingsMenuClass);
+		}
+
+		if (SettingsMenuInstance && !SettingsMenuInstance->IsInViewport())
+		{
+			SettingsMenuInstance->AddToViewport(10);
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Settings Menu Class is not set."));
+	}
 }
 
 void URAPauseMenuWidget::OnMainMenuClicked(int32 MenuIndex)

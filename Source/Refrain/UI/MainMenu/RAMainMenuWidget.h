@@ -107,6 +107,14 @@ protected:
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level")
 	TSoftObjectPtr<UWorld> NewGameLevel;
+
+	/** @brief 설정 메뉴 클래스 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
+	TSubclassOf<UUserWidget> SettingsMenuClass;
+
+	/** @brief 생성된 설정 메뉴 인스턴스 */
+	UPROPERTY()
+	TObjectPtr<UUserWidget> SettingsMenuInstance;
 	
 	/**
 	 * @brief 게임 시작 버튼(처음부터) 클릭 이벤트
@@ -115,6 +123,9 @@ protected:
 	 */
 	UFUNCTION()
 	void OnNewGameClicked(int32 MenuIndex);
+	
+	UFUNCTION()
+	void OnSettingsClicked(int32 MenuIndex);
 	
 	/** 
 	 * @brief 게임 종료 버튼 클릭 이벤트
