@@ -35,6 +35,9 @@ class REFRAIN_API URACharacterAnimationData : public UDataAsset
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attack")
 	TArray<FRAComboAttackData> ComboAttacks;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attack")
+	TObjectPtr<UAnimMontage> CounterAttack;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="HitReact")
 	TObjectPtr<UAnimMontage> HitReactMontage;
