@@ -107,7 +107,7 @@ protected:
 	TObjectPtr<AActor> TargetActor;
 	
 	// 콤보
-	int CurrentpCombo = 0;
+	int CurrentCombo = 0;
 	
 	// 콤보 예약을 한 상태인지 확인.
 	bool bHasQueuedAttackInput = false;
