@@ -14,7 +14,7 @@ class ARACharacterPlayer;
  * 몽타주 속도 설정 후 BPM에 맞춰 타격까지 재생하는 함수. 콤보 실행.
  * 몽타주 추가 시 애니메이션데이터 배열에 추가, 몽타주에 이벤트 태그 설정
  * 콤보 입력은 애니메이션 재생 시작시부터 NextComboStart 전까지 최초 1회만 받음
- * TODO: 판정 타이밍 저장 기능 완성 안 됨(대미지 관련 기능 포함)
+ * 타이밍 판정 결과 저장
  */
 UCLASS()
 class REFRAIN_API URAGA_ComboAttack : public UGameplayAbility
@@ -41,12 +41,14 @@ protected:
 	UFUNCTION()
 	void OnAttackHit(FGameplayEventData Payload);
 	
+	// 재생 속도 조절 노티파이
 	UFUNCTION()
 	void OnMontagePlayRate(FGameplayEventData Payload);
 	
 	UFUNCTION()
 	void OnNextComboStart(FGameplayEventData Payload);
 
+// 내부 로직
 protected:
 	// 공격
 	void Attack();
