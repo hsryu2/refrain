@@ -22,8 +22,23 @@ class REFRAIN_API URAMenuButtonWidget : public UUserWidget
 	GENERATED_BODY()
 	
 public:
+	// /@ --- 버튼 설정 ---
 	
-	// --- 메인메뉴에서 발행할 이벤트  ---
+	/** 
+	 * @brief WBP를 사용하는 주체에서 텍스트를 변경하기 위한 변수 선언 
+	 * @note 에디터에서 텍스트를 수정합니다.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu")
+	FText ButtonText;
+
+	/** @brief 자신의 번호를 기억하기 위한 변수 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu")
+	int32 ButtonIndex = 0;
+	
+	// --- 버튼 설정 --- @/
+
+	// /@ --- 버튼 이벤트 ---
+	
 	/** @brief 버튼 호버 이벤트 */
 	UPROPERTY(BlueprintAssignable, Category = "Menu")
 	FOnMenuButtonInteraction OnMenuButtonHoveredEvent;
@@ -40,19 +55,13 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Menu")
 	void OnSelectionStateChanged(bool bIsSelected);
 	
-	/** 
-	 * @brief WBP를 사용하는 주체에서 텍스트를 변경하기 위한 변수 선언 
-	 * @note 에디터에서 텍스트를 수정합니다.
-	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu")
-	FText ButtonText;
-	
+	// --- 버튼 이벤트 --- @/
+
 protected:
-	// --- override ---
 	virtual void NativePreConstruct() override;
 	virtual void NativeConstruct() override;
 
-	// --- 내부 버튼 이벤트를 받아줄 헬퍼 함수 ---
+	// /@ --- 내부 로직 및 헬퍼 ---
 	
 	/** @brief 버튼 호버 이벤트 받기 */
 	UFUNCTION()
@@ -61,17 +70,18 @@ protected:
 	/** @brief 버튼 클릭 이벤트 받기 */
 	UFUNCTION()
 	void Internal_OnClicked();
+	
+	// --- 내부 로직 및 헬퍼 --- @/
 		
+	// /@ --- UI 바인딩 ---
+	
 	/** @brief 클릭을 받을 내부 버튼 */
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> MainMenuBtn;
-
-	/** @brief 자신의 번호를 기억하기 위한 변수 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu")
-	int32 ButtonIndex = 0;
 	
-	/** 화면에 표시엘 내부 텍스트 위젯 */
+	/** 화면에 표시할 내부 텍스트 위젯 */
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UTextBlock> ButtonTextBlock;
 	
+	// --- UI 바인딩 --- @/
 };

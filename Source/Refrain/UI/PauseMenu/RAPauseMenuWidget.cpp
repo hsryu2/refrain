@@ -2,6 +2,8 @@
 
 #include "RAPauseMenuWidget.h"
 #include "UI/MainMenu/RAMenuButtonWidget.h"
+#include "UI/Settings/RAVolumeSettingsMenuWidget.h"
+#include "Components/WidgetSwitcher.h"
 #include "Player/RAPlayerController.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
@@ -29,6 +31,11 @@ void URAPauseMenuWidget::NativeConstruct()
 	{
 		Btn_ExitGame->OnMenuButtonHoveredEvent.AddDynamic(this, &URAPauseMenuWidget::UpdateHighlightPosition);
 		Btn_ExitGame->OnMenuButtonClickedEvent.AddDynamic(this, &URAPauseMenuWidget::OnExitGameClicked);
+	}
+
+	if (VolumeSettingsMenu)
+	{
+		VolumeSettingsMenu->OnSettingsMenuClosed.AddDynamic(this, &URAPauseMenuWidget::OnSettingsMenuClosed);
 	}
 
 	TargetTranslationY = SelectedIndex * MenuSpacing;
@@ -78,21 +85,27 @@ void URAPauseMenuWidget::OnResumeClicked(int32 MenuIndex)
 }
 void URAPauseMenuWidget::OnSettingsClicked(int32 MenuIndex)
 {
-	if (SettingsMenuClass)
+	if (MenuSwitcher)
 	{
-		if (!SettingsMenuInstance)
+		MenuSwitcher->SetActiveWidgetIndex(1); // 1: 설정 메뉴
+		
+		if (SelectionHighlight)
 		{
-			SettingsMenuInstance = CreateWidget<UUserWidget>(GetOwningPlayer(), SettingsMenuClass);
-		}
-
-		if (SettingsMenuInstance && !SettingsMenuInstance->IsInViewport())
-		{
-			SettingsMenuInstance->AddToViewport(10);
+			SelectionHighlight->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
-	else
+}
+
+void URAPauseMenuWidget::OnSettingsMenuClosed()
+{
+	if (MenuSwitcher)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Settings Menu Class is not set."));
+		MenuSwitcher->SetActiveWidgetIndex(0); // 0: 기존 퍼즈 메뉴 버튼들
+		
+		if (SelectionHighlight)
+		{
+			SelectionHighlight->SetVisibility(ESlateVisibility::HitTestInvisible);
+		}
 	}
 }
 
