@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/Tasks/AbilityTask.h"
-#include "RAT_PlayRhythmTargetProgress.generated.h"
+#include "RAAT_RhythmTargetWidgetProgress.generated.h"
 
 class UWidgetComponent;
 class URhythmTargetWidget;
@@ -12,12 +12,12 @@ class URhythmTargetWidget;
  * 
  */
 UCLASS()
-class REFRAIN_API URAT_PlayRhythmTargetProgress : public UAbilityTask
+class REFRAIN_API URAAT_RhythmTargetWidgetProgress : public UAbilityTask
 {
 	GENERATED_BODY()
 	
 public:
-	static URAT_PlayRhythmTargetProgress* PlayRhythmTargetProgress(UGameplayAbility* OwningAbility, UWidgetComponent* InWidget, float Duration);
+	static URAAT_RhythmTargetWidgetProgress* PlayRhythmTargetProgress(UGameplayAbility* OwningAbility, UWidgetComponent* InWidget, float Duration);
 	
 protected:
 	virtual void Activate() override;

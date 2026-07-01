@@ -1,15 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GA/AT/RAT_PlayRhythmTargetProgress.h"
+#include "GA/AT/RAAT_RhythmTargetWidgetProgress.h"
 
 #include "Refrain.h"
 #include "Components/WidgetComponent.h"
 #include "UI/RhythmTargetWidget.h"
 
-URAT_PlayRhythmTargetProgress* URAT_PlayRhythmTargetProgress::PlayRhythmTargetProgress(UGameplayAbility* OwningAbility, UWidgetComponent* InWidget, float Duration)
+URAAT_RhythmTargetWidgetProgress* URAAT_RhythmTargetWidgetProgress::PlayRhythmTargetProgress(UGameplayAbility* OwningAbility, UWidgetComponent* InWidget, float Duration)
 {
-	URAT_PlayRhythmTargetProgress* Task = NewAbilityTask<URAT_PlayRhythmTargetProgress>(OwningAbility);
+	URAAT_RhythmTargetWidgetProgress* Task = NewAbilityTask<URAAT_RhythmTargetWidgetProgress>(OwningAbility);
 
 	Task->bTickingTask = true;
 	
@@ -19,7 +19,7 @@ URAT_PlayRhythmTargetProgress* URAT_PlayRhythmTargetProgress::PlayRhythmTargetPr
 	return Task;
 }
 
-void URAT_PlayRhythmTargetProgress::Activate()
+void URAAT_RhythmTargetWidgetProgress::Activate()
 {
 	Super::Activate();
 	
@@ -35,7 +35,7 @@ void URAT_PlayRhythmTargetProgress::Activate()
 	RhythmTargetWidgetInstance->UpdateProgress(0.f);
 }
 
-void URAT_PlayRhythmTargetProgress::TickTask(float DeltaSeconds)
+void URAAT_RhythmTargetWidgetProgress::TickTask(float DeltaSeconds)
 {
 	Super::TickTask(DeltaSeconds);
 	
@@ -56,7 +56,7 @@ void URAT_PlayRhythmTargetProgress::TickTask(float DeltaSeconds)
 	}
 }
 
-void URAT_PlayRhythmTargetProgress::OnDestroy(bool bInOwnerFinished)
+void URAAT_RhythmTargetWidgetProgress::OnDestroy(bool bInOwnerFinished)
 {
 	Super::OnDestroy(bInOwnerFinished);
 	

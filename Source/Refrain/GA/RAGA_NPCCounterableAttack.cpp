@@ -9,7 +9,7 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Animation/AnimMontage.h"
 #include "Animation/AN_SendGameplayEvent.h"
-#include "AT/RAT_PlayRhythmTargetProgress.h"
+#include "AT/RAAT_RhythmTargetWidgetProgress.h"
 #include "Character/RACharacterNonPlayer.h"
 #include "Engine/World.h"
 #include "Timing/MagicalTimingSubsystem.h"
@@ -87,8 +87,8 @@ void URAGA_NPCCounterableAttack::Attack()
 	}
 	
 	// 위젯 업데이트하는 태스크
-	URAT_PlayRhythmTargetProgress* RhythmTask =
-		URAT_PlayRhythmTargetProgress::PlayRhythmTargetProgress(
+	URAAT_RhythmTargetWidgetProgress* RhythmTask =
+		URAAT_RhythmTargetWidgetProgress::PlayRhythmTargetProgress(
 			this,
 			RhythmTargetWidget,
 			TargetBeatTime
