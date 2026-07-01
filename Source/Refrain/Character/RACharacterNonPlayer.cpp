@@ -12,8 +12,10 @@
 #include "Component/AttackTargetingComponent.h"
 #include "Character/RACharacterPlayer.h"
 #include "Animation/RACharacterAnimationData.h"
-#include "Component/CombatManagerComponent.h"
+#include "Component/AttackHitSweepComponent.h"
+#include "Component/NPCCombatStateComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 ARACharacterNonPlayer::ARACharacterNonPlayer()
@@ -38,8 +40,8 @@ ARACharacterNonPlayer::ARACharacterNonPlayer()
 		RhythmTargetWidget->SetVisibility(false);
 	}
 	
-	TargetingComponent = CreateDefaultSubobject<UAttackTargetingComponent>(TEXT("TargetingComponent"));
-	TargetingComponent->SetTargetActorClass(ARACharacterPlayer::StaticClass());
+	AttackHitSweepComponent = CreateDefaultSubobject<UAttackHitSweepComponent>(TEXT("AttackHitSweepComponent"));
+	AttackHitSweepComponent->SetTargetActorClass(ARACharacterPlayer::StaticClass());
 	
 	// 체력바 위젯
 	HealthWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthWidget"));
@@ -122,7 +124,7 @@ void ARACharacterNonPlayer::Die()
 	// 편하게 화면의 0번째 플레이어를 찾아옵니다.
 	if (ARACharacterPlayer* Player = Cast<ARACharacterPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0)))
 	{
-		if (UCombatManagerComponent* CombatManager = Player->FindComponentByClass<UCombatManagerComponent>())
+		if (UNPCCombatStateComponent* CombatManager = Player->FindComponentByClass<UNPCCombatStateComponent>())
 		{
 			// 명단에서 지워달라고 요청합니다. (이 안에서 토큰도 알아서 회수됨!)
 			UE_LOG(LogTemp, Warning, TEXT("토근 떨굼"));

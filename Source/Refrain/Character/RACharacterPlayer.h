@@ -61,7 +61,6 @@ protected:
 	TObjectPtr<class UInputAction> DodgeAction;
 	
 public:
-	UAnimMontage* GetAttackMontage(int32 ComboIndex) const;
 	UAnimMontage* GetDodgeMontage() const;
 	
 // 기본 동작
@@ -98,7 +97,7 @@ protected:
 	
 	// 컴뱃컴포넌트.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
-	TObjectPtr<class UCombatManagerComponent> CombatManagerComponent;
+	TObjectPtr<class UNPCCombatStateComponent> CombatManagerComponent;
 	
 private:
 	// 현재 타겟팅 중인 NPC
