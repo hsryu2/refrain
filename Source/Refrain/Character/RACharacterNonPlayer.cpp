@@ -220,13 +220,13 @@ void ARACharacterNonPlayer::OnHealthChanged(const FOnAttributeChangeData& Data)
 		const float DamageAmount = Data.OldValue - Data.NewValue;
 		UE_LOG(LogTemp, Warning, TEXT("[ARACharacterNonPlayer] 피격 당함! 데미지: %f, 남은 체력: %f"), DamageAmount, Data.NewValue);
 		
-		if (const URACharacterAnimationData* AnimData = GetAnimationData())
-		{
-			if (UAnimMontage* HitMontage = AnimData->HitReactMontage)
-			{
-				PlayAnimMontage(HitMontage);
-			}																			
-		}
+		//if (const URACharacterAnimationData* AnimData = GetAnimationData())
+		//{
+		//	if (UAnimMontage* HitMontage = AnimData->HitReactMontage)
+		//	{
+		//		PlayAnimMontage(HitMontage);
+		//	}																			
+		//}
 		
 		if (Data.NewValue <= 0.0f)
 		{

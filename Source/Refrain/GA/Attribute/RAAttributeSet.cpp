@@ -4,6 +4,7 @@
 #include "RAAttributeSet.h"
 
 #include "GameplayEffectExtension.h"
+#include "RefrainGameplayTags.h"
 
 URAAttributeSet::URAAttributeSet() 
 	: AttackPower(0.0f)
@@ -63,9 +64,20 @@ void URAAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 		{
 			// 여기서 Dead state 태그 부여해야함.
 		}
-	UE_LOG(LogTemp, Warning, TEXT("Damage Applied: %.1f, HP: %.1f / %.1f"),
-	IncomingDamage,
-	GetHealth(),
-	GetMaxHealth());
+		else
+		{
+			// 피격 모션
+			UAbilitySystemComponent* TargetASC = GetOwningAbilitySystemComponent();
+			
+			FGameplayEventData EventData;
+			EventData.EventMagnitude = IncomingDamage;
+			
+			TargetASC->HandleGameplayEvent(RefrainGameplayTags::State_HitReact, &EventData);
+		}
+
+		UE_LOG(LogTemp, Warning, TEXT("Damage Applied: %.1f, HP: %.1f / %.1f"),
+		IncomingDamage,
+		GetHealth(),
+		GetMaxHealth());
 	}
 }
