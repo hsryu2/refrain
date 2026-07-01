@@ -11,14 +11,20 @@
 #include "Kismet/GameplayStatics.h"
 #include "Math/UnrealMathUtility.h"
 
+#include "Math/UnrealMathUtility.h"
+
 #include "UI/MainMenu/RAMenuButtonWidget.h"
+#include "UI/Settings/RAVolumeSettingsMenuWidget.h"
 
 void URAMainMenuWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
 	// 호버 이벤트 바인딩
-	if (Btn_Continue) Btn_Continue->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+	if (Btn_Continue)
+	{
+		Btn_Continue->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+	}
 	if (Btn_NewGame) 
 	{
 		Btn_NewGame->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
@@ -29,13 +35,21 @@ void URAMainMenuWidget::NativeConstruct()
 		Btn_Settings->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
 		Btn_Settings->OnMenuButtonClickedEvent.AddDynamic(this, &URAMainMenuWidget::OnSettingsClicked);
 	}
-	if (Btn_Credits) Btn_Credits->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+	if (Btn_Credits)
+	{
+		Btn_Credits->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+	}
 	if (Btn_ExitGame) 
 	{
 		Btn_ExitGame->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
 		
 		// 게임 종료 버튼 클릭 이벤트 바인딩!
 		Btn_ExitGame->OnMenuButtonClickedEvent.AddDynamic(this, &URAMainMenuWidget::OnExitGameClicked);
+	}
+
+	if (VolumeSettingsMenu)
+	{
+		VolumeSettingsMenu->OnSettingsMenuClosed.AddDynamic(this, &URAMainMenuWidget::OnSettingsMenuClosed);
 	}
 
 	// 초기 위치 설정 (선택된 인덱스 기준)
@@ -97,21 +111,27 @@ void URAMainMenuWidget::OnNewGameClicked(int32 MenuIndex)
 
 void URAMainMenuWidget::OnSettingsClicked(int32 MenuIndex)
 {
-	if (SettingsMenuClass)
+	if (MenuSwitcher)
 	{
-		if (!SettingsMenuInstance)
+		MenuSwitcher->SetActiveWidgetIndex(1); // 1: 설정 메뉴
+		
+		if (SelectionHighlight)
 		{
-			SettingsMenuInstance = CreateWidget<UUserWidget>(GetOwningPlayer(), SettingsMenuClass);
-		}
-
-		if (SettingsMenuInstance && !SettingsMenuInstance->IsInViewport())
-		{
-			SettingsMenuInstance->AddToViewport(10);
+			SelectionHighlight->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
-	else
+}
+
+void URAMainMenuWidget::OnSettingsMenuClosed()
+{
+	if (MenuSwitcher)
 	{
-		RA_LOG(LogRefrain, Warning, TEXT("Settings Menu Class is not set."));
+		MenuSwitcher->SetActiveWidgetIndex(0); // 0: 메인 메뉴 버튼들
+		
+		if (SelectionHighlight)
+		{
+			SelectionHighlight->SetVisibility(ESlateVisibility::HitTestInvisible);
+		}
 	}
 }
 
