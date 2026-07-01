@@ -97,7 +97,7 @@ protected:
 	
 	// 컴뱃컴포넌트.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
-	TObjectPtr<class UCombatManagerComponent> CombatManagerComponent;
+	TObjectPtr<class UNPCCombatStateComponent> CombatManagerComponent;
 	
 private:
 	// 현재 타겟팅 중인 NPC

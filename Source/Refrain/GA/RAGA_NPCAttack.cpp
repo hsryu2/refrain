@@ -12,7 +12,7 @@
 #include "Character/RACharacterNonPlayer.h"
 #include "Character/RACharacterPlayer.h"
 #include "Component/AttackTargetingComponent.h"
-#include "Component/CombatManagerComponent.h"
+#include "Component/NPCCombatStateComponent.h"
 
 URAGA_NPCAttack::URAGA_NPCAttack()
 {
@@ -79,7 +79,7 @@ void URAGA_NPCAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const 
 	//	{
 	//		if (ARACharacterPlayer* Player = Cast<ARACharacterPlayer>(BlackboardComp->GetValueAsObject(TEXT("Player"))))
 	//		{
-	//			if (UCombatManagerComponent* CombatManager = Player->FindComponentByClass<UCombatManagerComponent>())
+	//			if (UNPCCombatStateComponent* CombatManager = Player->FindComponentByClass<UNPCCombatStateComponent>())
 	//			{
 	//				CombatManager->ReleaseToken(NPC);
 	//			}

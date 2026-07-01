@@ -18,11 +18,11 @@
 #include "Refrain/Component/AttackTargetingComponent.h"
 #include "Refrain/Player/RAPlayerState.h"
 #include "Component/AttackTargetingComponent.h"
-#include "Component/CombatManagerComponent.h"
+#include "Component/NPCCombatStateComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Player/RAPlayerController.h"
 #include "UI/NPCHealthBarWidget.h"
-#include "Component/CombatManagerComponent.h"
+#include "Component/NPCCombatStateComponent.h"
 
 class ARAPlayerController;
 // Sets default values
@@ -86,7 +86,7 @@ ARACharacterPlayer::ARACharacterPlayer()
 	// 컴포넌트
 	TargetingComponent = CreateDefaultSubobject<UAttackTargetingComponent>(TEXT("TargetingComponent"));
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
-	CombatManagerComponent = CreateDefaultSubobject<UCombatManagerComponent>(TEXT("CombatManagerComponent"));
+	CombatManagerComponent = CreateDefaultSubobject<UNPCCombatStateComponent>(TEXT("CombatManagerComponent"));
 }
 
 // Called when the game starts or when spawned

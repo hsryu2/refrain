@@ -7,7 +7,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/RACharacterNonPlayer.h"
 #include "Character/RACharacterPlayer.h"
-#include "Component/CombatManagerComponent.h"
+#include "Component/NPCCombatStateComponent.h"
 
 UBTTask_RequestAttackToken::UBTTask_RequestAttackToken()
 {
@@ -45,7 +45,7 @@ EBTNodeResult::Type UBTTask_RequestAttackToken::ExecuteTask(UBehaviorTreeCompone
 		return EBTNodeResult::Failed;
 	}
 	
-	UCombatManagerComponent* CombatManager = Player->FindComponentByClass<UCombatManagerComponent>();
+	UNPCCombatStateComponent* CombatManager = Player->FindComponentByClass<UNPCCombatStateComponent>();
 	if (!CombatManager)
 	{
 		return EBTNodeResult::Failed;

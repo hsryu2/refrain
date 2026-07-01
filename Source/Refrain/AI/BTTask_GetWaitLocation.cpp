@@ -7,7 +7,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/RACharacterNonPlayer.h"
 #include "Character/RACharacterPlayer.h"
-#include "Component/CombatManagerComponent.h"
+#include "Component/NPCCombatStateComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 UBTTask_GetWaitLocation::UBTTask_GetWaitLocation()
@@ -37,7 +37,7 @@ EBTNodeResult::Type UBTTask_GetWaitLocation::ExecuteTask(UBehaviorTreeComponent&
 		return EBTNodeResult::Failed;
 	}
 	
-	UCombatManagerComponent* CombatManager = Player->FindComponentByClass<UCombatManagerComponent>();
+	UNPCCombatStateComponent* CombatManager = Player->FindComponentByClass<UNPCCombatStateComponent>();
 	if (!CombatManager)
 	{
 		return EBTNodeResult::Failed;
