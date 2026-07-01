@@ -363,22 +363,27 @@ FGameplayTag URAGA_ComboAttack::SetJudgement()
 	
 	if (!TargetActor)
 	{
+		SendJudgementToPlayerState(ERAHitJudgement::Miss);
 		ResultTag = RefrainGameplayTags::Judge_Miss;
 	}
 	else if (AbsTimingDifference < 0.05f)
 	{
+		SendJudgementToPlayerState(ERAHitJudgement::Perfect);
 		ResultTag = RefrainGameplayTags::Judge_Perfect;
 	}
 	else if (AbsTimingDifference < 0.2f)
 	{
+		SendJudgementToPlayerState(ERAHitJudgement::Good);
 		ResultTag = RefrainGameplayTags::Judge_Good;
 	}
 	else
 	{
+		SendJudgementToPlayerState(ERAHitJudgement::Bad);
 		ResultTag = RefrainGameplayTags::Judge_Bad;
 	}
 	
 	RA_LOG(LogRefrain, Log, TEXT("[콤보 %d] 입력 타이밍 오차: %.3f초 -> 판정 결과: %s"), CurrentCombo, TimingDifference, *ResultTag.ToString());
+	
 	
 	return ResultTag;
 }
@@ -513,5 +518,25 @@ void URAGA_ComboAttack::QueueHitSound()
 		RA_LOG(LogRefrain, Log, TEXT("HitSound Queued"));
 		MagicalTiming->PlaySFXQuantized(HitSound, EQuartzCommandQuantization::Beat, HitSoundBeatMultiplier);
 	}
+}
+
+void URAGA_ComboAttack::SendJudgementToPlayerState(ERAHitJudgement Judgement)
+{
+	const FGameplayAbilityActorInfo* ActorInfo = GetCurrentActorInfo();
+	if (!ActorInfo)
+	{
+		return;
+	}
+	APawn* Pawn = Cast<APawn>(ActorInfo->AvatarActor.Get());
+	if (!Pawn)
+	{
+		return;
+	}
+	ARAPlayerState* PlayerState = Pawn->GetPlayerState<ARAPlayerState>();
+	if (!PlayerState)
+	{
+		return;
+	}
+	PlayerState->RegisterJudgement(Judgement);
 }
 

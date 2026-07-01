@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
+#include "Player/RAPlayerState.h"
 #include "RAGA_ComboAttack.generated.h"
 
 class UAttackTargetingComponent;
@@ -25,13 +26,13 @@ public:
 	URAGA_ComboAttack();
 	
 protected:
-// 재정의 함수
+	// 재정의 함수
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	
 protected:
-// 델리게이트로 실행되는 함수
+	// 델리게이트로 실행되는 함수
 	UFUNCTION()
 	void OnMontageCompleted();
 	UFUNCTION()
@@ -83,7 +84,7 @@ protected:
 	void QueueHitSound();
 
 protected:
-// 블루프린트에서 설정할 변수
+	// 블루프린트에서 설정할 변수
 	// 대미지 GE
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Damage)
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
@@ -106,7 +107,7 @@ protected:
 	TObjectPtr<AActor> TargetActor;
 	
 	// 콤보
-	int CurrentCombo = 0;
+	int CurrentpCombo = 0;
 	
 	// 콤보 예약을 한 상태인지 확인.
 	bool bHasQueuedAttackInput = false;
@@ -127,4 +128,8 @@ protected:
 	float RecoveryPlayRate;
 	float MontageStartTime;
 	float HitSoundBeatMultiplier = 1.f;
+	
+protected:
+	// PlayState에 점수 계산을 위해 판정 전달.
+	void SendJudgementToPlayerState(ERAHitJudgement Judgement);
 };
