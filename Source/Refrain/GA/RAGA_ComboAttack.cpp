@@ -153,10 +153,11 @@ void URAGA_ComboAttack::OnAttackHit(FGameplayEventData Payload)
 			case ERAHitJudgement::Perfect:
 				ShakeScale = 1.2f;
 				break;
-			
+				
 			case ERAHitJudgement::Good:
 				ShakeScale = 1.0f;
 				break;
+				
 			case ERAHitJudgement::Bad:
 				ShakeScale = 0.8f;
 				break;
