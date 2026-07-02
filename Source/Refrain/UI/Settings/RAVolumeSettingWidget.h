@@ -59,8 +59,15 @@ public:
 	// --- 볼륨 변경 이벤트 --- @/
 	// ----------------------------------------------------------------------------------------------------------------
 	
+	/**
+	 * @brief 세이브 데이터를 불러와서 슬라이더의 값을 세팅하는 함수
+	 * @param SavedVolume 디스크에서 불러온 볼륨 값
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Settings")
+	void UpdateSliderValue(float SavedVolume);
+	
 protected:
-	virtual void NativeConstruct() override;
+	virtual void NativeOnInitialized() override;
 	
 	// ----------------------------------------------------------------------------------------------------------------
 	// /@ --- 내부 로직 변수 ---
