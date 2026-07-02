@@ -7,6 +7,7 @@
 #include "EnhancedInputComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/PauseMenu/RAPauseMenuWidget.h"
+#include "UI/RAScoreWidget.h"
 #include "Timing/MagicalTimingSubsystem.h"
 #include "UObject/ConstructorHelpers.h"
 
@@ -54,6 +55,15 @@ void ARAPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (IsLocalController() && ScoreWidgetClass)
+	{
+		ScoreWidget = CreateWidget<URAScoreWidget>(this, ScoreWidgetClass);
+		if (ScoreWidget)
+		{
+			ScoreWidget->AddToViewport();
+		}
+	}
+
 	FInputModeGameOnly GameOnlyInputMode;
 	SetInputMode(GameOnlyInputMode);
 }
@@ -75,11 +85,13 @@ void ARAPlayerController::TogglePauseMenu()
 		// Unpause
 		SetPause(false);
 
+		// 음악 다시 재생
 		if (UMagicalTimingSubsystem* TimingSubsystem = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>())
 		{
 			TimingSubsystem->ResumeMusic();
 		}
 		
+		// Pause 메뉴 제거
 		if (PauseMenuWidget)
 		{
 			PauseMenuWidget->RemoveFromParent();
@@ -94,11 +106,13 @@ void ARAPlayerController::TogglePauseMenu()
 		// Pause
 		SetPause(true);
 
+		// 음악 일시정지
 		if (UMagicalTimingSubsystem* TimingSubsystem = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>())
 		{
 			TimingSubsystem->PauseMusic();
 		}
 		
+		// Pause 메뉴 생성
 		if (PauseMenuWidgetClass)
 		{
 			if (!PauseMenuWidget)
