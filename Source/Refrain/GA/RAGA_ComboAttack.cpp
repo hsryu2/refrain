@@ -16,6 +16,7 @@
 #include "Attribute/RAAttributeSet.h"
 #include "Character/RACharacterBase.h"
 #include "Component/AttackTargetingComponent.h"
+#include "DSP/AudioDebuggingUtilities.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "Timing/MagicalTimingSubsystem.h"
@@ -138,6 +139,33 @@ void URAGA_ComboAttack::OnAttackHit(FGameplayEventData Payload)
 	}
 
 	SendJudgementToPlayerState(HitJudgement);
+	
+	// 카메라 쉐이크
+	if (HitCameraShakeClass && HitJudgement != ERAHitJudgement::Miss)
+	{
+		if (APlayerController* PC = GetActorInfo().PlayerController.Get())
+		{
+			// 판정에 따라 Shake 강약 조절
+			float ShakeScale = 0.5f;
+
+			switch (HitJudgement)
+			{
+			case ERAHitJudgement::Perfect:
+				ShakeScale = 1.2f;
+				break;
+				
+			case ERAHitJudgement::Good:
+				ShakeScale = 1.0f;
+				break;
+				
+			case ERAHitJudgement::Bad:
+				ShakeScale = 0.8f;
+				break;
+			}
+			
+			PC->ClientStartCameraShake(HitCameraShakeClass, ShakeScale);
+		}
+	}
 	
 	// 노래 재생 중이 아닐 때 타격음 재생
 	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
