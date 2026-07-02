@@ -123,6 +123,22 @@ void URAGA_ComboAttack::OnAttackHit(FGameplayEventData Payload)
 		RA_LOG(LogRefrain, Log, TEXT("SourceASC or TargetASC Not Found"));
 	}
 	
+	ERAHitJudgement HitJudgement = ERAHitJudgement::Miss;
+	if (CurrentJudgementTag == RefrainGameplayTags::Judge_Perfect)
+	{
+		HitJudgement = ERAHitJudgement::Perfect;
+	}
+	else if (CurrentJudgementTag == RefrainGameplayTags::Judge_Good)
+	{
+		HitJudgement = ERAHitJudgement::Good;
+	}
+	else if (CurrentJudgementTag == RefrainGameplayTags::Judge_Bad)
+	{
+		HitJudgement = ERAHitJudgement::Bad;
+	}
+
+	SendJudgementToPlayerState(HitJudgement);
+	
 	// 노래 재생 중이 아닐 때 타격음 재생
 	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
 	if (!MagicalTiming || !MagicalTiming->IsMusicPlaying())
@@ -363,22 +379,18 @@ FGameplayTag URAGA_ComboAttack::SetJudgement()
 	
 	if (!TargetActor)
 	{
-		SendJudgementToPlayerState(ERAHitJudgement::Miss);
 		ResultTag = RefrainGameplayTags::Judge_Miss;
 	}
 	else if (AbsTimingDifference < 0.05f)
 	{
-		SendJudgementToPlayerState(ERAHitJudgement::Perfect);
 		ResultTag = RefrainGameplayTags::Judge_Perfect;
 	}
 	else if (AbsTimingDifference < 0.2f)
 	{
-		SendJudgementToPlayerState(ERAHitJudgement::Good);
 		ResultTag = RefrainGameplayTags::Judge_Good;
 	}
 	else
 	{
-		SendJudgementToPlayerState(ERAHitJudgement::Bad);
 		ResultTag = RefrainGameplayTags::Judge_Bad;
 	}
 	

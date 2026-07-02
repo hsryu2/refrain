@@ -39,17 +39,19 @@ void ARAPlayerState::BeginPlay()
 void ARAPlayerState::RegisterJudgement(ERAHitJudgement Judgement)
 {
 	int32 BaseScore = 0;
-	
 	switch (Judgement)
 	{
 		case ERAHitJudgement::Perfect:
 			BaseScore = 100;
+			CurrentHits++;
 			break;
 		case ERAHitJudgement::Good:
 			BaseScore = 50;
+			CurrentHits++;
 			break;
 		case ERAHitJudgement::Bad:
 			BaseScore = 25;
+			CurrentHits++;
 			break;
 		case ERAHitJudgement::Miss:
 			BaseScore = 0;
@@ -57,29 +59,34 @@ void ARAPlayerState::RegisterJudgement(ERAHitJudgement Judgement)
 		default:
 			break;
 	}
-	MaxCombo = FMath::Max(MaxCombo, CurrentCombo);
-	const int32 AddedScore = FMath::RoundToInt(static_cast<float>(BaseScore) * GetComboMultiplier());
+	MaxHits = FMath::Max(MaxHits, CurrentHits);
+	const int32 AddedScore = FMath::RoundToInt(static_cast<float>(BaseScore) * GetHitsMultiplier());
 	TotalScore += AddedScore;
-	UE_LOG(LogTemp, Log, TEXT("TotalScore : %d, CurrentCombo : %d"), TotalScore, CurrentCombo);
+	UE_LOG(LogTemp, Log, TEXT("TotalScore : %d, CurrentCombo : %d"), TotalScore, CurrentHits);
 	
-	OnScoreUpdated.Broadcast(Judgement, AddedScore, TotalScore, CurrentCombo);
+	OnScoreUpdated.Broadcast(Judgement, AddedScore, TotalScore, CurrentHits);
 }
 
-float ARAPlayerState::GetComboMultiplier() const
+float ARAPlayerState::GetHitsMultiplier() const
 {
-	if (CurrentCombo >= 50)
+	if (CurrentHits >= 50)
 	{
 		return 1.5f;
 	}
-	if (CurrentCombo >= 30)
+	if (CurrentHits >= 30)
 	{
 		return 1.2f;
 	}
-	if (CurrentCombo >= 10)
+	if (CurrentHits >= 10)
 	{
 		return 1.1f;
 	}
 	return 1.0f;
+}
+
+void ARAPlayerState::ResetHits()
+{
+	CurrentHits = 0;
 }
 
 class UAbilitySystemComponent* ARAPlayerState::GetAbilitySystemComponent() const

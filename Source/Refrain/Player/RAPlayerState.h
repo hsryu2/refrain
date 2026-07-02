@@ -42,19 +42,23 @@ public:
 	int32 TotalScore = 0;
 	
 	UPROPERTY(BlueprintReadOnly, Category = Score)
-	int32 CurrentCombo = 0;
+	int32 CurrentHits = 0;
 	
 	UPROPERTY(BlueprintReadOnly, Category = Score)
-	int32 MaxCombo = 0;
+	int32 MaxHits = 0;
 	
 	UFUNCTION(BlueprintCallable, Category = Score)
 	void RegisterJudgement(ERAHitJudgement Judgement);
 	
 	UFUNCTION(BlueprintCallable, Category = Score)
-	float GetComboMultiplier() const;
+	float GetHitsMultiplier() const;
+	
+	UFUNCTION(BlueprintCallable, Category = Score)
+	void ResetHits();
 	
 	UPROPERTY(BlueprintAssignable, Category = Score)
 	FOnScoreUpdate OnScoreUpdated;
+	
 	
 	
 protected:
