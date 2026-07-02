@@ -155,11 +155,43 @@ void URAVolumeSettingsMenuWidget::OnCloseClicked(int32 MenuIndex)
 		}
 	}
 	
+	// 위젯 스위처로 다시 돌아왔을 때 이전 호버 상태가 남아있지 않도록 초기화
+	if (BtnApply) BtnApply->OnSelectionStateChanged(false);
+	if (BtnClose) BtnClose->OnSelectionStateChanged(false);
+	SelectedIndex = -1;
+	
 	// 설정창을 완전히 삭제하지 않고, 닫혔다는 신호만 부모 위젯으로 보냄
 	OnSettingsMenuClosed.Broadcast();
 }
 
 void URAVolumeSettingsMenuWidget::OnButtonHovered(int32 MenuIndex)
 {
+	// 같은 버튼에 다시 마우스가 올라간 경우 무시
+	if (SelectedIndex == MenuIndex)
+	{
+		return;
+	}
+
+	// 1. 기존에 선택되어 있던 버튼의 애니메이션 끄기 (역재생)
+	if (BtnApply && BtnApply->ButtonIndex == SelectedIndex)
+	{
+		BtnApply->OnSelectionStateChanged(false);
+	}
+	if (BtnClose && BtnClose->ButtonIndex == SelectedIndex)
+	{
+		BtnClose->OnSelectionStateChanged(false);
+	}
+
+	// 2. 방금 새로 마우스가 올라간 버튼의 애니메이션 켜기 (정재생)
+	if (BtnApply && BtnApply->ButtonIndex == MenuIndex)
+	{
+		BtnApply->OnSelectionStateChanged(true);
+	}
+	if (BtnClose && BtnClose->ButtonIndex == MenuIndex)
+	{
+		BtnClose->OnSelectionStateChanged(true);
+	}
+
+	SelectedIndex = MenuIndex;
 	OnMenuButtonHoveredEvent.Broadcast(MenuIndex);
 }
