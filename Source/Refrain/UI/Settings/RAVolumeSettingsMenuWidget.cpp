@@ -13,27 +13,27 @@ void URAVolumeSettingsMenuWidget::NativeConstruct()
 	Super::NativeConstruct();
 
 	// 바인딩 - 마스터 볼륨
-	if (Vol_Master)
+	if (MasterVolumeWidget)
 	{
-		Vol_Master->OnVolumeChanged.AddDynamic(this, &URAVolumeSettingsMenuWidget::OnMasterVolumeChanged);
+		MasterVolumeWidget->OnVolumeChanged.AddDynamic(this, &URAVolumeSettingsMenuWidget::OnMasterVolumeChanged);
 	}
 
 	// 바인딩 - BGM 볼륨
-	if (Vol_BGM)
+	if (BGMVolumeWidget)
 	{
-		Vol_BGM->OnVolumeChanged.AddDynamic(this, &URAVolumeSettingsMenuWidget::OnBGMVolumeChanged);
+		BGMVolumeWidget->OnVolumeChanged.AddDynamic(this, &URAVolumeSettingsMenuWidget::OnBGMVolumeChanged);
 	}
 
 	// 바인딩 - SFX 볼륨
-	if (Vol_SFX)
+	if (SFXVolumeWidget)
 	{
-		Vol_SFX->OnVolumeChanged.AddDynamic(this, &URAVolumeSettingsMenuWidget::OnSFXVolumeChanged);
+		SFXVolumeWidget->OnVolumeChanged.AddDynamic(this, &URAVolumeSettingsMenuWidget::OnSFXVolumeChanged);
 	}
 
 	// 바인딩 - 닫기 버튼
-	if (Btn_Close)
+	if (BtnClose)
 	{
-		Btn_Close->OnMenuButtonClickedEvent.AddDynamic(this, &URAVolumeSettingsMenuWidget::OnCloseClicked);
+		BtnClose->OnMenuButtonClickedEvent.AddDynamic(this, &URAVolumeSettingsMenuWidget::OnCloseClicked);
 	}
 }
 
@@ -66,6 +66,6 @@ void URAVolumeSettingsMenuWidget::OnSFXVolumeChanged(FText SettingName, float Ne
 
 void URAVolumeSettingsMenuWidget::OnCloseClicked(int32 MenuIndex)
 {
-	// 닫기 로직 (설정창을 제거하거나 숨김 처리)
-	RemoveFromParent();
+	// 설정창을 완전히 삭제하지 않고, 닫혔다는 신호만 부모 위젯으로 보냄
+	OnSettingsMenuClosed.Broadcast();
 }
