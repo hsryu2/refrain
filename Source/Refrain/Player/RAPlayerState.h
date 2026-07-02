@@ -47,12 +47,15 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = Score)
 	int32 MaxHits = 0;
 	
+	// 판정에 따라 점수 추가 및 히트수 추가 함수
 	UFUNCTION(BlueprintCallable, Category = Score)
 	void RegisterJudgement(ERAHitJudgement Judgement);
 	
+	// 히트 수에 따라 점수 배율 설정
 	UFUNCTION(BlueprintCallable, Category = Score)
 	float GetHitsMultiplier() const;
 	
+	// 히트 리셋
 	UFUNCTION(BlueprintCallable, Category = Score)
 	void ResetHits();
 	

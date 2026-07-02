@@ -353,6 +353,7 @@ void URAGA_ComboAttack::SetTargetActor()
 	}
 }
 
+
 FGameplayTag URAGA_ComboAttack::SetJudgement()
 {
 	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
@@ -532,6 +533,7 @@ void URAGA_ComboAttack::QueueHitSound()
 	}
 }
 
+// PlayerState에게 판정 정보 보내기.
 void URAGA_ComboAttack::SendJudgementToPlayerState(ERAHitJudgement Judgement)
 {
 	const FGameplayAbilityActorInfo* ActorInfo = GetCurrentActorInfo();

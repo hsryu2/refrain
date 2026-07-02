@@ -36,6 +36,7 @@ void ARAPlayerState::BeginPlay()
 	}
 }
 
+// ENum으로 받은 설정 점수 등록 및 Hit증가
 void ARAPlayerState::RegisterJudgement(ERAHitJudgement Judgement)
 {
 	int32 BaseScore = 0;
