@@ -25,7 +25,7 @@ class UMotionWarpingComponent;
 URAGA_ComboAttack::URAGA_ComboAttack()
 {
 	FGameplayTagContainer Tags(RefrainGameplayTags::Ability_Attack);
-	SetAssetTags(Tags);;
+	SetAssetTags(Tags);
 	
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
