@@ -120,8 +120,8 @@ float URAGA_NPCCounterableAttack::CalculatePlayRate(const UAnimMontage* Montage)
 	// AttackHit 이벤트를 정박 이후(0.1박)에 발동시키는 게 목표
 	const FGameplayTag TargetTag = RefrainGameplayTags::Event_Montage_AttackHit;		// 몽타주 안에서 검색할 태그
 	const float TargetProgressOnTargetTagNotify = 0.1f;									// 검색한 태그가 위치할 박자 진행도
-	const float TargetBeatMultiplier = 2.f;												// 2박짜리 공격
-	const float MinPlayRate = 0.5f;														// 최소 PlayRate
+	const int TargetBeatMultiplier = 2;													// 2박짜리 공격
+	const float MinPlayRate = 0.25f;													// 최소 PlayRate
 	const float MaxPlayRate = 2.f;														// 최대 PlayRate
 	
 	// 기본값
@@ -152,7 +152,7 @@ float URAGA_NPCCounterableAttack::CalculatePlayRate(const UAnimMontage* Montage)
 	const float SecondsPerBeat = MagicalTimingSubsystem->GetSecondsPerBeat(); 
 	
 	// 목표 박자(정박) 시간
-	const float TargetBeatTime = MagicalTimingSubsystem->GetTimeUntilNextBeat(0.f, EQuartzCommandQuantization::Beat, TargetBeatMultiplier);
+	const float TargetBeatTime = MagicalTimingSubsystem->GetTimeUntilNextBeat(EQuartzCommandQuantization::Beat, TargetBeatMultiplier);
 	
 	// 계산식...
 	const float DesiredNotifyTime = TargetBeatTime + (TargetProgressOnTargetTagNotify * SecondsPerBeat);		// 태그가 발동될 목표 시간
@@ -170,6 +170,9 @@ float URAGA_NPCCounterableAttack::CalculatePlayRate(const UAnimMontage* Montage)
 		
 		MontagePlayRate = MinPlayRate;
 	}
+	RA_LOG(LogRefrain, Log, 
+		TEXT("NotifyTime: %.2f, TargetBeatTime: %.2f, DesiredNotifyTime: %.2f, MontagePlayRate: %.2f, MontageStartTime: %.2f, MontageWaitTime: %.2f"),
+		NotifyTime, TargetBeatTime, DesiredNotifyTime, MontagePlayRate, MontageStartTime, MontageWaitTime);
 
 	return TargetBeatTime;
 }

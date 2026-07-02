@@ -277,18 +277,20 @@ float UMagicalTimingSubsystem::JudgeTiming(EQuartzCommandQuantization TargetQuan
 	return SignedOffsetFromNearestBeat;
 }
 
-float UMagicalTimingSubsystem::GetTimeUntilNextBeat(float MinimumStartupDelay, EQuartzCommandQuantization TargetQuantization, float Multiplier)
+float UMagicalTimingSubsystem::GetTimeUntilNextBeat(EQuartzCommandQuantization TargetQuantization, int MinBeatNum)
 {
-	const float TargetDuration = MusicClockHandle->GetDurationOfQuantizationTypeInSeconds(GetWorld(), TargetQuantization, Multiplier);
+	const float TargetDuration = MusicClockHandle->GetDurationOfQuantizationTypeInSeconds(GetWorld(), TargetQuantization);
 	float TargetProgress = MusicClockHandle->GetBeatProgressPercent(TargetQuantization);
 	
 	float TimeUntilNextHit = TargetDuration * (1.f - TargetProgress);
 	
-	// 최소 선딜레이 적용
+	/*// 최소 선딜레이 적용
 	while (TimeUntilNextHit < MinimumStartupDelay)
 	{
 		TimeUntilNextHit += TargetDuration;
-	}
+	}*/
+
+	TimeUntilNextHit += (MinBeatNum - 1) * TargetDuration;
 	
 	return TimeUntilNextHit;
 }
