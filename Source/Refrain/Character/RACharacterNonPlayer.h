@@ -56,6 +56,9 @@ protected:
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 
+public:
+	UWidgetComponent* GetRhythmTargetWidget() const { return RhythmTargetWidget; }
+	
 private:
 	/** 타이밍 연출을 담당하기 위한 위젯 컴포넌트 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = true))

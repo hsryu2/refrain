@@ -3,6 +3,7 @@
 
 #include "RhythmTargetWidget.h"
 #include "Components/Image.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 void URhythmTargetWidget::NativeConstruct()
 {
@@ -31,7 +32,7 @@ void URhythmTargetWidget::UpdateProgress(float Alpha)
 	if (RingMaterialInstance)
 	{
 		// 적 캐릭터의 타임라인 값(0.0 ~ 1.0)을 받아 머티리얼 링을 축소시킴
-		RingMaterialInstance->SetScalarParameterValue(TEXT("SyncProgress"), Alpha);
+		RingMaterialInstance->SetScalarParameterValue(TEXT("AttackProgressParam"), Alpha);
 	}
 }
 

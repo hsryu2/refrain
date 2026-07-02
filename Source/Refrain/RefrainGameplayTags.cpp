@@ -31,6 +31,6 @@ namespace RefrainGameplayTags
 	
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_NextComboStart, "Event.Montage.NextComboStart", "다음 콤보가 예약되어 있을 경우 다음 콤보로 넘어가는 시점");
 	
-	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Attacking, "State.Attacking.Main", "공격 중인 상태");
-	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Counterable, "State.Attacking.Counterable", "카운터 가능 상태");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Attacking_Main, "State.Attacking.Main", "공격 중인 상태");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Attacking_Counterable, "State.Attacking.Counterable", "카운터 가능 상태");
 }

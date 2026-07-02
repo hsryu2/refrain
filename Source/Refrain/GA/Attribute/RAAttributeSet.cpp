@@ -5,6 +5,7 @@
 
 #include "GameplayEffectExtension.h"
 #include "RefrainGameplayTags.h"
+#include "Player/RAPlayerState.h"
 
 URAAttributeSet::URAAttributeSet() 
 	: AttackPower(0.0f)
@@ -74,7 +75,12 @@ void URAAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 			
 			TargetASC->HandleGameplayEvent(RefrainGameplayTags::State_HitReact, &EventData);
 		}
-
+		
+		if (ARAPlayerState* PlayerState = Cast<ARAPlayerState>(Data.Target.GetOwnerActor()))
+		{
+			PlayerState->ResetHits();
+		}
+		
 		UE_LOG(LogTemp, Warning, TEXT("Damage Applied: %.1f, HP: %.1f / %.1f"),
 		IncomingDamage,
 		GetHealth(),

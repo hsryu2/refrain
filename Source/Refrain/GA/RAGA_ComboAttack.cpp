@@ -25,7 +25,7 @@ class UMotionWarpingComponent;
 URAGA_ComboAttack::URAGA_ComboAttack()
 {
 	FGameplayTagContainer Tags(RefrainGameplayTags::Ability_Attack);
-	SetAssetTags(Tags);;
+	SetAssetTags(Tags);
 	
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
@@ -122,6 +122,22 @@ void URAGA_ComboAttack::OnAttackHit(FGameplayEventData Payload)
 	{
 		RA_LOG(LogRefrain, Log, TEXT("SourceASC or TargetASC Not Found"));
 	}
+	
+	ERAHitJudgement HitJudgement = ERAHitJudgement::Miss;
+	if (CurrentJudgementTag == RefrainGameplayTags::Judge_Perfect)
+	{
+		HitJudgement = ERAHitJudgement::Perfect;
+	}
+	else if (CurrentJudgementTag == RefrainGameplayTags::Judge_Good)
+	{
+		HitJudgement = ERAHitJudgement::Good;
+	}
+	else if (CurrentJudgementTag == RefrainGameplayTags::Judge_Bad)
+	{
+		HitJudgement = ERAHitJudgement::Bad;
+	}
+
+	SendJudgementToPlayerState(HitJudgement);
 	
 	// 노래 재생 중이 아닐 때 타격음 재생
 	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
@@ -337,6 +353,7 @@ void URAGA_ComboAttack::SetTargetActor()
 	}
 }
 
+
 FGameplayTag URAGA_ComboAttack::SetJudgement()
 {
 	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
@@ -379,6 +396,7 @@ FGameplayTag URAGA_ComboAttack::SetJudgement()
 	}
 	
 	RA_LOG(LogRefrain, Log, TEXT("[콤보 %d] 입력 타이밍 오차: %.3f초 -> 판정 결과: %s"), CurrentCombo, TimingDifference, *ResultTag.ToString());
+	
 	
 	return ResultTag;
 }
@@ -513,5 +531,26 @@ void URAGA_ComboAttack::QueueHitSound()
 		RA_LOG(LogRefrain, Log, TEXT("HitSound Queued"));
 		MagicalTiming->PlaySFXQuantized(HitSound, EQuartzCommandQuantization::Beat, HitSoundBeatMultiplier);
 	}
+}
+
+// PlayerState에게 판정 정보 보내기.
+void URAGA_ComboAttack::SendJudgementToPlayerState(ERAHitJudgement Judgement)
+{
+	const FGameplayAbilityActorInfo* ActorInfo = GetCurrentActorInfo();
+	if (!ActorInfo)
+	{
+		return;
+	}
+	APawn* Pawn = Cast<APawn>(ActorInfo->AvatarActor.Get());
+	if (!Pawn)
+	{
+		return;
+	}
+	ARAPlayerState* PlayerState = Pawn->GetPlayerState<ARAPlayerState>();
+	if (!PlayerState)
+	{
+		return;
+	}
+	PlayerState->RegisterJudgement(Judgement);
 }
 
