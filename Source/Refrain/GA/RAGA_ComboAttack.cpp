@@ -19,6 +19,7 @@
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "Timing/MagicalTimingSubsystem.h"
+#include "Util/RAAnimationUtils.h"
 
 class UMotionWarpingComponent;
 
@@ -83,8 +84,6 @@ void URAGA_ComboAttack::InputPressed(const FGameplayAbilitySpecHandle Handle, co
 
 void URAGA_ComboAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	RA_LOG(LogRefrain, Log, TEXT("Start"));
-	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 	
 	ClearAttackMotionWarpTarget();
@@ -297,25 +296,6 @@ void URAGA_ComboAttack::ClearAttackMotionWarpTarget()
 	}
 }
 
-float URAGA_ComboAttack::FindGameplayEventNotifyTime(const UAnimMontage* Montage, const FGameplayTag EventTag) const
-{
-	if (!Montage)
-	{
-		return -1.f;
-	}
-	
-	for (const FAnimNotifyEvent& NotifyEvent : Montage->Notifies)
-	{
-		const UAN_SendGameplayEvent* EventNotify = Cast<UAN_SendGameplayEvent>(NotifyEvent.Notify);
-		if (EventNotify && EventNotify->EventTag == EventTag)
-		{
-			return NotifyEvent.GetTime();
-		}
-	}
-	
-	return -1.f;
-}
-
 void URAGA_ComboAttack::SetTargetActor()
 {
 	if (!TargetActor)
@@ -447,9 +427,9 @@ void URAGA_ComboAttack::CalculatePlayRates(const UAnimMontage* Montage)
 	const float PlayLength = Montage->GetPlayLength();
 	
 	// 몽타주 안에서 태그가 위치한 시간
-	const float MontageTime1 = FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_StartupToAnticipation);
-	const float MontageTime2 = FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_AnticipationToStrike);
-	const float MontageTime3 = FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_StrikeToRecovery);
+	const float MontageTime1 = URAAnimationUtils::FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_StartupToAnticipation);
+	const float MontageTime2 = URAAnimationUtils::FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_AnticipationToStrike);
+	const float MontageTime3 = URAAnimationUtils::FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_StrikeToRecovery);
 	if (MontageTime1 < 0.f || MontageTime2 < 0.f || MontageTime3 < 0.f)
 	{
 		RA_LOG(LogRefrain, Error, TEXT("Montage Notify Time Not Found: %f, %f, %f"), MontageTime1, MontageTime2, MontageTime3);

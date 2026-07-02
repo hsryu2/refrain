@@ -88,31 +88,6 @@ void UNPCCombatStateComponent::ReleaseToken(ARACharacterNonPlayer* ReleasingNPC)
 	}
 }
 
-void UNPCCombatStateComponent::OnPlayerCounterSuccess()
-{
-	// 카운터 토큰을 가진 적 처리
-	if (CurrentCounterAttacker)
-	{
-		CurrentCounterAttacker = nullptr;
-	}
-	
-	// 공격 중이었던 NPC 공격 중단
-	if (CurrentMainAttacker)
-	{
-		if (UAbilitySystemComponent* NPC_ASC = CurrentMainAttacker->GetAbilitySystemComponent())
-		{
-			// 게임 플레이 태그로 공격중인 태그를 찾아서 취소.
-			FGameplayTagContainer AttackTags;
-			
-			AttackTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Attacking.Main")));
-			
-			NPC_ASC->CancelAbilities(&AttackTags);
-		}
-		
-		CurrentMainAttacker = nullptr;
-	}
-}
-
 bool UNPCCombatStateComponent::GetWaitLocation(ARACharacterNonPlayer* NPC, FVector& OutLocation)
 {
 	if (!OwnerPlayer || !NPC) return false;

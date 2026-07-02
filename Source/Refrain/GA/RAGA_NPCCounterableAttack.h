@@ -42,10 +42,6 @@ protected:
 	// 재생 시간 계산. 타격 시점 박자까지 남은 시간 반환.
 	float CalculatePlayRate(const UAnimMontage* Montage);
 	
-	// 몽타주 안에서 해당 몽타주 안의 UAN_SendGameplayEvent 노티파이가 위치한 시간을 반환하는 함수. 실패 시 -1.f 반환
-	float FindGameplayEventNotifyTime(const UAnimMontage* Montage, const FGameplayTag EventTag = FGameplayTag::EmptyTag) const;
-
-	
 // 블루프린트에서 지정할 변수
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Animation)

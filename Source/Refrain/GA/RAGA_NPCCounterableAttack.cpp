@@ -14,6 +14,7 @@
 #include "Engine/World.h"
 #include "Timing/MagicalTimingSubsystem.h"
 #include "UI/RhythmTargetWidget.h"
+#include "Util/RAAnimationUtils.h"
 
 URAGA_NPCCounterableAttack::URAGA_NPCCounterableAttack()
 {
@@ -130,7 +131,7 @@ float URAGA_NPCCounterableAttack::CalculatePlayRate(const UAnimMontage* Montage)
 	MontageWaitTime = 0.f;
 	
 	// 검색한 태그가 위치한 시간
-	const float NotifyTime = FindGameplayEventNotifyTime(Montage, TargetTag);
+	const float NotifyTime = URAAnimationUtils::FindGameplayEventNotifyTime(Montage, TargetTag);
 	if (NotifyTime <= 0.f)
 	{
 		RA_LOG(LogRefrain, Warning, TEXT("Montage Notify Time Not Found: %f"), NotifyTime);
@@ -175,23 +176,4 @@ float URAGA_NPCCounterableAttack::CalculatePlayRate(const UAnimMontage* Montage)
 		NotifyTime, TargetBeatTime, DesiredNotifyTime, MontagePlayRate, MontageStartTime, MontageWaitTime);
 
 	return TargetBeatTime;
-}
-
-float URAGA_NPCCounterableAttack::FindGameplayEventNotifyTime(const UAnimMontage* Montage, const FGameplayTag EventTag) const
-{
-	if (!Montage)
-	{
-		return -1.f;
-	}
-	
-	for (const FAnimNotifyEvent& NotifyEvent : Montage->Notifies)
-	{
-		const UAN_SendGameplayEvent* EventNotify = Cast<UAN_SendGameplayEvent>(NotifyEvent.Notify);
-		if (EventNotify && EventNotify->EventTag == EventTag)
-		{
-			return NotifyEvent.GetTime();
-		}
-	}
-	
-	return -1.f;
 }

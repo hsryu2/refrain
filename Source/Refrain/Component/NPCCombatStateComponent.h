@@ -9,23 +9,23 @@
 class ARACharacterPlayer;
 class ARACharacterNonPlayer;
 
+/**
+ * 플레이어 캐릭터에 붙어서 NPC들의 공격 토큰을 관리하고 배분하는 컴포넌트
+ */
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class REFRAIN_API UNPCCombatStateComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	UNPCCombatStateComponent();
 
+// 재정의 함수
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+public:
 	// NPC가 일반 공격 토큰을 요청할 때 호출
 	UFUNCTION(BlueprintCallable, Category="Combat Token")
 	bool RequestMainAttackToken(ARACharacterNonPlayer* RequestingNPC);
@@ -38,20 +38,21 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Combat Token")
 	void ReleaseToken(ARACharacterNonPlayer* ReleasingNPC);
 	
-	// 플레이어가 카운터를 성공했을 때 호출. 
-	UFUNCTION(BlueprintCallable, Category="Combat Token")
-	void OnPlayerCounterSuccess();
-	
 	UFUNCTION(BlueprintCallable, Category="Combat Position")
 	bool GetWaitLocation(ARACharacterNonPlayer* NPC, FVector& OutLocation);
-	
-	UPROPERTY(EditAnywhere, Category="CombatPosition")
-	float WaitCircleRadius = 600.0f;
 	
 	void RegisterNPC(ARACharacterNonPlayer* NPC);
 	void UnRegisterNPC(ARACharacterNonPlayer* NPC);
 	
-private:
+// Getter
+public:
+	ARACharacterNonPlayer* GetCurrentMainAttacker() { return CurrentMainAttacker; }
+	ARACharacterNonPlayer* GetCurrentCounterAttacker() { return CurrentCounterAttacker; }
+	
+protected:
+	UPROPERTY(EditAnywhere, Category="CombatPosition")
+	float WaitCircleRadius = 600.0f;
+	
 	// 플레이어
 	UPROPERTY()
 	TObjectPtr<ARACharacterPlayer> OwnerPlayer;
