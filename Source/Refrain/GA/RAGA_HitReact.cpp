@@ -13,7 +13,7 @@
 URAGA_HitReact::URAGA_HitReact()
 {
 	// 피격 모션이 재생될 때 공격하는 모션 차단
-	CancelAbilitiesWithTag.AddTag(RefrainGameplayTags::State_Attacking);
+	CancelAbilitiesWithTag.AddTag(RefrainGameplayTags::State_Attacking_Main);
 	
 	ActivationOwnedTags.AddTag(RefrainGameplayTags::State_HitReact);
 }

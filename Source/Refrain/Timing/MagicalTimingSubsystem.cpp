@@ -277,7 +277,7 @@ float UMagicalTimingSubsystem::JudgeTiming(EQuartzCommandQuantization TargetQuan
 	return SignedOffsetFromNearestBeat;
 }
 
-float UMagicalTimingSubsystem::GetTimeUntilNextHit(float MinimumStartupDelay, EQuartzCommandQuantization TargetQuantization, float Multiplier)
+float UMagicalTimingSubsystem::GetTimeUntilNextBeat(float MinimumStartupDelay, EQuartzCommandQuantization TargetQuantization, float Multiplier)
 {
 	const float TargetDuration = MusicClockHandle->GetDurationOfQuantizationTypeInSeconds(GetWorld(), TargetQuantization, Multiplier);
 	float TargetProgress = MusicClockHandle->GetBeatProgressPercent(TargetQuantization);

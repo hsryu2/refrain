@@ -39,11 +39,15 @@ namespace RefrainGameplayTags
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_PlayRate_AnticipationToStrike);
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_PlayRate_StrikeToRecovery);
 	
+	// 카운터 공격(총 2타) 재생 속도 조절용 태그
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_PlayRate_FirstHit);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_PlayRate_SecondHit);
+	
 	// 다음 콤보로 넘어가는 이벤트
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_NextComboStart);
 
 	// NPC가 공격중인 상태.
-	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Attacking);
-	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Counterable);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Attacking_Main);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Attacking_Counterable);
 	
 }
