@@ -86,5 +86,5 @@ protected:
 
 	// 공격 중인 NPC가 공격할 타이밍
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="CounterAttack")
-	TObjectPtr<FAttackTiming> NowAttackTiming;
+	FAttackTiming NowAttackTiming;
 };

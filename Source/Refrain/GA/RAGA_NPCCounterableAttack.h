@@ -42,6 +42,10 @@ protected:
 	// 재생 시간 계산. 타격 시점 박자까지 남은 시간 반환.
 	float CalculatePlayRate(const UAnimMontage* Montage);
 	
+	// CombatStateComponent에 공격할 타이밍 저장
+	void SetAttackTiming();
+	void ClearAttackTiming();
+	
 // 블루프린트에서 지정할 변수
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Animation)
@@ -64,4 +68,7 @@ protected:
 	float MontagePlayRate = 1.f;
 	float MontageStartTime = 0.f;
 	float MontageWaitTime = 0.f;
+	
+	int AttackTimeStampBar = 0;
+	int AttackTimeStampBeat = 0;
 };

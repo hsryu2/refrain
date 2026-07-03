@@ -55,7 +55,7 @@ bool UNPCCombatStateComponent::SetNowCounterableAttackTiming(ARACharacterNonPlay
 		return false;
 	}
 	
-	NowAttackTiming = &NewAttackTiming;
+	NowAttackTiming = NewAttackTiming;
 	
 	return true;
 }
@@ -68,7 +68,7 @@ bool UNPCCombatStateComponent::ClearNowCounterableAttackTiming(ARACharacterNonPl
 		return false;
 	}
 	
-	NowAttackTiming = nullptr;
+	NowAttackTiming = FAttackTiming();
 	return true;
 }
 

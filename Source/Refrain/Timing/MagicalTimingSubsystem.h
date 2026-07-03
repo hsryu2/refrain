@@ -77,6 +77,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Magical|Info")
 	float GetTimeUntilBeat(int Bar, float Beat);
 	
+	UFUNCTION(BlueprintCallable, Category = "Magical|Info")
+	UMagicalMusicData* GetMusicData() const { return MusicData; }
+	
 // 게임 로직 - 공격 시 판정
 public:
 	// 목표 박과의 차이를 반환하는 함수 (점수 판정용)

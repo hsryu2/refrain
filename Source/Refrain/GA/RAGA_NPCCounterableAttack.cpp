@@ -11,6 +11,7 @@
 #include "Animation/AN_SendGameplayEvent.h"
 #include "AT/RAAT_RhythmTargetWidgetProgress.h"
 #include "Character/RACharacterNonPlayer.h"
+#include "Component/NPCCombatStateComponent.h"
 #include "Engine/World.h"
 #include "Timing/MagicalTimingSubsystem.h"
 #include "UI/RhythmTargetWidget.h"
@@ -138,22 +139,22 @@ float URAGA_NPCCounterableAttack::CalculatePlayRate(const UAnimMontage* Montage)
 		return -1.f;
 	}
 	
-	UMagicalTimingSubsystem* MagicalTimingSubsystem = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
-	if (!MagicalTimingSubsystem)
+	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
+	if (!MagicalTiming)
 	{
 		RA_LOG(LogRefrain, Warning, TEXT("MagicalTimingSubsystem Not Found"));
 		
 		return -1.f;
 	}
-	if (!MagicalTimingSubsystem->IsMusicPlaying())
+	if (!MagicalTiming->IsMusicPlaying())
 	{
 		RA_LOG(LogRefrain, Warning, TEXT("Music Not Playing"));
 		return -1.f;
 	}
-	const float SecondsPerBeat = MagicalTimingSubsystem->GetSecondsPerBeat(); 
+	const float SecondsPerBeat = MagicalTiming->GetSecondsPerBeat(); 
 	
-	// 목표 박자(정박) 시간
-	const float TargetBeatTime = MagicalTimingSubsystem->GetTimeUntilNextBeat(EQuartzCommandQuantization::Beat, TargetBeatMultiplier);
+	// 목표 박자(정박)까지 시간
+	const float TargetBeatTime = MagicalTiming->GetTimeUntilNextBeat(EQuartzCommandQuantization::Beat, TargetBeatMultiplier);
 	
 	// 계산식...
 	const float DesiredNotifyTime = TargetBeatTime + (TargetProgressOnTargetTagNotify * SecondsPerBeat);		// 태그가 발동될 목표 시간
@@ -171,9 +172,33 @@ float URAGA_NPCCounterableAttack::CalculatePlayRate(const UAnimMontage* Montage)
 		
 		MontagePlayRate = MinPlayRate;
 	}
+	
+	FQuartzTransportTimeStamp CurrentTimeStamp;
+	if (MagicalTiming->GetMusicTimeStamp(CurrentTimeStamp))
+	{
+		AttackTimeStampBar = CurrentTimeStamp.Bars;
+		AttackTimeStampBeat = CurrentTimeStamp.Beat + TargetBeatMultiplier;
+		
+		const int NumBeats = MagicalTiming->GetMusicData()->NumBeats;
+		while (AttackTimeStampBeat > NumBeats)
+		{
+			AttackTimeStampBeat -= NumBeats;
+			AttackTimeStampBar += 1;
+		}
+	}
+	
 	RA_LOG(LogRefrain, Log, 
-		TEXT("NotifyTime: %.2f, TargetBeatTime: %.2f, DesiredNotifyTime: %.2f, MontagePlayRate: %.2f, MontageStartTime: %.2f, MontageWaitTime: %.2f"),
-		NotifyTime, TargetBeatTime, DesiredNotifyTime, MontagePlayRate, MontageStartTime, MontageWaitTime);
+		TEXT("NotifyTime: %.2f, TargetBeatTime: %.2f, DesiredNotifyTime: %.2f, MontagePlayRate: %.2f, MontageStartTime: %.2f, MontageWaitTime: %.2f, AttackTimeStampBar: %d, AttackTimeStampBeat: %d"),
+		NotifyTime, TargetBeatTime, DesiredNotifyTime, MontagePlayRate, MontageStartTime, MontageWaitTime, AttackTimeStampBar, AttackTimeStampBeat);
 
 	return TargetBeatTime;
+}
+
+void URAGA_NPCCounterableAttack::SetAttackTiming()
+{
+	// UNPCCombatStateComponent* CombatManager = 
+}
+
+void URAGA_NPCCounterableAttack::ClearAttackTiming()
+{
 }
