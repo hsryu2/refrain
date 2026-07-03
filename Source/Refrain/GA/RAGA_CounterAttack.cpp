@@ -93,6 +93,7 @@ void URAGA_CounterAttack::OnAttackHit(FGameplayEventData Payload)
 
 void URAGA_CounterAttack::Attack()
 {
+	// 카운터 성공
 	if (bIsCounterSucceeded && Attacker)
 	{
 		PlayAttackMontage();

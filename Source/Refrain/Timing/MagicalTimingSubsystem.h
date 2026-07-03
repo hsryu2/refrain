@@ -71,6 +71,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Magical|Quratz")
 	UQuartzClockHandle* GetMusicClockHandle() const { return MusicClockHandle;}
 	
+	UFUNCTION(BlueprintCallable, Category = "Magical|Info")
+	bool GetMusicTimeStamp(FQuartzTransportTimeStamp& OutTimeStamp) const;
+	
+	UFUNCTION(BlueprintCallable, Category = "Magical|Info")
+	float GetTimeUntilBeat(int Bar, float Beat);
+	
 // 게임 로직 - 공격 시 판정
 public:
 	// 목표 박과의 차이를 반환하는 함수 (점수 판정용)

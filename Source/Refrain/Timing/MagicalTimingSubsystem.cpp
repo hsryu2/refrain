@@ -253,6 +253,56 @@ bool UMagicalTimingSubsystem::IsMusicPlaying()
 	return IsValid(MusicClockHandle) && IsValid(MusicAudioComponent) && MusicAudioComponent->IsPlaying();
 }
 
+bool UMagicalTimingSubsystem::GetMusicTimeStamp(FQuartzTransportTimeStamp& OutTimeStamp) const
+{
+	if (!IsValid(MusicClockHandle))
+	{
+		OutTimeStamp = FQuartzTransportTimeStamp();
+		return false;
+	}
+	
+	OutTimeStamp = MusicClockHandle->GetCurrentTimestamp(GetWorld());
+	
+	return true;
+}
+
+float UMagicalTimingSubsystem::GetTimeUntilBeat(int Bar, float Beat)
+{
+	if (!IsValid(MusicClockHandle) || !IsValid(MusicData))
+	{
+		RA_LOG(LogRefrain, Error, TEXT("MusicClockHandle or MusicData is invalid"));
+		return -1.f;
+	}
+	
+	FQuartzTransportTimeStamp TimeStamp;
+	if (!GetMusicTimeStamp(TimeStamp))
+	{
+		RA_LOG(LogRefrain, Error, TEXT("Failed to get current timestamp"));
+		return -1.f;
+	}
+
+	if (Bar < 0 || Beat < 0.f || Beat >= MusicData->NumBeats + 1)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("Invalid target beat. Bar: %d, Beat: %.2f"), Bar, Beat);
+		return -1.f;
+	}
+
+	const float CurrentBeatInBar = static_cast<float>(TimeStamp.Beat) + TimeStamp.BeatFraction;
+	const float CurrentAbsoluteBeat = static_cast<float>(TimeStamp.Bars * MusicData->NumBeats) + CurrentBeatInBar;
+	const float TargetAbsoluteBeat = static_cast<float>(Bar * MusicData->NumBeats) + Beat;
+	const float BeatDelta = TargetAbsoluteBeat - CurrentAbsoluteBeat;
+
+	if (BeatDelta < 0.f)
+	{
+		RA_LOG(LogRefrain, Warning,
+			TEXT("Target beat is in the past. Current Bar: %d, Beat: %.2f, Target Bar: %d, Beat: %.2f"),
+			TimeStamp.Bars, CurrentBeatInBar, Bar, Beat);
+		return -1.f;
+	}
+
+	return BeatDelta * GetSecondsPerBeat();
+}
+
 float UMagicalTimingSubsystem::JudgeTiming(EQuartzCommandQuantization TargetQuantization, float Multiplier)
 {
 	FQuartzTransportTimeStamp TimeStamp = MusicClockHandle->GetCurrentTimestamp(GetWorld());
