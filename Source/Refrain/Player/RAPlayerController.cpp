@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "UI/PauseMenu/RAPauseMenuWidget.h"
 #include "UI/RAScoreWidget.h"
+#include "UI/Result/RAResultWidget.h"
 #include "Timing/MagicalTimingSubsystem.h"
 #include "UObject/ConstructorHelpers.h"
 
@@ -159,3 +160,33 @@ void ARAPlayerController::ExecuteUnpause()
 	SetInputMode(GameOnlyInputMode);
 	bShowMouseCursor = false;
 }
+
+void ARAPlayerController::ShowResultUI()
+{
+	if (ResultWidgetClass)
+	{
+		if (!ResultWidget)
+		{
+			ResultWidget = CreateWidget<URAResultWidget>(this, ResultWidgetClass);
+		}
+		
+		if (ResultWidget)
+		{
+			if (!ResultWidget->IsInViewport())
+			{
+				ResultWidget->AddToViewport();
+			}
+		}
+	}
+	
+	FInputModeGameAndUI GameAndUIInputMode;
+	if (ResultWidget)
+	{
+		GameAndUIInputMode.SetWidgetToFocus(ResultWidget->TakeWidget());
+	}
+	SetInputMode(GameAndUIInputMode);
+	bShowMouseCursor = true;
+
+	SetPause(true);
+}
+
