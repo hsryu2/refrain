@@ -42,6 +42,17 @@ protected:
 	UFUNCTION()
 	void OnRestartClicked(int32 MenuIndex);
 
+	/**
+	 * @brief 버튼 호버 시 선택 상태 업데이트
+	 * @param MenuIndex 버튼 인덱스
+	 */
+	UFUNCTION()
+	void UpdateHighlightPosition(int32 MenuIndex);
+
+	/** @brief 현재 선택된 버튼 인덱스 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI|Animation")
+	int32 SelectedIndex = -1;
+
 	// ----------------------------------------------------------------------------------------------------------------
 	// --- 버튼 클릭 및 위젯 이벤트 --- @/
 	// ----------------------------------------------------------------------------------------------------------------

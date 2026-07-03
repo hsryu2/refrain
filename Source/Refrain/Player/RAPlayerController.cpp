@@ -171,6 +171,16 @@ void ARAPlayerController::ShowResultUI()
 {
 	RA_LOG(LogRefrain, Log, TEXT("ShowResultUI Called!"));
 
+	// 결과창이 뜰 때 기존 인게임 HUD(점수, 체력바)를 숨김처리
+	if (ScoreWidget)
+	{
+		ScoreWidget->RemoveFromParent();
+	}
+	if (HealthBarWidget)
+	{
+		HealthBarWidget->RemoveFromParent();
+	}
+
 	if (ResultWidgetClass)
 	{
 		if (!ResultWidget)
