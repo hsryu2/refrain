@@ -35,6 +35,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	FText RowTitle;
 
+	/** @brief 에디터에서 설정할 수 있는 폰트 크기 (기본값 24) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	int32 FontSize = 24;
+
 protected:
 	virtual void NativePreConstruct() override;
 };

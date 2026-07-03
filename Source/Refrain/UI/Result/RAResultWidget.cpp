@@ -30,7 +30,6 @@ void URAResultWidget::NativeConstruct()
 			if (PerfectCountRow) PerfectCountRow->SetValue(PS->PerfectCount);
 			if (GoodCountRow) GoodCountRow->SetValue(PS->GoodCount);
 			if (BadCountRow) BadCountRow->SetValue(PS->BadCount);
-			if (MissCountRow) MissCountRow->SetValue(PS->MissCount);
 			if (MaxHitsRow) MaxHitsRow->SetValue(PS->MaxHits);
 		}
 	}

@@ -90,10 +90,6 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class URAResultRowWidget> BadCountRow;
 	
-	/** @brief Miss 누적 판정 수 표시 */
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class URAResultRowWidget> MissCountRow;
-	
 	/** @brief MaxHits 표시 */
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class URAResultRowWidget> MaxHitsRow;

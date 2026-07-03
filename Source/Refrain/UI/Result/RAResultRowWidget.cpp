@@ -7,10 +7,20 @@ void URAResultRowWidget::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
-	// 에디터에서 위젯을 배치할 때, Details 패널에 적은 RowTitle 글자를 바로 라벨 텍스트에 적용해 줍니다.
 	if (LabelText)
 	{
 		LabelText->SetText(RowTitle);
+		
+		FSlateFontInfo FontInfo = LabelText->GetFont();
+		FontInfo.Size = FontSize;
+		LabelText->SetFont(FontInfo);
+	}
+	
+	if (ValueText)
+	{
+		FSlateFontInfo FontInfo = ValueText->GetFont();
+		FontInfo.Size = FontSize;
+		ValueText->SetFont(FontInfo);
 	}
 }
 

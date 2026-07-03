@@ -5,6 +5,7 @@
 #include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Refrain.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/PauseMenu/RAPauseMenuWidget.h"
 #include "UI/RAScoreWidget.h"
@@ -63,6 +64,11 @@ void ARAPlayerController::BeginPlay()
 		{
 			ScoreWidget->AddToViewport();
 		}
+	}
+
+	if (UMagicalTimingSubsystem* TimingSubsystem = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>())
+	{
+		TimingSubsystem->OnMusicFinished.AddUniqueDynamic(this, &ARAPlayerController::ShowResultUI);
 	}
 
 	FInputModeGameOnly GameOnlyInputMode;
@@ -163,11 +169,14 @@ void ARAPlayerController::ExecuteUnpause()
 
 void ARAPlayerController::ShowResultUI()
 {
+	RA_LOG(LogRefrain, Log, TEXT("ShowResultUI Called!"));
+
 	if (ResultWidgetClass)
 	{
 		if (!ResultWidget)
 		{
 			ResultWidget = CreateWidget<URAResultWidget>(this, ResultWidgetClass);
+			RA_LOG(LogRefrain, Log, TEXT("ResultWidget created."));
 		}
 		
 		if (ResultWidget)
@@ -175,8 +184,13 @@ void ARAPlayerController::ShowResultUI()
 			if (!ResultWidget->IsInViewport())
 			{
 				ResultWidget->AddToViewport();
+				RA_LOG(LogRefrain, Log, TEXT("ResultWidget added to viewport."));
 			}
 		}
+	}
+	else
+	{
+		RA_LOG(LogRefrain, Error, TEXT("ResultWidgetClass is NULL! 블루프린트에서 위젯 클래스를 설정했는지 확인하세요."));
 	}
 	
 	FInputModeGameAndUI GameAndUIInputMode;
