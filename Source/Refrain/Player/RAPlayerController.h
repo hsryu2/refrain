@@ -26,9 +26,13 @@ public:
 
 	void InitHealthHUD(UAbilitySystemComponent* InASC);
 	
-	/** @brief 일시정지 메뉴 토글 */
+	/** @brief 일시정지 메뉴 토글 (ESC 입력시 호출) */
 	UFUNCTION(BlueprintCallable, Category = "Menu")
 	void TogglePauseMenu();
+
+	/** @brief 실제 게임 재개 (카운트인 완료 후 위젯에서 호출) */
+	UFUNCTION(BlueprintCallable, Category = "Menu")
+	void ExecuteUnpause();
 	
 protected:
 	virtual void BeginPlay() override;
