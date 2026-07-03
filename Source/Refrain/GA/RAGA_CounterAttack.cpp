@@ -4,14 +4,18 @@
 #include "GA/RAGA_CounterAttack.h"
 
 #include "AbilitySystemComponent.h"
+#include "GameplayCueNotifyTypes.h"
+#include "MotionWarpingComponent.h"
 #include "Refrain.h"
 #include "RefrainGameplayTags.h"
+#include "RootMotionModifier.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Animation/RACharacterAnimationData.h"
 #include "Character/RACharacterBase.h"
 #include "Character/RACharacterNonPlayer.h"
 #include "Component/NPCCombatStateComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Engine/World.h"
 #include "Timing/MagicalTimingSubsystem.h"
 #include "Util/RAUtils.h"
@@ -199,13 +203,50 @@ void URAGA_CounterAttack::CalculatePlayRates(const UAnimMontage* Montage)
 
 void URAGA_CounterAttack::UpdateAttackMotionWarpTarget()
 {
+	UMotionWarpingComponent* MotionWarpingComponent = AvatarCharacter->FindComponentByClass<UMotionWarpingComponent>();
+	if (!MotionWarpingComponent)
+	{
+		// 모션 워핑 컴포넌트가 없는 경우 그냥 바로 회전만
+		RA_LOG(LogRefrain, Log, TEXT("MotionWarpingComponent Not Found"));
+		FVector Direction = 
+			Attacker->GetActorLocation() - AvatarCharacter->GetActorLocation();
+		Direction.Z = 0.0f;
+		if (!Direction.IsNearlyZero())
+		{
+			FRotator TargetRotation = Direction.Rotation();
+			AvatarCharacter->SetActorRotation(TargetRotation);
+		}
+	}
+	else
+	{
+		ACharacter* TargetCharacter = Cast<ACharacter>(Attacker);
+		if (!TargetCharacter)
+		{
+			RA_LOG(LogRefrain, Error, TEXT("TargetCharacter Cast Failed"));
+			return;
+		}
+		USkeletalMeshComponent* TargetMesh = TargetCharacter->GetMesh();
+		if (!TargetMesh)
+		{
+			RA_LOG(LogRefrain, Error, TEXT("TargetMesh Not Found"));
+			return;
+		}
+		// 모션워핑에 필요한 정보 설정 (현재 오프셋 설정 안 됨)
+		MotionWarpingComponent->AddOrUpdateWarpTargetFromComponent(
+			FName(TEXT("Enemy")), TargetMesh, NAME_None, true, 
+			EWarpTargetLocationOffsetDirection::VectorFromTargetToOwner);
+	}
 }
 
 void URAGA_CounterAttack::ClearAttackMotionWarpTarget()
 {
+	UMotionWarpingComponent* MotionWarpingComponent = AvatarCharacter->FindComponentByClass<UMotionWarpingComponent>();
+	if (MotionWarpingComponent)
+	{
+		MotionWarpingComponent->RemoveAllWarpTargets();
+	}
 }
 
 void URAGA_CounterAttack::QueueHitSound()
 {
 }
-  

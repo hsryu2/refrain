@@ -16,6 +16,7 @@
 #include "Attribute/RAAttributeSet.h"
 #include "Character/RACharacterBase.h"
 #include "Component/AttackTargetingComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "DSP/AudioDebuggingUtilities.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
