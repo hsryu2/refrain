@@ -12,6 +12,9 @@
 class USoundBase;
 class UAudioComponent;
 struct FStreamableHandle;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMusicFinished);
+
 /**
  * 
  */
@@ -22,6 +25,9 @@ class REFRAIN_API UMagicalTimingSubsystem : public UTickableWorldSubsystem
 	
 public:
 	UMagicalTimingSubsystem();
+	
+	UPROPERTY(BlueprintAssignable, Category = "Magical|Event")
+	FOnMusicFinished OnMusicFinished;
 	
 // 엔진 재정의 함수
 protected:
@@ -93,6 +99,9 @@ public:
 // 내부 로직에 필요한 함수
 private:
 	bool CreateQuartzClock();
+	
+	UFUNCTION()
+	void HandleMusicFinished();
 	
 // 재생 중인 음악 관련 변수
 protected:

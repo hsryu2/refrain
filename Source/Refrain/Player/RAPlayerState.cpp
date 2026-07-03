@@ -8,6 +8,7 @@
 //#include "GameFramework/GameplayMessageSubsystem.h"
 #include "GameplayEffect.h"
 #include "Refrain.h"
+#include "GameFramework/Pawn.h"
 
 ARAPlayerState::ARAPlayerState()
 {
@@ -45,17 +46,21 @@ void ARAPlayerState::RegisterJudgement(ERAHitJudgement Judgement)
 		case ERAHitJudgement::Perfect:
 			BaseScore = 100;
 			CurrentHits++;
+			PerfectCount++;
 			break;
 		case ERAHitJudgement::Good:
 			BaseScore = 50;
 			CurrentHits++;
+			GoodCount++;
 			break;
 		case ERAHitJudgement::Bad:
 			BaseScore = 25;
 			CurrentHits++;
+			BadCount++;
 			break;
 		case ERAHitJudgement::Miss:
 			BaseScore = 0;
+			MissCount++;
 			break;
 		default:
 			break;

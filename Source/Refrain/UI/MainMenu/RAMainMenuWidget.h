@@ -108,23 +108,23 @@ protected:
 
 	/** @brief 게임 시작 버튼(이어하기) */
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class URAMenuButtonWidget> Btn_Continue;
+	TObjectPtr<class URAMenuButtonWidget> BtnContinue;
 	
 	/** @brief 게임 시작 버튼(처음부터) */
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class URAMenuButtonWidget> Btn_NewGame;
+	TObjectPtr<class URAMenuButtonWidget> BtnNewGame;
 	
 	/** @brief 설정 버튼 */
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class URAMenuButtonWidget> Btn_Settings;
+	TObjectPtr<class URAMenuButtonWidget> BtnSettings;
 	
 	/** @brief 크레딧 */
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class URAMenuButtonWidget> Btn_Credits;
+	TObjectPtr<class URAMenuButtonWidget> BtnCredits;
 	
 	/** @brief 게임 종료 버튼 */
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class URAMenuButtonWidget> Btn_ExitGame;
+	TObjectPtr<class URAMenuButtonWidget> BtnExitGame;
 
 	/** @brief 스위처 안에 포함된 설정 메뉴 위젯 */
 	UPROPERTY(meta = (BindWidget))

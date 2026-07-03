@@ -10,6 +10,7 @@
 
 class URAPauseMenuWidget;
 class URAScoreWidget;
+class URAResultWidget;
 
 /**
  * 
@@ -76,4 +77,18 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input)
 	TObjectPtr<class UInputAction> PauseAction;
 	// --- Pause UI --- @/
+
+	//  /@ --- Result UI ---
+	/** @brief 결과 화면 위젯 클래스 */
+	UPROPERTY(EditDefaultsOnly, Category=UI)
+	TSubclassOf<URAResultWidget> ResultWidgetClass;
+
+	/** @brief 결과 화면 위젯 */
+	UPROPERTY()
+	TObjectPtr<URAResultWidget> ResultWidget;
+
+	/** @brief 게임 결과 화면 표시 (마우스 커서 활성화 및 입력 모드 변경) */
+	UFUNCTION(BlueprintCallable, Category = "Menu")
+	void ShowResultUI();
+	// --- Result UI --- @/
 };

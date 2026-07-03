@@ -143,6 +143,9 @@ bool UMagicalTimingSubsystem::StartMusic()
 		return false;
 	}
 	
+	// 음악 종료 시 델리게이트 연동
+	MusicAudioComponent->OnAudioFinished.AddDynamic(this, &UMagicalTimingSubsystem::HandleMusicFinished);
+	
 	// 재생
 	FQuartzQuantizationBoundary QuantizationBoundary(EQuartzCommandQuantization::Bar);
 	UQuartzClockHandle* RawClockHandle = MusicClockHandle.Get();
@@ -380,4 +383,10 @@ bool UMagicalTimingSubsystem::CreateQuartzClock()
 	MusicClockHandle->StartClock(World, RawClockHandle);
 
 	return true;
+}
+
+void UMagicalTimingSubsystem::HandleMusicFinished()
+{
+	RA_LOG(LogRefrain, Log, TEXT("MagicalTimingSubsystem: Music Finished! Broadcasting OnMusicFinished."));
+	OnMusicFinished.Broadcast();
 }

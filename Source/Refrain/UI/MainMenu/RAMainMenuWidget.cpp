@@ -21,30 +21,30 @@ void URAMainMenuWidget::NativeConstruct()
 	Super::NativeConstruct();
 
 	// 호버 이벤트 바인딩
-	if (Btn_Continue)
+	if (BtnContinue)
 	{
-		Btn_Continue->OnMenuButtonHoveredEvent.AddUniqueDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+		BtnContinue->OnMenuButtonHoveredEvent.AddUniqueDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
 	}
-	if (Btn_NewGame) 
+	if (BtnNewGame) 
 	{
-		Btn_NewGame->OnMenuButtonHoveredEvent.AddUniqueDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
-		Btn_NewGame->OnMenuButtonClickedEvent.AddUniqueDynamic(this, &URAMainMenuWidget::OnNewGameClicked);
+		BtnNewGame->OnMenuButtonHoveredEvent.AddUniqueDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+		BtnNewGame->OnMenuButtonClickedEvent.AddUniqueDynamic(this, &URAMainMenuWidget::OnNewGameClicked);
 	}
-	if (Btn_Settings) 
+	if (BtnSettings) 
 	{
-		Btn_Settings->OnMenuButtonHoveredEvent.AddUniqueDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
-		Btn_Settings->OnMenuButtonClickedEvent.AddUniqueDynamic(this, &URAMainMenuWidget::OnSettingsClicked);
+		BtnSettings->OnMenuButtonHoveredEvent.AddUniqueDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+		BtnSettings->OnMenuButtonClickedEvent.AddUniqueDynamic(this, &URAMainMenuWidget::OnSettingsClicked);
 	}
-	if (Btn_Credits)
+	if (BtnCredits)
 	{
-		Btn_Credits->OnMenuButtonHoveredEvent.AddUniqueDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+		BtnCredits->OnMenuButtonHoveredEvent.AddUniqueDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
 	}
-	if (Btn_ExitGame) 
+	if (BtnExitGame) 
 	{
-		Btn_ExitGame->OnMenuButtonHoveredEvent.AddUniqueDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+		BtnExitGame->OnMenuButtonHoveredEvent.AddUniqueDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
 		
 		// 게임 종료 버튼 클릭 이벤트 바인딩!
-		Btn_ExitGame->OnMenuButtonClickedEvent.AddUniqueDynamic(this, &URAMainMenuWidget::OnExitGameClicked);
+		BtnExitGame->OnMenuButtonClickedEvent.AddUniqueDynamic(this, &URAMainMenuWidget::OnExitGameClicked);
 	}
 
 	if (VolumeSettingsMenu)
@@ -77,7 +77,7 @@ void URAMainMenuWidget::UpdateHighlightPosition(int32 MenuIndex)
 		return;
 	}
 
-	TArray<URAMenuButtonWidget*> MenuButtons = {Btn_Continue, Btn_NewGame, Btn_Settings, Btn_Credits, Btn_ExitGame};
+	TArray<URAMenuButtonWidget*> MenuButtons = {BtnContinue, BtnNewGame, BtnSettings, BtnCredits, BtnExitGame};
 	
 	// 1. 이전에 선택되어 있던 버튼만 찾아서 애니메이션 끄기 (역재생)
 	if (MenuButtons.IsValidIndex(SelectedIndex) && MenuButtons[SelectedIndex])
