@@ -20,7 +20,7 @@
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "Timing/MagicalTimingSubsystem.h"
-#include "Util/RAAnimationUtils.h"
+#include "Util/RAUtils.h"
 
 class UMotionWarpingComponent;
 
@@ -468,9 +468,9 @@ void URAGA_ComboAttack::CalculatePlayRates(const UAnimMontage* Montage)
 	const float PlayLength = Montage->GetPlayLength();
 	
 	// 몽타주 안에서 태그가 위치한 시간
-	const float MontageTime1 = URAAnimationUtils::FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_StartupToAnticipation);
-	const float MontageTime2 = URAAnimationUtils::FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_AnticipationToStrike);
-	const float MontageTime3 = URAAnimationUtils::FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_StrikeToRecovery);
+	const float MontageTime1 = URAUtils::FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_StartupToAnticipation);
+	const float MontageTime2 = URAUtils::FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_AnticipationToStrike);
+	const float MontageTime3 = URAUtils::FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_StrikeToRecovery);
 	if (MontageTime1 < 0.f || MontageTime2 < 0.f || MontageTime3 < 0.f)
 	{
 		RA_LOG(LogRefrain, Error, TEXT("Montage Notify Time Not Found: %f, %f, %f"), MontageTime1, MontageTime2, MontageTime3);

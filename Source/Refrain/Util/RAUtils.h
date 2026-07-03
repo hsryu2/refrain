@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "RAAnimationUtils.generated.h"
+#include "RAUtils.generated.h"
 
 class UAnimMontage;
 struct FGameplayTag;
@@ -12,7 +12,7 @@ struct FGameplayTag;
  * 
  */
 UCLASS()
-class REFRAIN_API URAAnimationUtils : public UBlueprintFunctionLibrary
+class REFRAIN_API URAUtils : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 	

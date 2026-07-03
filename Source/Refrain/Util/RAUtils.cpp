@@ -1,14 +1,14 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "RAAnimationUtils.h"
+#include "RAUtils.h"
 
 #include "GameplayTagContainer.h"
 #include "Animation/AnimMontage.h"
 #include "Animation/AnimTypes.h"
 #include "Animation/AN_SendGameplayEvent.h"
 
-float URAAnimationUtils::FindGameplayEventNotifyTime(const UAnimMontage* Montage, const FGameplayTag EventTag)
+float URAUtils::FindGameplayEventNotifyTime(const UAnimMontage* Montage, const FGameplayTag EventTag)
 {
 	if (!Montage)
 	{

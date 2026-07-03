@@ -12,6 +12,9 @@
 #include "Character/RACharacterBase.h"
 #include "Character/RACharacterNonPlayer.h"
 #include "Component/NPCCombatStateComponent.h"
+#include "Engine/World.h"
+#include "Timing/MagicalTimingSubsystem.h"
+#include "Util/RAUtils.h"
 
 URAGA_CounterAttack::URAGA_CounterAttack()
 {
@@ -159,6 +162,17 @@ bool URAGA_CounterAttack::CheckCounterSuccess()
 
 void URAGA_CounterAttack::CalculatePlayRates(const UAnimMontage* Montage)
 {
+	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
+	if (!MagicalTiming)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("MagicalTimingSubsystem Not Found"));
+		PlayRateUntilFirstHit = PlayRateUntilSecondHit = PlayRateAfterSecondHit = 1.f;
+		return;
+	}
+	
+	const float FirstHitTime = URAUtils::FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_AttackHit_FirstHit);
+	const float SecondHitTime = URAUtils::FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_AttackHit_SecondHit);
+	
 	
 }
 
