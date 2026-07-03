@@ -163,17 +163,38 @@ bool URAGA_CounterAttack::CheckCounterSuccess()
 void URAGA_CounterAttack::CalculatePlayRates(const UAnimMontage* Montage)
 {
 	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
-	if (!MagicalTiming)
+	if (!MagicalTiming || !MagicalTiming->IsMusicPlaying())
 	{
-		RA_LOG(LogRefrain, Error, TEXT("MagicalTimingSubsystem Not Found"));
+		RA_LOG(LogRefrain, Warning, TEXT("Music Not Playing"));
 		PlayRateUntilFirstHit = PlayRateUntilSecondHit = PlayRateAfterSecondHit = 1.f;
 		return;
 	}
 	
+	// 몽타주 내의 정보
 	const float FirstHitTime = URAUtils::FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_AttackHit_FirstHit);
 	const float SecondHitTime = URAUtils::FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_AttackHit_SecondHit);
 	
+	// 현재 재생 상태 정보
+	const float SecondsPerBeat = MagicalTiming->GetSecondsPerBeat();
+	const float BeatProgress = MagicalTiming->GetBeatProgress();
 	
+	if (FirstHitTime <= 0.f || SecondHitTime <= 0.f || BeatProgress >= 0.5f)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("FirstHitTime: %.2f SecondHitTime: %.2f BeatProgress: %.2f"), FirstHitTime, SecondHitTime, BeatProgress);
+		PlayRateUntilFirstHit = PlayRateUntilSecondHit = PlayRateAfterSecondHit = 1.f;
+		return;
+	}
+	
+	// PlayRate 계산 - FirstHit가 0.5박, SecondHit가 1박에 맞춰지게
+	const float DesiredFirstHitTime = (0.5f - BeatProgress) * SecondsPerBeat;
+	const float DesiredSecondHitTime = (1.f - BeatProgress) * SecondsPerBeat;
+	
+	PlayRateUntilFirstHit = FirstHitTime / DesiredFirstHitTime;
+	PlayRateUntilSecondHit = (SecondHitTime - FirstHitTime) / (DesiredSecondHitTime - DesiredFirstHitTime);
+	
+	PlayRateAfterSecondHit = 1.f;
+	
+	RA_LOG(LogRefrain, Log, TEXT("PlayRateUntilFirstHit: %.2f, PlayRateUntilSecondHit: %.2f, PlayRateAfterSecondHit: %.2f"), PlayRateUntilFirstHit, PlayRateUntilSecondHit, PlayRateAfterSecondHit);
 }
 
 void URAGA_CounterAttack::UpdateAttackMotionWarpTarget()
