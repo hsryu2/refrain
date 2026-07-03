@@ -33,4 +33,5 @@ namespace RefrainGameplayTags
 	
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Attacking_Main, "State.Attacking.Main", "공격 중인 상태");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Attacking_Counterable, "State.Attacking.Counterable", "카운터 가능 상태");
+	
 }
