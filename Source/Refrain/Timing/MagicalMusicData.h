@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "Sound/QuartzQuantizationUtilities.h"
 #include "MagicalMusicData.generated.h"
 
 /**

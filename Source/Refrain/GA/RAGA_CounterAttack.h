@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
+#include "Character/RACharacterNonPlayer.h"
+#include "Component/NPCCombatStateComponent.h"
 #include "RAGA_CounterAttack.generated.h"
 
 class ARACharacterBase;
@@ -26,13 +28,37 @@ protected:
 
 // 델리게이트로 실행되는 함수
 protected:
-	// 재생 속도 조절 노티파이
 	UFUNCTION()
-	void OnMontagePlayRate(FGameplayEventData Payload);
-	
-// 게임 로직
+	void OnMontageCompleted();
+	UFUNCTION()
+	void OnMontageInterrupted();
+	UFUNCTION()
+	void OnAttackHit(FGameplayEventData Payload);
+
 protected:
+	// 공격
+	void Attack();
 	
+	// 공격 애니메이션 실행
+	void PlayAttackMontage();
+
+	// 카운터 가능한 공격을 하고 있는 대상 탐색
+	ARACharacterBase* FindCounterableAttacker();
+	
+	// 카운터 가능한 시점인지 확인
+	bool CheckCounterSuccess();
+	
+	// 애니메이션 재생 속도 계산 함수
+	void CalculatePlayRates(const UAnimMontage* Montage);
+	
+	// 모션 워핑 (몽타주 재생 전, 후 실행)
+	void UpdateAttackMotionWarpTarget();
+	void ClearAttackMotionWarpTarget();
+	
+	// 사운드 예약 등록
+	void QueueHitSound();
+
+
 protected:
 	// 실행한 캐릭터(플레이어 자신)
 	UPROPERTY()
@@ -41,4 +67,13 @@ protected:
 	// 카운터 공격한 캐릭터
 	UPROPERTY()
 	TObjectPtr<ARACharacterBase> Attacker;
+	
+	// 카운터 성공 여부
+	UPROPERTY()
+	bool bIsCounterSucceeded;
+	
+	// 재생 속도
+	float PlayRateUntilFirstHit = 1.f;
+	float PlayRateUntilSecondHit = 1.f;
+	float PlayRateAfterSecondHit = 1.f;
 };

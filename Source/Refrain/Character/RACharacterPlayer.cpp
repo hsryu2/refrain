@@ -23,6 +23,7 @@
 #include "Player/RAPlayerController.h"
 #include "UI/NPCHealthBarWidget.h"
 #include "Component/NPCCombatStateComponent.h"
+#include "UObject/ConstructorHelpers.h"
 
 class ARAPlayerController;
 // Sets default values
@@ -73,6 +74,12 @@ ARACharacterPlayer::ARACharacterPlayer()
 	{
 		AttackAction = InputActionAttackRef.Object;
 	}
+	
+	static ConstructorHelpers::FObjectFinder<UInputAction> CounterActionAttackRef(TEXT("/Game/Refrain/Input/InputAction/IA_Counter.IA_Counter"));
+    if (CounterActionAttackRef.Succeeded())
+    {
+    	CounterAction = CounterActionAttackRef.Object;
+    }
 	
 	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionDodgeRef(TEXT("/Game/Refrain/Input/InputAction/IA_Dodge.IA_Dodge"));
 	if (InputActionAttackRef.Succeeded())
@@ -155,6 +162,8 @@ void ARACharacterPlayer::SetupGASInputComponent()
 			AttackAction, ETriggerEvent::Triggered, this, &ARACharacterPlayer::GASInputPressed, 0);
 		EnhancedInputComponent->BindAction(
 			DodgeAction, ETriggerEvent::Triggered, this, &ARACharacterPlayer::GASInputPressed, 1);
+		EnhancedInputComponent->BindAction(
+			CounterAction, ETriggerEvent::Triggered, this, &ARACharacterPlayer::GASInputPressed, 2);
 	}
 }
 

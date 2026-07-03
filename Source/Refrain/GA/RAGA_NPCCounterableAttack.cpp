@@ -11,9 +11,11 @@
 #include "Animation/AN_SendGameplayEvent.h"
 #include "AT/RAAT_RhythmTargetWidgetProgress.h"
 #include "Character/RACharacterNonPlayer.h"
+#include "Component/NPCCombatStateComponent.h"
 #include "Engine/World.h"
 #include "Timing/MagicalTimingSubsystem.h"
 #include "UI/RhythmTargetWidget.h"
+#include "Util/RAUtils.h"
 
 URAGA_NPCCounterableAttack::URAGA_NPCCounterableAttack()
 {
@@ -120,8 +122,8 @@ float URAGA_NPCCounterableAttack::CalculatePlayRate(const UAnimMontage* Montage)
 	// AttackHit 이벤트를 정박 이후(0.1박)에 발동시키는 게 목표
 	const FGameplayTag TargetTag = RefrainGameplayTags::Event_Montage_AttackHit;		// 몽타주 안에서 검색할 태그
 	const float TargetProgressOnTargetTagNotify = 0.1f;									// 검색한 태그가 위치할 박자 진행도
-	const float TargetBeatMultiplier = 2.f;												// 2박짜리 공격
-	const float MinPlayRate = 0.5f;														// 최소 PlayRate
+	const int TargetBeatMultiplier = 2;													// 2박짜리 공격
+	const float MinPlayRate = 0.25f;													// 최소 PlayRate
 	const float MaxPlayRate = 2.f;														// 최대 PlayRate
 	
 	// 기본값
@@ -130,29 +132,29 @@ float URAGA_NPCCounterableAttack::CalculatePlayRate(const UAnimMontage* Montage)
 	MontageWaitTime = 0.f;
 	
 	// 검색한 태그가 위치한 시간
-	const float NotifyTime = FindGameplayEventNotifyTime(Montage, TargetTag);
+	const float NotifyTime = URAUtils::FindGameplayEventNotifyTime(Montage, TargetTag);
 	if (NotifyTime <= 0.f)
 	{
 		RA_LOG(LogRefrain, Warning, TEXT("Montage Notify Time Not Found: %f"), NotifyTime);
 		return -1.f;
 	}
 	
-	UMagicalTimingSubsystem* MagicalTimingSubsystem = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
-	if (!MagicalTimingSubsystem)
+	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
+	if (!MagicalTiming)
 	{
 		RA_LOG(LogRefrain, Warning, TEXT("MagicalTimingSubsystem Not Found"));
 		
 		return -1.f;
 	}
-	if (!MagicalTimingSubsystem->IsMusicPlaying())
+	if (!MagicalTiming->IsMusicPlaying())
 	{
 		RA_LOG(LogRefrain, Warning, TEXT("Music Not Playing"));
 		return -1.f;
 	}
-	const float SecondsPerBeat = MagicalTimingSubsystem->GetSecondsPerBeat(); 
+	const float SecondsPerBeat = MagicalTiming->GetSecondsPerBeat(); 
 	
-	// 목표 박자(정박) 시간
-	const float TargetBeatTime = MagicalTimingSubsystem->GetTimeUntilNextBeat(0.f, EQuartzCommandQuantization::Beat, TargetBeatMultiplier);
+	// 목표 박자(정박)까지 시간
+	const float TargetBeatTime = MagicalTiming->GetTimeUntilNextBeat(EQuartzCommandQuantization::Beat, TargetBeatMultiplier);
 	
 	// 계산식...
 	const float DesiredNotifyTime = TargetBeatTime + (TargetProgressOnTargetTagNotify * SecondsPerBeat);		// 태그가 발동될 목표 시간
@@ -170,25 +172,33 @@ float URAGA_NPCCounterableAttack::CalculatePlayRate(const UAnimMontage* Montage)
 		
 		MontagePlayRate = MinPlayRate;
 	}
+	
+	FQuartzTransportTimeStamp CurrentTimeStamp;
+	if (MagicalTiming->GetMusicTimeStamp(CurrentTimeStamp))
+	{
+		AttackTimeStampBar = CurrentTimeStamp.Bars;
+		AttackTimeStampBeat = CurrentTimeStamp.Beat + TargetBeatMultiplier;
+		
+		const int NumBeats = MagicalTiming->GetMusicData()->NumBeats;
+		while (AttackTimeStampBeat > NumBeats)
+		{
+			AttackTimeStampBeat -= NumBeats;
+			AttackTimeStampBar += 1;
+		}
+	}
+	
+	RA_LOG(LogRefrain, Log, 
+		TEXT("NotifyTime: %.2f, TargetBeatTime: %.2f, DesiredNotifyTime: %.2f, MontagePlayRate: %.2f, MontageStartTime: %.2f, MontageWaitTime: %.2f, AttackTimeStampBar: %d, AttackTimeStampBeat: %d"),
+		NotifyTime, TargetBeatTime, DesiredNotifyTime, MontagePlayRate, MontageStartTime, MontageWaitTime, AttackTimeStampBar, AttackTimeStampBeat);
 
 	return TargetBeatTime;
 }
 
-float URAGA_NPCCounterableAttack::FindGameplayEventNotifyTime(const UAnimMontage* Montage, const FGameplayTag EventTag) const
+void URAGA_NPCCounterableAttack::SetAttackTiming()
 {
-	if (!Montage)
-	{
-		return -1.f;
-	}
-	
-	for (const FAnimNotifyEvent& NotifyEvent : Montage->Notifies)
-	{
-		const UAN_SendGameplayEvent* EventNotify = Cast<UAN_SendGameplayEvent>(NotifyEvent.Notify);
-		if (EventNotify && EventNotify->EventTag == EventTag)
-		{
-			return NotifyEvent.GetTime();
-		}
-	}
-	
-	return -1.f;
+	// UNPCCombatStateComponent* CombatManager = 
+}
+
+void URAGA_NPCCounterableAttack::ClearAttackTiming()
+{
 }

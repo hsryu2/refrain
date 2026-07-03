@@ -71,6 +71,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Magical|Quratz")
 	UQuartzClockHandle* GetMusicClockHandle() const { return MusicClockHandle;}
 	
+	UFUNCTION(BlueprintCallable, Category = "Magical|Info")
+	bool GetMusicTimeStamp(FQuartzTransportTimeStamp& OutTimeStamp) const;
+	
+	UFUNCTION(BlueprintCallable, Category = "Magical|Info")
+	float GetTimeUntilBeat(int Bar, float Beat);
+	
+	UFUNCTION(BlueprintCallable, Category = "Magical|Info")
+	UMagicalMusicData* GetMusicData() const { return MusicData; }
+	
 // 게임 로직 - 공격 시 판정
 public:
 	// 목표 박과의 차이를 반환하는 함수 (점수 판정용)
@@ -79,7 +88,7 @@ public:
 	
 	// 다음 타격 타이밍까지 남은 시간을 반환하는 함수 (공격 모션 재생용)
 	UFUNCTION(BlueprintCallable, Category = "Magical|Timing", meta = (CPP_Default_Quantization = "Beat"))
-	float GetTimeUntilNextBeat(float MinimumStartupDelay, EQuartzCommandQuantization TargetQuantization = EQuartzCommandQuantization::Beat, float Multiplier = 1.f);
+	float GetTimeUntilNextBeat(EQuartzCommandQuantization TargetQuantization, int MinBeatNum = 1);
 
 // 내부 로직에 필요한 함수
 private:

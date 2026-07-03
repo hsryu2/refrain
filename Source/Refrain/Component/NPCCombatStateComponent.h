@@ -9,49 +9,69 @@
 class ARACharacterPlayer;
 class ARACharacterNonPlayer;
 
+USTRUCT(BlueprintType)
+struct FAttackTiming
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(BlueprintReadOnly)
+	int32 Bar = INDEX_NONE;
+
+	UPROPERTY(BlueprintReadOnly)
+	float Beat = -1.f;
+	
+	bool IsValid() const
+	{
+		return Bar >= 1 && Beat >= 1.f;
+	}
+};
+
+/**
+ * 플레이어 캐릭터에 붙어서 NPC들의 공격 토큰을 관리하고 배분하는 컴포넌트
+ */
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class REFRAIN_API UNPCCombatStateComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	UNPCCombatStateComponent();
 
+// 재정의 함수
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	// NPC가 일반 공격 토큰을 요청할 때 호출
+public:
+	// NPC가 공격 토큰을 요청할 때 호출
 	UFUNCTION(BlueprintCallable, Category="Combat Token")
-	bool RequestMainAttackToken(ARACharacterNonPlayer* RequestingNPC);
+	bool RequestAttackToken(ARACharacterNonPlayer* RequestingNPC);
 	
-	// NPC가 카운터 가능한 공격 토큰을 요청할 때 호출.
-	UFUNCTION(BlueprintCallable, Category="Combat Token")
-	bool RequestCounterAttackToken(ARACharacterNonPlayer* RequestingNPC);
+	// 공격 시 공격 타이밍 제출
+	UFUNCTION(BlueprintCallable, Category="Combat")
+	bool SetNowCounterableAttackTiming(ARACharacterNonPlayer* RequestingNPC, int32 Bar, float Beat);
 	
-	// NPC가 일반 공격 토큰을 반환할 때 호출
+	// 공격 후 공격 타이밍 초기화
+	UFUNCTION(BlueprintCallable, Category="Combat")
+	bool ClearNowCounterableAttackTiming(ARACharacterNonPlayer* RequestingNPC);
+	
+	// NPC가 공격 토큰을 반환할 때 호출
 	UFUNCTION(BlueprintCallable, Category="Combat Token")
 	void ReleaseToken(ARACharacterNonPlayer* ReleasingNPC);
-	
-	// 플레이어가 카운터를 성공했을 때 호출. 
-	UFUNCTION(BlueprintCallable, Category="Combat Token")
-	void OnPlayerCounterSuccess();
 	
 	UFUNCTION(BlueprintCallable, Category="Combat Position")
 	bool GetWaitLocation(ARACharacterNonPlayer* NPC, FVector& OutLocation);
 	
-	UPROPERTY(EditAnywhere, Category="CombatPosition")
-	float WaitCircleRadius = 600.0f;
-	
 	void RegisterNPC(ARACharacterNonPlayer* NPC);
 	void UnRegisterNPC(ARACharacterNonPlayer* NPC);
 	
-private:
+// Getter
+public:
+	ARACharacterNonPlayer* GetCurrentAttacker() { return CurrentAttacker; }
+	
+protected:
+	UPROPERTY(EditAnywhere, Category="CombatPosition")
+	float WaitCircleRadius = 600.0f;
+	
 	// 플레이어
 	UPROPERTY()
 	TObjectPtr<ARACharacterPlayer> OwnerPlayer;
@@ -62,9 +82,9 @@ private:
 	
 	// 현재 공격 토큰을 쥐고 있는 NPC
 	UPROPERTY()
-	TObjectPtr<ARACharacterNonPlayer> CurrentMainAttacker;
-	
-	// 현재 카운터 공격 토큰을 쥐고있는 NPC
-	UPROPERTY()
-	TObjectPtr<ARACharacterNonPlayer> CurrentCounterAttacker;
+	TObjectPtr<ARACharacterNonPlayer> CurrentAttacker;
+
+	// 공격 중인 NPC가 공격할 타이밍
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="CounterAttack")
+	FAttackTiming NowAttackTiming;
 };

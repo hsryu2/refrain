@@ -45,11 +45,15 @@ protected:
 protected:
 	
 	void SetIMC();
+	
 	UPROPERTY(EditAnywhere, Category = Input, BlueprintReadOnly)
 	TObjectPtr<class UInputMappingContext> DefaultContext;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Input)
 	TObjectPtr<class UInputAction> AttackAction;
+	
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category=Input)
+	TObjectPtr<class UInputAction> CounterAction;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Input)
 	TObjectPtr<class UInputAction> MoveAction;

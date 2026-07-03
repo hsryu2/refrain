@@ -16,10 +16,12 @@
 #include "Attribute/RAAttributeSet.h"
 #include "Character/RACharacterBase.h"
 #include "Component/AttackTargetingComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "DSP/AudioDebuggingUtilities.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "Timing/MagicalTimingSubsystem.h"
+#include "Util/RAUtils.h"
 
 class UMotionWarpingComponent;
 
@@ -84,8 +86,6 @@ void URAGA_ComboAttack::InputPressed(const FGameplayAbilitySpecHandle Handle, co
 
 void URAGA_ComboAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	RA_LOG(LogRefrain, Log, TEXT("Start"));
-	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 	
 	ClearAttackMotionWarpTarget();
@@ -176,6 +176,29 @@ void URAGA_ComboAttack::OnAttackHit(FGameplayEventData Payload)
 			UGameplayStatics::PlaySound2D(this, HitSound);
 		}
 	}
+	
+	const ARACharacterBase* RACharacter = Cast<ARACharacterBase>(AvatarCharacter);
+	const URACharacterAnimationData* AnimationData = RACharacter->GetAnimationData();
+	check(AnimationData);
+	
+	if (AnimationData->ComboAttacks.IsEmpty())
+	{
+		return;
+	}
+		
+	const int MontageArrayNum = AnimationData->ComboAttacks.Num();
+	const int ComboIndex = CurrentCombo % MontageArrayNum;
+	
+	float KnockbackDis = AnimationData->ComboAttacks[ComboIndex].KnockbackDistance;
+	
+	// 넉백 관련 이벤트 페이로드
+	//FGameplayEventData Payload;
+	//Payload.Instigator = AvatarCharacter;
+	//Payload.Target = TargetActor;
+	Payload.EventMagnitude = KnockbackDis;
+	
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(TargetActor, RefrainGameplayTags::State_HitReact, Payload);
+	
 }
 
 void URAGA_ComboAttack::OnMontagePlayRate(FGameplayEventData Payload)
@@ -325,10 +348,33 @@ void URAGA_ComboAttack::UpdateAttackMotionWarpTarget()
 			RA_LOG(LogRefrain, Error, TEXT("TargetMesh Not Found"));
 			return;
 		}
-		// 모션워핑에 필요한 정보 설정 (현재 오프셋 설정 안 됨)
+		
+		const ARACharacterBase* RACharacter = Cast<ARACharacterBase>(AvatarCharacter);
+		const URACharacterAnimationData* AnimationData = RACharacter->GetAnimationData();
+		check(AnimationData);
+		
+		if (AnimationData->ComboAttacks.IsEmpty())
+		{
+			return;
+		}
+		
+		const int MontageArrayNum = AnimationData->ComboAttacks.Num();
+		const int ComboIndex = CurrentCombo % MontageArrayNum;
+
+		UAnimMontage* AnimMontage = AnimationData->ComboAttacks[ComboIndex].Montage;
+		FVector Offset = AnimationData->ComboAttacks[ComboIndex].MotionWarpLocationOffset;
+		
+		// 거리에 따라 기존 오프셋 사용 혹은 현재 거리만 적용.
+		float CurrentDistance = FVector::Dist2D(TargetActor->GetActorLocation(), AvatarCharacter->GetActorLocation());
+		if (Offset.X > CurrentDistance)
+		{
+			Offset.X = CurrentDistance;
+		}
+		
+		// 모션워핑에 필요한 정보 설정
 		MotionWarpingComponent->AddOrUpdateWarpTargetFromComponent(
 			FName(TEXT("Enemy")), TargetMesh, NAME_None, true, 
-			EWarpTargetLocationOffsetDirection::VectorFromTargetToOwner);
+			EWarpTargetLocationOffsetDirection::VectorFromTargetToOwner, Offset);
 	}
 }
 
@@ -339,25 +385,6 @@ void URAGA_ComboAttack::ClearAttackMotionWarpTarget()
 	{
 		MotionWarpingComponent->RemoveAllWarpTargets();
 	}
-}
-
-float URAGA_ComboAttack::FindGameplayEventNotifyTime(const UAnimMontage* Montage, const FGameplayTag EventTag) const
-{
-	if (!Montage)
-	{
-		return -1.f;
-	}
-	
-	for (const FAnimNotifyEvent& NotifyEvent : Montage->Notifies)
-	{
-		const UAN_SendGameplayEvent* EventNotify = Cast<UAN_SendGameplayEvent>(NotifyEvent.Notify);
-		if (EventNotify && EventNotify->EventTag == EventTag)
-		{
-			return NotifyEvent.GetTime();
-		}
-	}
-	
-	return -1.f;
 }
 
 void URAGA_ComboAttack::SetTargetActor()
@@ -488,9 +515,9 @@ void URAGA_ComboAttack::CalculatePlayRates(const UAnimMontage* Montage)
 	const float PlayLength = Montage->GetPlayLength();
 	
 	// 몽타주 안에서 태그가 위치한 시간
-	const float MontageTime1 = FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_StartupToAnticipation);
-	const float MontageTime2 = FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_AnticipationToStrike);
-	const float MontageTime3 = FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_StrikeToRecovery);
+	const float MontageTime1 = URAUtils::FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_StartupToAnticipation);
+	const float MontageTime2 = URAUtils::FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_AnticipationToStrike);
+	const float MontageTime3 = URAUtils::FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_StrikeToRecovery);
 	if (MontageTime1 < 0.f || MontageTime2 < 0.f || MontageTime3 < 0.f)
 	{
 		RA_LOG(LogRefrain, Error, TEXT("Montage Notify Time Not Found: %f, %f, %f"), MontageTime1, MontageTime2, MontageTime3);
