@@ -21,6 +21,7 @@ URAAT_RhythmTargetWidgetProgress* URAAT_RhythmTargetWidgetProgress::PlayRhythmTa
 
 void URAAT_RhythmTargetWidgetProgress::Activate()
 {
+	RA_LOG(LogRefrain, Log, TEXT("Start, Duration: %f"), Duration);
 	Super::Activate();
 	
 	if (!RhythmTargetWidget)
@@ -62,7 +63,7 @@ void URAAT_RhythmTargetWidgetProgress::TickTask(float DeltaSeconds)
 	const float Alpha = FMath::Clamp(Elapsed / Duration, 0.f, 1.f);
 	RhythmTargetWidgetInstance->UpdateProgress(Alpha);
 
-	if (Elapsed >= 1.1f)
+	if (Elapsed >= Duration * 1.1f)
 	{
 		EndTask();
 	}
@@ -70,7 +71,12 @@ void URAAT_RhythmTargetWidgetProgress::TickTask(float DeltaSeconds)
 
 void URAAT_RhythmTargetWidgetProgress::OnDestroy(bool bInOwnerFinished)
 {
+	RA_LOG(LogRefrain, Log, TEXT("Start"));
+	
 	Super::OnDestroy(bInOwnerFinished);
 	
-	RhythmTargetWidget->SetVisibility(false);
+	if (RhythmTargetWidget)
+	{
+		RhythmTargetWidget->SetVisibility(false);
+	}
 }
