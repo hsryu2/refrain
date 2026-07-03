@@ -325,10 +325,32 @@ void URAGA_ComboAttack::UpdateAttackMotionWarpTarget()
 			RA_LOG(LogRefrain, Error, TEXT("TargetMesh Not Found"));
 			return;
 		}
+		
+		const ARACharacterBase* RACharacter = Cast<ARACharacterBase>(AvatarCharacter);
+		const URACharacterAnimationData* AnimationData = RACharacter->GetAnimationData();
+		check(AnimationData);
+		
+		if (AnimationData->ComboAttacks.IsEmpty())
+		{
+			return;
+		}
+		
+		const int MontageArrayNum = AnimationData->ComboAttacks.Num();
+		const int ComboIndex = CurrentCombo % MontageArrayNum;
+
+		UAnimMontage* AnimMontage = AnimationData->ComboAttacks[ComboIndex].Montage;
+		FVector Offset = AnimationData->ComboAttacks[ComboIndex].MotionWarpLocationOffset;
+		
+		float CurrentDistance = FVector::Dist2D(TargetActor->GetActorLocation(), AvatarCharacter->GetActorLocation());
+		if (Offset.X > CurrentDistance)
+		{
+			Offset.X = CurrentDistance;
+		}
+		
 		// 모션워핑에 필요한 정보 설정 (현재 오프셋 설정 안 됨)
 		MotionWarpingComponent->AddOrUpdateWarpTargetFromComponent(
 			FName(TEXT("Enemy")), TargetMesh, NAME_None, true, 
-			EWarpTargetLocationOffsetDirection::VectorFromTargetToOwner);
+			EWarpTargetLocationOffsetDirection::VectorFromTargetToOwner, Offset);
 	}
 }
 
