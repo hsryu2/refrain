@@ -24,6 +24,25 @@ void URAGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
+	if (TriggerEventData)
+	{
+		float KnockbackDis = TriggerEventData->EventMagnitude;
+		
+		const AActor* InstigatorActor = TriggerEventData->Instigator;
+		ACharacter* HitCharacter = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
+		
+		if (InstigatorActor && HitCharacter && KnockbackDis > 0.0f)
+		{
+			FVector KnockbackDir = HitCharacter->GetActorLocation() - InstigatorActor->GetActorLocation();
+			KnockbackDir.Z = 0.0f;
+			KnockbackDir.Normalize();
+			
+			FVector KnockbackVelocity = KnockbackDir * KnockbackDis;
+			HitCharacter->LaunchCharacter(KnockbackVelocity, true, true);
+			
+		}
+	}
+	
 	// AIController를 통해 블랙보드에서 피격 상태로 변경
 	if (APawn* AvatarPawn = Cast<APawn>(ActorInfo->AvatarActor.Get()))
 	{
@@ -32,6 +51,12 @@ void URAGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 			if (UBlackboardComponent* BlackboardComp = AIController->GetBlackboardComponent())
 			{
 				BlackboardComp->SetValueAsBool(FName("IsHit"), true);
+				
+				const bool bCurrentIsHit = BlackboardComp->GetValueAsBool(FName("IsHit"));
+				UE_LOG(LogTemp, Warning, TEXT("Blackboard IsHit after set: %s / Pawn: %s / Controller: %s"),
+				bCurrentIsHit ? TEXT("true") : TEXT("false"),
+				*GetNameSafe(AvatarPawn),
+				*GetNameSafe(AIController));
 			}
 		}
 	}
@@ -44,7 +69,7 @@ void URAGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("HitReact"), HitMontage);
 	
 	MontageTask->OnCompleted.AddDynamic(this, &URAGA_HitReact::OnMontageCompleted);
-	MontageTask->OnInterrupted.AddDynamic(this, &URAGA_HitReact::OnMontageCompleted);
+	MontageTask->OnInterrupted.AddDynamic(this, &URAGA_HitReact::OnMontageInterrupted);
 	
 	MontageTask->ReadyForActivation();
 }
@@ -76,4 +101,9 @@ void URAGA_HitReact::EndAbility(const FGameplayAbilitySpecHandle Handle, const F
 void URAGA_HitReact::OnMontageCompleted()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+}
+
+void URAGA_HitReact::OnMontageInterrupted()
+{
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }

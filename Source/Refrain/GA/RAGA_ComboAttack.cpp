@@ -176,6 +176,29 @@ void URAGA_ComboAttack::OnAttackHit(FGameplayEventData Payload)
 			UGameplayStatics::PlaySound2D(this, HitSound);
 		}
 	}
+	
+	const ARACharacterBase* RACharacter = Cast<ARACharacterBase>(AvatarCharacter);
+	const URACharacterAnimationData* AnimationData = RACharacter->GetAnimationData();
+	check(AnimationData);
+	
+	if (AnimationData->ComboAttacks.IsEmpty())
+	{
+		return;
+	}
+		
+	const int MontageArrayNum = AnimationData->ComboAttacks.Num();
+	const int ComboIndex = CurrentCombo % MontageArrayNum;
+	
+	float KnockbackDis = AnimationData->ComboAttacks[ComboIndex].KnockbackDistance;
+	
+	// 넉백 관련 이벤트 페이로드
+	//FGameplayEventData Payload;
+	//Payload.Instigator = AvatarCharacter;
+	//Payload.Target = TargetActor;
+	Payload.EventMagnitude = KnockbackDis;
+	
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(TargetActor, RefrainGameplayTags::State_HitReact, Payload);
+	
 }
 
 void URAGA_ComboAttack::OnMontagePlayRate(FGameplayEventData Payload)
