@@ -82,24 +82,23 @@ void ARAPlayerController::TogglePauseMenu()
 {
 	if (UGameplayStatics::IsGamePaused(this))
 	{
-		// Unpause
-		SetPause(false);
-
-		// 음악 다시 재생
-		if (UMagicalTimingSubsystem* TimingSubsystem = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>())
+		if (PauseMenuWidget && PauseMenuWidget->IsCountingIn())
 		{
-			TimingSubsystem->ResumeMusic();
+			// 카운트인 중이면 취소하고 다시 메뉴 표시
+			PauseMenuWidget->CancelCountIn();
+			return;
 		}
 		
-		// Pause 메뉴 제거
 		if (PauseMenuWidget)
 		{
-			PauseMenuWidget->RemoveFromParent();
+			// 위젯이 있으면 카운트인 시작
+			PauseMenuWidget->StartCountIn();
 		}
-		
-		FInputModeGameOnly GameOnlyInputMode;
-		SetInputMode(GameOnlyInputMode);
-		bShowMouseCursor = false;
+		else
+		{
+			// 혹시 위젯이 없으면 바로 재개
+			ExecuteUnpause();
+		}
 	}
 	else
 	{
@@ -137,4 +136,26 @@ void ARAPlayerController::TogglePauseMenu()
 		SetInputMode(GameAndUIInputMode);
 		bShowMouseCursor = true;
 	}
+}
+
+void ARAPlayerController::ExecuteUnpause()
+{
+	// Unpause
+	SetPause(false);
+
+	// 음악 다시 재생
+	if (UMagicalTimingSubsystem* TimingSubsystem = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>())
+	{
+		TimingSubsystem->ResumeMusic();
+	}
+	
+	// Pause 메뉴 제거
+	if (PauseMenuWidget)
+	{
+		PauseMenuWidget->RemoveFromParent();
+	}
+	
+	FInputModeGameOnly GameOnlyInputMode;
+	SetInputMode(GameOnlyInputMode);
+	bShowMouseCursor = false;
 }
