@@ -58,7 +58,7 @@ EBTNodeResult::Type UBTTask_RequestAttackToken::ExecuteTask(UBehaviorTreeCompone
 	}
 	else
 	{
-		bHasToken = CombatManager->RequestMainAttackToken(NPC);
+		bHasToken = CombatManager->RequestAttackToken(NPC);
 	}
 	
 	if (bHasToken)

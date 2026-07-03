@@ -6,85 +6,78 @@
 #include "Character/RACharacterPlayer.h"
 #include "AbilitySystemComponent.h"
 #include "GameplayTagContainer.h"
+#include "Refrain.h"
 #include "Engine/Engine.h"
 
-// Sets default values for this component's properties
 UNPCCombatStateComponent::UNPCCombatStateComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
-
-// Called when the game starts
 void UNPCCombatStateComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
 	OwnerPlayer = Cast<ARACharacterPlayer>(GetOwner());
 }
 
-
-// Called every frame
-void UNPCCombatStateComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+bool UNPCCombatStateComponent::RequestAttackToken(ARACharacterNonPlayer* RequestingNPC)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
-
-bool UNPCCombatStateComponent::RequestMainAttackToken(ARACharacterNonPlayer* RequestingNPC)
-{
-	if (CurrentMainAttacker == RequestingNPC)
+	if (CurrentAttacker == RequestingNPC)
 	{
 		return true;
 	}
 	
 	// 누군가 공격중이라면 false
-	if (CurrentMainAttacker != nullptr)
+	if (CurrentAttacker != nullptr)
 	{
 		return false;
 	}
 	// 토큰 부여
-	CurrentMainAttacker = RequestingNPC;
+	CurrentAttacker = RequestingNPC;
 	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("%s 가 토큰 줍기 성공!"), *RequestingNPC->GetName()));
 	// true로 반환하여 BT 혹은 공격 Ability를 실행하도록 할 수 있을 것으로 보임.
 	return true;
 }
 
-bool UNPCCombatStateComponent::RequestCounterAttackToken(ARACharacterNonPlayer* RequestingNPC)
+bool UNPCCombatStateComponent::SetNowCounterableAttackTiming(ARACharacterNonPlayer* RequestingNPC, int32 Bar, float Beat)
 {
-	if (CurrentCounterAttacker == RequestingNPC)
+	if (CurrentAttacker != RequestingNPC)
 	{
-		return true;
-	}
-	
-	// 누군가 공격중이라면 false
-	if (CurrentCounterAttacker != nullptr)
-	{
+		RA_LOG(LogRefrain, Error, TEXT("RequestingNPC != CurrentAttacker"));
 		return false;
 	}
-	// 토큰 부여
-	CurrentCounterAttacker = RequestingNPC;
 	
-	// true로 반환하여 BT 혹은 공격 Ability를 실행하도록 할 수 있을 것으로 보임.
+	FAttackTiming NewAttackTiming = FAttackTiming(Bar, Beat);
+	if (!NewAttackTiming.IsValid())
+	{
+		RA_LOG(LogRefrain, Warning, TEXT("AttackTiming Is Not Valid. Bar: %d, Beat: %f"), Bar, Beat);
+		return false;
+	}
+	
+	NowAttackTiming = &NewAttackTiming;
+	
+	return true;
+}
+
+bool UNPCCombatStateComponent::ClearNowCounterableAttackTiming(ARACharacterNonPlayer* RequestingNPC)
+{
+	if (CurrentAttacker != RequestingNPC)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("RequestingNPC != CurrentAttacker"));
+		return false;
+	}
+	
+	NowAttackTiming = nullptr;
 	return true;
 }
 
 void UNPCCombatStateComponent::ReleaseToken(ARACharacterNonPlayer* ReleasingNPC)
 {
-	if (CurrentMainAttacker == ReleasingNPC)
+	if (CurrentAttacker == ReleasingNPC)
 	{
-		CurrentMainAttacker = nullptr;
+		CurrentAttacker = nullptr;
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("토큰 반납 완료!! 이제 남는 토큰 있음!"));
-	}
-	else if (CurrentCounterAttacker == ReleasingNPC)
-	{
-		CurrentCounterAttacker = nullptr;                                                                                 
 	}
 }
 

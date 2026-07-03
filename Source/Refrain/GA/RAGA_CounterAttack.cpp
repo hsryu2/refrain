@@ -145,7 +145,7 @@ ARACharacterBase* URAGA_CounterAttack::FindCounterableAttacker()
 		return nullptr;
 	}
 	
-	return NPCCombatStateManager->GetCurrentMainAttacker();
+	return NPCCombatStateManager->GetCurrentAttacker();
 }
 
 bool URAGA_CounterAttack::CheckCounterSuccess()

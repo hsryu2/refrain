@@ -21,4 +21,5 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Refrain|Util")
 	static float FindGameplayEventNotifyTime(const UAnimMontage* Montage, const FGameplayTag EventTag);
 
+	
 };
