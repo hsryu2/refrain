@@ -14,28 +14,28 @@ void URAPauseMenuWidget::NativeConstruct()
 
 	if (Btn_Resume)
 	{
-		Btn_Resume->OnMenuButtonHoveredEvent.AddDynamic(this, &URAPauseMenuWidget::UpdateHighlightPosition);
-		Btn_Resume->OnMenuButtonClickedEvent.AddDynamic(this, &URAPauseMenuWidget::OnResumeClicked);
+		Btn_Resume->OnMenuButtonHoveredEvent.AddUniqueDynamic(this, &URAPauseMenuWidget::UpdateHighlightPosition);
+		Btn_Resume->OnMenuButtonClickedEvent.AddUniqueDynamic(this, &URAPauseMenuWidget::OnResumeClicked);
 	}
 	if (Btn_Settings)
 	{
-		Btn_Settings->OnMenuButtonHoveredEvent.AddDynamic(this, &URAPauseMenuWidget::UpdateHighlightPosition);
-		Btn_Settings->OnMenuButtonClickedEvent.AddDynamic(this, &URAPauseMenuWidget::OnSettingsClicked);
+		Btn_Settings->OnMenuButtonHoveredEvent.AddUniqueDynamic(this, &URAPauseMenuWidget::UpdateHighlightPosition);
+		Btn_Settings->OnMenuButtonClickedEvent.AddUniqueDynamic(this, &URAPauseMenuWidget::OnSettingsClicked);
 	}
 	if (Btn_MainMenu)
 	{
-		Btn_MainMenu->OnMenuButtonHoveredEvent.AddDynamic(this, &URAPauseMenuWidget::UpdateHighlightPosition);
-		Btn_MainMenu->OnMenuButtonClickedEvent.AddDynamic(this, &URAPauseMenuWidget::OnMainMenuClicked);
+		Btn_MainMenu->OnMenuButtonHoveredEvent.AddUniqueDynamic(this, &URAPauseMenuWidget::UpdateHighlightPosition);
+		Btn_MainMenu->OnMenuButtonClickedEvent.AddUniqueDynamic(this, &URAPauseMenuWidget::OnMainMenuClicked);
 	}
 	if (Btn_ExitGame)
 	{
-		Btn_ExitGame->OnMenuButtonHoveredEvent.AddDynamic(this, &URAPauseMenuWidget::UpdateHighlightPosition);
-		Btn_ExitGame->OnMenuButtonClickedEvent.AddDynamic(this, &URAPauseMenuWidget::OnExitGameClicked);
+		Btn_ExitGame->OnMenuButtonHoveredEvent.AddUniqueDynamic(this, &URAPauseMenuWidget::UpdateHighlightPosition);
+		Btn_ExitGame->OnMenuButtonClickedEvent.AddUniqueDynamic(this, &URAPauseMenuWidget::OnExitGameClicked);
 	}
 
 	if (VolumeSettingsMenu)
 	{
-		VolumeSettingsMenu->OnSettingsMenuClosed.AddDynamic(this, &URAPauseMenuWidget::OnSettingsMenuClosed);
+		VolumeSettingsMenu->OnSettingsMenuClosed.AddUniqueDynamic(this, &URAPauseMenuWidget::OnSettingsMenuClosed);
 	}
 
 	TargetTranslationY = SelectedIndex * MenuSpacing;

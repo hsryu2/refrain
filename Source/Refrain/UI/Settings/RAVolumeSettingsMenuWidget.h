@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "UI/MainMenu/RAMenuButtonWidget.h"
 #include "RAVolumeSettingsMenuWidget.generated.h"
 
 class URAVolumeSettingWidget;
@@ -62,6 +63,7 @@ public:
 	// ----------------------------------------------------------------------------------------------------------------
 protected:
 	
+	virtual void NativeOnInitialized() override;
 	virtual void NativeConstruct() override;
 
 	// ----------------------------------------------------------------------------------------------------------------
@@ -83,6 +85,10 @@ protected:
 	/** @brief 창 닫기 버튼 */
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<URAMenuButtonWidget> BtnClose;
+	
+	/** @brief 적용하기 버튼 */
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<URAMenuButtonWidget> BtnApply;
 	
 	// ----------------------------------------------------------------------------------------------------------------
 	// --- 설정 메뉴 UI 바인딩 --- @/
@@ -109,12 +115,28 @@ protected:
 	// ----------------------------------------------------------------------------------------------------------------
 	
 	// ----------------------------------------------------------------------------------------------------------------
-	// /@ --- 버튼 클릭 이벤트 ---
+	// /@ --- 버튼 이벤트 ---
 	// ----------------------------------------------------------------------------------------------------------------
+	
+	/** @brief 적용 버튼 클릭 이벤트 처리 */
+	UFUNCTION()
+	void OnApplyClicked(int32 MenuIndex);
 	
 	/** @brief 닫기 버튼 클릭 이벤트 처리 */
 	UFUNCTION()
 	void OnCloseClicked(int32 MenuIndex);
+
+	/** @brief 버튼 호버 이벤트 */
+	UPROPERTY(BlueprintAssignable, Category = "Menu")
+	FOnMenuButtonInteraction OnMenuButtonHoveredEvent;
+	
+	/** @brief 버튼 호버 이벤트 내부 처리 */
+	UFUNCTION()
+	void OnButtonHovered(int32 MenuIndex);
+	
+	/** @brief 현재 선택된 버튼 인덱스 */
+	UPROPERTY()
+	int32 SelectedIndex = -1;
 	
 	// ----------------------------------------------------------------------------------------------------------------
 	// --- 버튼 클릭 이벤트 --- @/

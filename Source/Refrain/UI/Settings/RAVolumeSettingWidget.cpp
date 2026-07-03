@@ -5,9 +5,9 @@
 #include "Components/SLider.h"
 #include "Components/TextBlock.h"
 
-void URAVolumeSettingWidget::NativeConstruct()
+void URAVolumeSettingWidget::NativeOnInitialized()
 {
-	Super::NativeConstruct();
+	Super::NativeOnInitialized();
 	
 	// 설정 이름 초기화
 	if (TxtSettingName)
@@ -15,15 +15,11 @@ void URAVolumeSettingWidget::NativeConstruct()
 		TxtSettingName->SetText(SettingName);
 	}
 	
-	// 슬라이더 초기값 및 이벤트 바인딩
+	// 이벤트 바인딩만 수행 (초기값 세팅은 부모 위젯이 UpdateSliderValue를 통해 직접 호출)
 	if (SliderVolume)
 	{
-		SliderVolume->SetValue(InitialVolume);
-		SliderVolume->OnValueChanged.AddDynamic(this, &URAVolumeSettingWidget::OnSliderValueChanged);
+		SliderVolume->OnValueChanged.AddUniqueDynamic(this, &URAVolumeSettingWidget::OnSliderValueChanged);
 	}
-	
-	// 초기 텍스트 업데이트
-	OnSliderValueChanged(InitialVolume);
 }
 
 void URAVolumeSettingWidget::OnSliderValueChanged(float NewVolume)
@@ -39,8 +35,24 @@ void URAVolumeSettingWidget::OnSliderValueChanged(float NewVolume)
 		TxtCurrentVolume->SetText(FText::FromString(ValueString));
 	}
 	
-	SliderVolume->SetValue(Value);
-	
 	// 이벤트 발행
 	OnVolumeChanged.Broadcast(SettingName, Value);
+}
+
+void URAVolumeSettingWidget::UpdateSliderValue(float SavedVolume)
+{
+	if (SliderVolume)
+	{
+		SliderVolume->SetValue(SavedVolume);
+	}
+	
+	// 초기 텍스트 및 Value 갱신 (이벤트는 발행하지 않음, 무한루프 방지)
+	Value = SavedVolume;
+	int32 Percentage = FMath::RoundToInt(Value * 100.0f);
+	
+	if (TxtCurrentVolume)
+	{
+		FString ValueString = FString::Printf(TEXT("%d%%"), Percentage);
+		TxtCurrentVolume->SetText(FText::FromString(ValueString));
+	}
 }

@@ -23,33 +23,33 @@ void URAMainMenuWidget::NativeConstruct()
 	// 호버 이벤트 바인딩
 	if (Btn_Continue)
 	{
-		Btn_Continue->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+		Btn_Continue->OnMenuButtonHoveredEvent.AddUniqueDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
 	}
 	if (Btn_NewGame) 
 	{
-		Btn_NewGame->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
-		Btn_NewGame->OnMenuButtonClickedEvent.AddDynamic(this, &URAMainMenuWidget::OnNewGameClicked);
+		Btn_NewGame->OnMenuButtonHoveredEvent.AddUniqueDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+		Btn_NewGame->OnMenuButtonClickedEvent.AddUniqueDynamic(this, &URAMainMenuWidget::OnNewGameClicked);
 	}
 	if (Btn_Settings) 
 	{
-		Btn_Settings->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
-		Btn_Settings->OnMenuButtonClickedEvent.AddDynamic(this, &URAMainMenuWidget::OnSettingsClicked);
+		Btn_Settings->OnMenuButtonHoveredEvent.AddUniqueDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+		Btn_Settings->OnMenuButtonClickedEvent.AddUniqueDynamic(this, &URAMainMenuWidget::OnSettingsClicked);
 	}
 	if (Btn_Credits)
 	{
-		Btn_Credits->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+		Btn_Credits->OnMenuButtonHoveredEvent.AddUniqueDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
 	}
 	if (Btn_ExitGame) 
 	{
-		Btn_ExitGame->OnMenuButtonHoveredEvent.AddDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+		Btn_ExitGame->OnMenuButtonHoveredEvent.AddUniqueDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
 		
 		// 게임 종료 버튼 클릭 이벤트 바인딩!
-		Btn_ExitGame->OnMenuButtonClickedEvent.AddDynamic(this, &URAMainMenuWidget::OnExitGameClicked);
+		Btn_ExitGame->OnMenuButtonClickedEvent.AddUniqueDynamic(this, &URAMainMenuWidget::OnExitGameClicked);
 	}
 
 	if (VolumeSettingsMenu)
 	{
-		VolumeSettingsMenu->OnSettingsMenuClosed.AddDynamic(this, &URAMainMenuWidget::OnSettingsMenuClosed);
+		VolumeSettingsMenu->OnSettingsMenuClosed.AddUniqueDynamic(this, &URAMainMenuWidget::OnSettingsMenuClosed);
 	}
 
 	// 초기 위치 설정 (선택된 인덱스 기준)

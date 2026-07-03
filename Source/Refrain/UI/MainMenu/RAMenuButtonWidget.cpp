@@ -24,8 +24,8 @@ void URAMenuButtonWidget::NativeConstruct()
 	// 실제 클릭/호버를 받을 버튼 위젯과 내부 함수 바인딩
 	if (MainMenuBtn)
 	{
-		MainMenuBtn->OnHovered.AddDynamic(this, &URAMenuButtonWidget::Internal_OnHovered);
-		MainMenuBtn->OnClicked.AddDynamic(this, &URAMenuButtonWidget::Internal_OnClicked);
+		MainMenuBtn->OnHovered.AddUniqueDynamic(this, &URAMenuButtonWidget::Internal_OnHovered);
+		MainMenuBtn->OnClicked.AddUniqueDynamic(this, &URAMenuButtonWidget::Internal_OnClicked);
 	}
 }
 
