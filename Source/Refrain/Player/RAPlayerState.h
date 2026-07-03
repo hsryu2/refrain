@@ -42,19 +42,26 @@ public:
 	int32 TotalScore = 0;
 	
 	UPROPERTY(BlueprintReadOnly, Category = Score)
-	int32 CurrentCombo = 0;
+	int32 CurrentHits = 0;
 	
 	UPROPERTY(BlueprintReadOnly, Category = Score)
-	int32 MaxCombo = 0;
+	int32 MaxHits = 0;
 	
+	// 판정에 따라 점수 추가 및 히트수 추가 함수
 	UFUNCTION(BlueprintCallable, Category = Score)
 	void RegisterJudgement(ERAHitJudgement Judgement);
 	
+	// 히트 수에 따라 점수 배율 설정
 	UFUNCTION(BlueprintCallable, Category = Score)
-	float GetComboMultiplier() const;
+	float GetHitsMultiplier() const;
+	
+	// 히트 리셋
+	UFUNCTION(BlueprintCallable, Category = Score)
+	void ResetHits();
 	
 	UPROPERTY(BlueprintAssignable, Category = Score)
 	FOnScoreUpdate OnScoreUpdated;
+	
 	
 	
 protected:

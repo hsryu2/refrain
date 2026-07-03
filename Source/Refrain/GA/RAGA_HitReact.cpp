@@ -24,6 +24,7 @@ void URAGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
+	// AIController를 통해 블랙보드에서 피격 상태로 변경
 	if (APawn* AvatarPawn = Cast<APawn>(ActorInfo->AvatarActor.Get()))
 	{
 		if (AAIController* AIController = Cast<AAIController>(AvatarPawn->GetController()))
@@ -35,6 +36,7 @@ void URAGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		}
 	}
 	
+	// 몽타주 등록
 	ARACharacterBase* Character = Cast<ARACharacterBase>(GetAvatarActorFromActorInfo());
 	UAnimMontage* HitMontage = Character->GetAnimationData()->HitReactMontage;
 	
@@ -58,6 +60,7 @@ void URAGA_HitReact::EndAbility(const FGameplayAbilitySpecHandle Handle, const F
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 	
+	// 몽타주 실행이 끝나면 피격 상태를 false로 변경
 	if (APawn* AvatarPawn = Cast<APawn>(ActorInfo->AvatarActor.Get()))
 	{
 		if (AAIController* AIController = Cast<AAIController>(AvatarPawn->GetController()))

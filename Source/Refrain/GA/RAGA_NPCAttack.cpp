@@ -155,4 +155,5 @@ void URAGA_NPCAttack::OnAttackHit(FGameplayEventData Payload)
 			UE_LOG(LogTemp, Log, TEXT("Apply Damage to %s"), *GetNameSafe(TargetActor));
 		}
 	}
+
 }

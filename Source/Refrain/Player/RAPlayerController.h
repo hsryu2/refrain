@@ -9,6 +9,7 @@
 #include "RAPlayerController.generated.h"
 
 class URAPauseMenuWidget;
+class URAScoreWidget;
 
 /**
  * 
@@ -33,8 +34,13 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
 
+	
 	UPROPERTY(VisibleAnywhere, Category = Input, BlueprintReadOnly)
 	TObjectPtr<class UInputMappingContext> InputMappingContext;
+	
+	// ----------------------------------------------------------------------------------------------------------------
+	// /@ --- HUD ---
+	// ----------------------------------------------------------------------------------------------------------------
 	
 	// HP UI
 	UPROPERTY(EditDefaultsOnly, Category=UI)
@@ -42,6 +48,16 @@ protected:
 	
 	UPROPERTY()
 	TObjectPtr<URAHealthBarWidget> HealthBarWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category=UI)
+	TSubclassOf<URAScoreWidget> ScoreWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<URAScoreWidget> ScoreWidget;
+
+	// ----------------------------------------------------------------------------------------------------------------
+	// --- HUD --- @/
+	// ----------------------------------------------------------------------------------------------------------------
 
 	//  /@ --- Pause UI ---
 	/** @brief 일시정지 메뉴 위젯 클래스 */

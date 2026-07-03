@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
 #include "Player/RAPlayerState.h"
+#include "Camera/CameraShakeBase.h"
 #include "RAGA_ComboAttack.generated.h"
 
 class UAttackTargetingComponent;
@@ -131,4 +132,9 @@ protected:
 protected:
 	// PlayState에 점수 계산을 위해 판정 전달.
 	void SendJudgementToPlayerState(ERAHitJudgement Judgement);
+	
+protected:
+	// 카메라 쉐이크
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Camera")
+	TSubclassOf<UCameraShakeBase> HitCameraShakeClass;
 };
