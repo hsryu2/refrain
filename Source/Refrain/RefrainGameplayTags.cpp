@@ -5,6 +5,8 @@ namespace RefrainGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_Attack, "Ability.Attack", "기본 공격");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayCue_Attack, "GameplayCue.Attack", "공격 이펙트");
 	
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_Attack_Counter, "Ability.Attack.Counter", "카운터 공격");
+	
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_ComboInputStart, "Event.Montage.ComboInputStart", "콤보 시작");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_ComboInputEnd, "Event.Montage.ComboInputEnd", "콤보 완료");
 	
@@ -29,9 +31,12 @@ namespace RefrainGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_PlayRate_AnticipationToStrike, "Event.Montage.PlayRate.AnticipationToStrike", "본격적인 타격 모션이 시작되는 시점");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_PlayRate_StrikeToRecovery, "Event.Montage.PlayRate.StrikeToRecovery", "타격 모션이 끝나고 후딜이 시작되는 시점");
 	
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_AttackHit_FirstHit, "Event.Montage.AttackHit.FirstHit", "다중 타격 몽타주에서 첫 번째 공격 시점");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_AttackHit_SecondHit, "Event.Montage.AttackHit.SecondHit", "다중 타격 몽타주에서 두 번째 공격 시점");
+	
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_NextComboStart, "Event.Montage.NextComboStart", "다음 콤보가 예약되어 있을 경우 다음 콤보로 넘어가는 시점");
 	
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Attacking_Main, "State.Attacking.Main", "공격 중인 상태");
-	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Attacking_Counterable, "State.Attacking.Counterable", "카운터 가능 상태");
-	
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Attacking_Counterable, "State.Attacking.Counterable", "카운터 가능한 공격");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Attacking_Counterable_InWindow, "State.Attacking.Counterable.InWindow", "카운터 가능한 공격의 카운터 가능한 시점");
 }
