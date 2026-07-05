@@ -16,6 +16,9 @@ URAGA_HitReact::URAGA_HitReact()
 	CancelAbilitiesWithTag.AddTag(RefrainGameplayTags::State_Attacking_Main);
 	
 	ActivationOwnedTags.AddTag(RefrainGameplayTags::State_HitReact);
+	
+	// HitReact 중복 발동 방지
+	ActivationBlockedTags.AddTag(RefrainGameplayTags::State_HitReact);
 }
 
 void URAGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -33,6 +36,11 @@ void URAGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		
 		if (InstigatorActor && HitCharacter && KnockbackDis > 0.0f)
 		{
+			FVector LookAtDir = InstigatorActor->GetActorLocation() - HitCharacter->GetActorLocation();
+			LookAtDir.Z = 0.0f;
+			FRotator LookAtRotator = LookAtDir.Rotation();
+			HitCharacter->SetActorRotation(LookAtRotator);
+			
 			FVector KnockbackDir = HitCharacter->GetActorLocation() - InstigatorActor->GetActorLocation();
 			KnockbackDir.Z = 0.0f;
 			KnockbackDir.Normalize();
@@ -83,8 +91,6 @@ void URAGA_HitReact::CancelAbility(const FGameplayAbilitySpecHandle Handle, cons
 void URAGA_HitReact::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-	
 	// 몽타주 실행이 끝나면 피격 상태를 false로 변경
 	if (APawn* AvatarPawn = Cast<APawn>(ActorInfo->AvatarActor.Get()))
 	{
@@ -92,10 +98,21 @@ void URAGA_HitReact::EndAbility(const FGameplayAbilitySpecHandle Handle, const F
 		{
 			if (UBlackboardComponent* BlackboardComp = AIController->GetBlackboardComponent())
 			{
-				BlackboardComp->SetValueAsBool(FName("IsHit"), false);
+				if (!bWasCancelled)
+				{
+					BlackboardComp->SetValueAsBool(FName("IsHit"), false);
+				}
+
+				const bool bCurrentIsHit = BlackboardComp->GetValueAsBool(FName("IsHit"));
+				UE_LOG(LogTemp, Warning, TEXT("Blackboard IsHit after set: %s / Pawn: %s / Controller: %s"),
+				bCurrentIsHit ? TEXT("true") : TEXT("false"),
+				*GetNameSafe(AvatarPawn),
+				*GetNameSafe(AIController));
 			}
 		}
 	}
+	
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void URAGA_HitReact::OnMontageCompleted()
