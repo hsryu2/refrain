@@ -60,7 +60,6 @@ void ARAPlayerState::RegisterJudgement(ERAHitJudgement Judgement)
 			break;
 		case ERAHitJudgement::Miss:
 			BaseScore = 0;
-			MissCount++;
 			break;
 		default:
 			break;
@@ -69,7 +68,7 @@ void ARAPlayerState::RegisterJudgement(ERAHitJudgement Judgement)
 	const int32 AddedScore = FMath::RoundToInt(static_cast<float>(BaseScore) * GetHitsMultiplier());
 	TotalScore += AddedScore;
 	UE_LOG(LogTemp, Log, TEXT("TotalScore : %d, CurrentCombo : %d"), TotalScore, CurrentHits);
-	
+	UE_LOG(LogTemp, Log, TEXT("Perfect : %d, Good : %d , Bad : %d, MaxHits : %d" ), PerfectCount, GoodCount, BadCount, MaxHits);
 	OnScoreUpdated.Broadcast(Judgement, AddedScore, TotalScore, CurrentHits);
 }
 
