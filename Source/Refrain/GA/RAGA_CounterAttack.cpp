@@ -210,8 +210,8 @@ void URAGA_CounterAttack::CalculatePlayRates(const UAnimMontage* Montage)
 	const int BeatDifference = AttackAbsoluteBeat - NowAbsoluteBeat;
 	
 	// PlayRate 계산 - FirstHit가 0.5박, SecondHit가 1박에 맞춰지게
-	const float DesiredFirstHitTime = (static_cast<float>(BeatDifference) - 0.5f - BeatProgress) * SecondsPerBeat;
-	const float DesiredSecondHitTime = (static_cast<float>(BeatDifference) - BeatProgress) * SecondsPerBeat;
+	const float DesiredFirstHitTime = (static_cast<float>(BeatDifference) + 0.5f - BeatProgress) * SecondsPerBeat;
+	const float DesiredSecondHitTime = (static_cast<float>(BeatDifference) + 1.f - BeatProgress) * SecondsPerBeat;
 	
 	PlayRateUntilFirstHit = FirstHitTime / DesiredFirstHitTime;
 	PlayRateUntilSecondHit = (SecondHitTime - FirstHitTime) / (DesiredSecondHitTime - DesiredFirstHitTime);
