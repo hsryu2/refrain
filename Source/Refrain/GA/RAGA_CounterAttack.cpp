@@ -184,6 +184,19 @@ void URAGA_CounterAttack::CalculatePlayRates(const UAnimMontage* Montage)
 	// 현재 재생 상태 정보
 	const float SecondsPerBeat = MagicalTiming->GetSecondsPerBeat();
 	const float BeatProgress = MagicalTiming->GetBeatProgress();
+	FQuartzTransportTimeStamp MusicTimeStamp;
+	MagicalTiming->GetMusicTimeStamp(MusicTimeStamp);
+	const int NowBar = MusicTimeStamp.Bars;
+	const int NowBeat = MusicTimeStamp.Beat;
+	UMagicalMusicData* MusicData = MagicalTiming->GetMusicData();
+	const int NumBeats = MusicData->NumBeats;
+	
+	// NPC 공격 정보
+	UNPCCombatStateComponent* CombatManager = AvatarCharacter->FindComponentByClass<UNPCCombatStateComponent>();
+	check(CombatManager);
+	FAttackTiming NowAttackTiming = CombatManager->GetNowAttackTiming();
+	const int AttackBar = NowAttackTiming.Bar;
+	const int AttackBeat = NowAttackTiming.Beat;
 	
 	if (FirstHitTime <= 0.f || SecondHitTime <= 0.f)
 	{
@@ -192,9 +205,13 @@ void URAGA_CounterAttack::CalculatePlayRates(const UAnimMontage* Montage)
 		return;
 	}
 	
+	const int NowAbsoluteBeat = ((NowBar - 1) * NumBeats) + (NowBeat - 1);
+	const int AttackAbsoluteBeat = ((AttackBar - 1) * NumBeats) + (AttackBeat - 1);
+	const int BeatDifference = AttackAbsoluteBeat - NowAbsoluteBeat;
+	
 	// PlayRate 계산 - FirstHit가 0.5박, SecondHit가 1박에 맞춰지게
-	const float DesiredFirstHitTime = (0.5f - BeatProgress) * SecondsPerBeat;
-	const float DesiredSecondHitTime = (1.f - BeatProgress) * SecondsPerBeat;
+	const float DesiredFirstHitTime = (static_cast<float>(BeatDifference) - 0.5f - BeatProgress) * SecondsPerBeat;
+	const float DesiredSecondHitTime = (static_cast<float>(BeatDifference) - BeatProgress) * SecondsPerBeat;
 	
 	PlayRateUntilFirstHit = FirstHitTime / DesiredFirstHitTime;
 	PlayRateUntilSecondHit = (SecondHitTime - FirstHitTime) / (DesiredSecondHitTime - DesiredFirstHitTime);

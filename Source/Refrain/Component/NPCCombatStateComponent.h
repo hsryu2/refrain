@@ -68,6 +68,8 @@ public:
 public:
 	ARACharacterNonPlayer* GetCurrentAttacker() { return CurrentAttacker; }
 	
+	FAttackTiming GetNowAttackTiming() const { return NowAttackTiming; }
+	
 protected:
 	UPROPERTY(EditAnywhere, Category="CombatPosition")
 	float WaitCircleRadius = 600.0f;
