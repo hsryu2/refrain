@@ -40,7 +40,7 @@ bool UNPCCombatStateComponent::RequestAttackToken(ARACharacterNonPlayer* Request
 	return true;
 }
 
-bool UNPCCombatStateComponent::SetNowCounterableAttackTiming(ARACharacterNonPlayer* RequestingNPC, int32 Bar, float Beat)
+bool UNPCCombatStateComponent::SetNowCounterableAttackTiming(ARACharacterNonPlayer* RequestingNPC, int32 Bar, int32 Beat)
 {
 	if (CurrentAttacker != RequestingNPC)
 	{
@@ -51,7 +51,7 @@ bool UNPCCombatStateComponent::SetNowCounterableAttackTiming(ARACharacterNonPlay
 	FAttackTiming NewAttackTiming = FAttackTiming(Bar, Beat);
 	if (!NewAttackTiming.IsValid())
 	{
-		RA_LOG(LogRefrain, Warning, TEXT("AttackTiming Is Not Valid. Bar: %d, Beat: %f"), Bar, Beat);
+		RA_LOG(LogRefrain, Warning, TEXT("AttackTiming Is Not Valid. Bar: %d, Beat: %d"), Bar, Beat);
 		return false;
 	}
 	

@@ -30,6 +30,8 @@ URAGA_CounterAttack::URAGA_CounterAttack()
 
 void URAGA_CounterAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
+	RA_LOG(LogRefrain, Log, TEXT("Activate Ability"));
+	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
 	// 변수 초기화
@@ -183,7 +185,7 @@ void URAGA_CounterAttack::CalculatePlayRates(const UAnimMontage* Montage)
 	const float SecondsPerBeat = MagicalTiming->GetSecondsPerBeat();
 	const float BeatProgress = MagicalTiming->GetBeatProgress();
 	
-	if (FirstHitTime <= 0.f || SecondHitTime <= 0.f || BeatProgress >= 0.5f)
+	if (FirstHitTime <= 0.f || SecondHitTime <= 0.f)
 	{
 		RA_LOG(LogRefrain, Error, TEXT("FirstHitTime: %.2f SecondHitTime: %.2f BeatProgress: %.2f"), FirstHitTime, SecondHitTime, BeatProgress);
 		PlayRateUntilFirstHit = PlayRateUntilSecondHit = PlayRateAfterSecondHit = 1.f;
@@ -199,7 +201,7 @@ void URAGA_CounterAttack::CalculatePlayRates(const UAnimMontage* Montage)
 	
 	PlayRateAfterSecondHit = 1.f;
 	
-	RA_LOG(LogRefrain, Log, TEXT("PlayRateUntilFirstHit: %.2f, PlayRateUntilSecondHit: %.2f, PlayRateAfterSecondHit: %.2f"), PlayRateUntilFirstHit, PlayRateUntilSecondHit, PlayRateAfterSecondHit);
+	RA_LOG(LogRefrain, Log, TEXT("BeatProgress: %.2f, PlayRateUntilFirstHit: %.2f, PlayRateUntilSecondHit: %.2f, PlayRateAfterSecondHit: %.2f"), BeatProgress, PlayRateUntilFirstHit, PlayRateUntilSecondHit, PlayRateAfterSecondHit);
 }
 
 void URAGA_CounterAttack::UpdateAttackMotionWarpTarget()

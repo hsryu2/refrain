@@ -18,7 +18,7 @@ struct FAttackTiming
 	int32 Bar = INDEX_NONE;
 
 	UPROPERTY(BlueprintReadOnly)
-	float Beat = -1.f;
+	int32 Beat = -1;
 	
 	bool IsValid() const
 	{
@@ -48,7 +48,7 @@ public:
 	
 	// 공격 시 공격 타이밍 제출
 	UFUNCTION(BlueprintCallable, Category="Combat")
-	bool SetNowCounterableAttackTiming(ARACharacterNonPlayer* RequestingNPC, int32 Bar, float Beat);
+	bool SetNowCounterableAttackTiming(ARACharacterNonPlayer* RequestingNPC, int32 Bar, int Beat);
 	
 	// 공격 후 공격 타이밍 초기화
 	UFUNCTION(BlueprintCallable, Category="Combat")
