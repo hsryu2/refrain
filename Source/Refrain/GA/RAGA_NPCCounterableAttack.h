@@ -7,6 +7,8 @@
 #include "Components/WidgetComponent.h"
 #include "RAGA_NPCCounterableAttack.generated.h"
 
+class UNPCCombatStateComponent;
+class ARACharacterPlayer;
 class URhythmTargetWidget;
 class ARACharacterNonPlayer;
 /**
@@ -43,7 +45,7 @@ protected:
 	float CalculatePlayRate(const UAnimMontage* Montage);
 	
 	// CombatStateComponent에 공격할 타이밍 저장
-	void SetAttackTiming();
+	void SetAttackTiming(int Bar, int32 Beat);
 	void ClearAttackTiming();
 	
 // 블루프린트에서 지정할 변수
@@ -60,6 +62,12 @@ protected:
 	
 	UPROPERTY()
 	TObjectPtr<ARACharacterNonPlayer> NPC;
+	
+	UPROPERTY()
+	TObjectPtr<ARACharacterPlayer> TargetPlayer;
+	
+	UPROPERTY()
+	TObjectPtr<UNPCCombatStateComponent> CombatManager;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Damage)
 	float DamageAmount = 10.0f;
