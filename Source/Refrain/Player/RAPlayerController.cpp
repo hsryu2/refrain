@@ -57,6 +57,12 @@ void ARAPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (PlayerCameraManager)
+	{
+		PlayerCameraManager->ViewPitchMin = -45.0f;
+		PlayerCameraManager->ViewPitchMax = 15.0f;
+	}
+	
 	if (IsLocalController() && ScoreWidgetClass)
 	{
 		ScoreWidget = CreateWidget<URAScoreWidget>(this, ScoreWidgetClass);
