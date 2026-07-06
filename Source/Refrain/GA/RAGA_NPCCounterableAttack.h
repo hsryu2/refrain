@@ -53,6 +53,10 @@ protected:
 	// AttackHitSweepComponent 판정으로 플레이어 피격 여부를 확인하고 대미지를 적용
 	bool TryApplyDamageToTargetPlayer();
 	
+	// 모션 워핑 (몽타주 재생 전, 후 실행)
+	void UpdateAttackMotionWarpTarget();
+	void ClearAttackMotionWarpTarget();
+	
 // 블루프린트에서 지정할 변수
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Animation)

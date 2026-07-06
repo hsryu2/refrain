@@ -109,6 +109,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Targeting, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAttackHitSweepComponent> AttackHitSweepComponent;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=MotionWarping, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UMotionWarpingComponent> MotionWarpingComponent;
+	
 	/**
 	 * @brief 체력 속성 변경 시 호출되는 콜백 함수
 	 * @param Data 변경된 속성 데이터

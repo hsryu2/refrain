@@ -7,6 +7,7 @@
 #include "AbilitySystemComponent.h"
 #include "AIController.h"
 #include "BrainComponent.h"
+#include "MotionWarpingComponent.h"
 #include "Refrain.h"
 #include "RefrainGameplayTags.h"
 #include "Component/AttackTargetingComponent.h"
@@ -42,6 +43,7 @@ ARACharacterNonPlayer::ARACharacterNonPlayer()
 	
 	AttackHitSweepComponent = CreateDefaultSubobject<UAttackHitSweepComponent>(TEXT("AttackHitSweepComponent"));
 	AttackHitSweepComponent->SetTargetActorClass(ARACharacterPlayer::StaticClass());
+	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 	
 	// 체력바 위젯
 	HealthWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthWidget"));
