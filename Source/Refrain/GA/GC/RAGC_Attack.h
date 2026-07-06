@@ -33,6 +33,7 @@ protected:
 	// HandGrip_R
 	// foot_l_Socket
 	// foot_r_Socket
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Effect)
-	FName AttachSocketName = "NAME_None";
+	TMap<FGameplayTag, FName> AttackSocketMap;
 };

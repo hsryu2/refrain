@@ -137,9 +137,7 @@ void URAGA_ComboAttack::OnAttackHit(FGameplayEventData Payload)
 		CueParams.Location = AvatarCharacter->GetActorLocation();
 		CueParams.Normal = AvatarCharacter->GetActorForwardVector();
 		
-		UE_LOG(LogTemp, Warning, TEXT("ExecuteGameplayCue GameplayCue.Attack"));
 		//ASC->ExecuteGameplayCue(RefrainGameplayTags::GameplayCue_Attack, CueParams);
-		UE_LOG(LogTemp, Warning, TEXT("After ExecuteGameplayCue GameplayCue.Attack"));
 	}
 	
 	ERAHitJudgement HitJudgement = ERAHitJudgement::Miss;
@@ -290,8 +288,6 @@ void URAGA_ComboAttack::PlayAttackMontage()
 	{
 		QueueHitSound();
 	}
-	
-
 	
 	// 현재 콤보에 따라서 Montage AT 실행 및 델리게이트 등록
 	UAbilityTask_PlayMontageAndWait* MontageTask =
