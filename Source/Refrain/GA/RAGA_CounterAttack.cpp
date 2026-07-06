@@ -118,7 +118,7 @@ void URAGA_CounterAttack::PlayAttackMontage()
 	check(RACharacter);
 	const URACharacterAnimationData* AnimationData = RACharacter->GetAnimationData();
 	check(AnimationData);
-	UAnimMontage* Montage = AnimationData->CounterAttack;
+	UAnimMontage* Montage = AnimationData->CounterAttack.Montage;
 	check(Montage);
 	
 	// 사전 작업
@@ -255,7 +255,7 @@ void URAGA_CounterAttack::UpdateAttackMotionWarpTarget()
 			RA_LOG(LogRefrain, Error, TEXT("TargetMesh Not Found"));
 			return;
 		}
-		// 모션워핑에 필요한 정보 설정 (현재 오프셋 설정 안 됨)
+		// 모션워핑에 필요한 정보 설정
 		MotionWarpingComponent->AddOrUpdateWarpTargetFromComponent(
 			FName(TEXT("Enemy")), TargetMesh, NAME_None, true, 
 			EWarpTargetLocationOffsetDirection::VectorFromTargetToOwner);
