@@ -8,7 +8,12 @@
 URAGA_Dodge::URAGA_Dodge()
 {
 	FGameplayTagContainer Tags(RefrainGameplayTags::Ability_Dodge);
-	SetAssetTags(Tags);;
+	SetAssetTags(Tags);
+	
+	ActivationOwnedTags.AddTag(RefrainGameplayTags::State_Dodging);
+	
+	CancelAbilitiesWithTag.AddTag(RefrainGameplayTags::Ability_Attack);
+	BlockAbilitiesWithTag.AddTag(RefrainGameplayTags::Ability_Attack);
 }
 
 void URAGA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
