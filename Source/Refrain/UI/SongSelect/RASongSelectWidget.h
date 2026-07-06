@@ -6,11 +6,11 @@
 #include "Blueprint/UserWidget.h"
 #include "RASongSelectWidget.generated.h"
 
-class UButton;
 class UTextBlock;
 class UImage;
 class UListView;
 class URAMenuButtonWidget;
+class URASongInfoWidget;
 /**
  * @brief 곡 선택 화면을 제어하는 위젯 클래스
  * @note 블루프린트 위젯 생성 시 바인딩하여 사용합니다.
@@ -21,6 +21,14 @@ class REFRAIN_API URASongSelectWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	// /@ --- 외부 설정 (에디터 노출) ---
+	
+	/** @brief 에디터에서 할당할 곡 데이터 목록 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Song Select")
+	TArray<TObjectPtr<UMagicalMusicData>> AvailableSongs;
+
+	// --- 외부 설정 (에디터 노출) --- @/
+
 	// ----------------------------------------------------------------------------------------------------------------
 	// /@ --- 블루프린트 연동 함수 ---
 	// ----------------------------------------------------------------------------------------------------------------
@@ -39,6 +47,9 @@ public:
 protected:
 	virtual void NativeConstruct() override;
 
+	/** @brief 리스트 뷰를 AvailableSongs 배열 기반으로 초기화합니다. */
+	void InitSongList();
+
 	// ----------------------------------------------------------------------------------------------------------------
 	// /@ --- UI 바인딩 ---
 	// ----------------------------------------------------------------------------------------------------------------
@@ -56,16 +67,7 @@ protected:
 	TObjectPtr<URAMenuButtonWidget> BtnPlay;
 	
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> TxtSongTitle;
-	
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> TxtArtist;
-	
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> TxtBPM;
-	
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UImage> ImgSongJacket;
+	TObjectPtr<URASongInfoWidget> SongInfoPanel;
 	
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UListView> SongListView;

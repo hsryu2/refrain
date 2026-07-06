@@ -9,6 +9,7 @@
 
 #include "Timing/MagicalMusicData.h"
 #include "UI/MainMenu/RAMenuButtonWidget.h"
+#include "UI/SongSelect/RASongInfoWidget.h"
 
 void URASongSelectWidget::NativeConstruct()
 {
@@ -39,32 +40,41 @@ void URASongSelectWidget::NativeConstruct()
 	{
 		SongListView->OnItemSelectionChanged().AddUObject(this, &URASongSelectWidget::OnSongSelectionChanged);
 	}
+
+	// 뷰 초기화
+	InitSongList();
+}
+
+void URASongSelectWidget::InitSongList()
+{
+	if (!SongListView) return;
+
+	// 기존 아이템 지우기
+	SongListView->ClearListItems();
+
+	// 배열에 추가된 곡 데이터 리스트 뷰에 등록
+	for (UMagicalMusicData* SongData : AvailableSongs)
+	{
+		if (SongData)
+		{
+			SongListView->AddItem(SongData);
+		}
+	}
+
+	// 곡이 하나라도 있다면 첫 번째 곡을 기본으로 선택
+	if (AvailableSongs.Num() > 0 && AvailableSongs[0] != nullptr)
+	{
+		SongListView->SetSelectedItem(AvailableSongs[0]);
+	}
 }
 
 void URASongSelectWidget::UpdateSongInfo(UMagicalMusicData* InSongData)
 {
 	if (!InSongData) return;
 
-	if (TxtSongTitle)
+	if (SongInfoPanel)
 	{
-		TxtSongTitle->SetText(FText::FromString(InSongData->SongTitle));
-	}
-
-	if (TxtArtist)
-	{
-		TxtArtist->SetText(FText::FromString(InSongData->Artist));
-	}
-
-	if (TxtBPM)
-	{
-		FString BPMStr = FString::Printf(TEXT("BPM: %.0f"), InSongData->BPM);
-		TxtBPM->SetText(FText::FromString(BPMStr));
-	}
-
-	if (ImgSongJacket && InSongData->JacketImage)
-	{
-		// 텍스처를 브러시에 세팅 (UMG)
-		ImgSongJacket->SetBrushFromTexture(InSongData->JacketImage);
+		SongInfoPanel->UpdateSongInfo(InSongData);
 	}
 }
 
