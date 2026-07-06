@@ -1,0 +1,109 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "UI/SongSelect/RASongSelectWidget.h"
+#include "Components/Button.h"
+#include "Components/TextBlock.h"
+#include "Components/Image.h"
+#include "Components/ListView.h"
+#include "UI/SongSelect/RASongItemData.h"
+
+void URASongSelectWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	// 바인딩된 버튼들에 이벤트 리스너 등록
+	if (BtnBack)
+	{
+		BtnBack->OnClicked.AddDynamic(this, &URASongSelectWidget::OnBackClicked);
+	}
+	
+	if (BtnSettings)
+	{
+		BtnSettings->OnClicked.AddDynamic(this, &URASongSelectWidget::OnSettingsClicked);
+	}
+	
+	if (BtnCategory)
+	{
+		BtnCategory->OnClicked.AddDynamic(this, &URASongSelectWidget::OnCategoryClicked);
+	}
+	
+	if (BtnPlay)
+	{
+		BtnPlay->OnClicked.AddDynamic(this, &URASongSelectWidget::OnPlayClicked);
+	}
+	
+	if (SongListView)
+	{
+		SongListView->OnItemSelectionChanged().AddUObject(this, &URASongSelectWidget::OnSongSelectionChanged);
+	}
+}
+
+void URASongSelectWidget::UpdateSongInfo(const FRASongInfo& InSongInfo)
+{
+	if (TxtSongTitle)
+	{
+		TxtSongTitle->SetText(FText::FromString(InSongInfo.SongTitle));
+	}
+
+	if (TxtArtist)
+	{
+		TxtArtist->SetText(FText::FromString(InSongInfo.Artist));
+	}
+
+	if (TxtBPM)
+	{
+		FString BPMStr = FString::Printf(TEXT("BPM: %.0f"), InSongInfo.BPM);
+		TxtBPM->SetText(FText::FromString(BPMStr));
+	}
+
+	if (ImgSongJacket && InSongInfo.JacketImage)
+	{
+		// 텍스처를 브러시에 세팅 (UMG)
+		ImgSongJacket->SetBrushFromTexture(InSongInfo.JacketImage);
+	}
+}
+
+void URASongSelectWidget::OnBackClicked()
+{
+	// TODO: 메인 메뉴로 돌아가기 등 뒤로가기 로직 구현
+	UE_LOG(LogTemp, Log, TEXT("URASongSelectWidget::OnBackClicked"));
+}
+
+void URASongSelectWidget::OnSettingsClicked()
+{
+	// TODO: 설정 팝업 호출
+	UE_LOG(LogTemp, Log, TEXT("URASongSelectWidget::OnSettingsClicked"));
+}
+
+void URASongSelectWidget::OnCategoryClicked()
+{
+	// TODO: 카테고리(ALL/NEW/FAVORITE/LV) 전환 로직
+	UE_LOG(LogTemp, Log, TEXT("URASongSelectWidget::OnCategoryClicked"));
+}
+
+void URASongSelectWidget::OnPlayClicked()
+{
+	// TODO: 선택된 곡으로 게임 씬 전환 등 시작 로직 구현
+	UE_LOG(LogTemp, Log, TEXT("URASongSelectWidget::OnPlayClicked"));
+}
+
+void URASongSelectWidget::OnSongSelectionChanged(UObject* Item)
+{
+	// Item이 nullptr인 경우(선택 해제)도 발생할 수 있으므로 체크합니다.
+	if (Item)
+	{
+		URASongItemData* SelectedData = Cast<URASongItemData>(Item);
+		if (SelectedData)
+		{
+			// ListView에서 선택된 데이터를 메인 UI에 업데이트
+			FRASongInfo Info;
+			Info.SongTitle = SelectedData->SongTitle;
+			Info.Artist = SelectedData->Artist;
+			Info.BPM = SelectedData->BPM;
+			Info.JacketImage = SelectedData->JacketImage;
+			
+			UpdateSongInfo(Info);
+		}
+	}
+}
