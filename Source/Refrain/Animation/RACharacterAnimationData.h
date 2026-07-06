@@ -7,7 +7,7 @@
 #include "RACharacterAnimationData.generated.h"
 
 USTRUCT(BlueprintType)
-struct FRAComboAttackData
+struct FRAAttackData
 {
 	GENERATED_BODY()
 	
@@ -34,10 +34,10 @@ class REFRAIN_API URACharacterAnimationData : public UDataAsset
 	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attack")
-	TArray<FRAComboAttackData> ComboAttacks;
+	TArray<FRAAttackData> ComboAttacks;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attack")
-	TObjectPtr<UAnimMontage> CounterAttack;
+	FRAAttackData CounterAttack;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="HitReact")
 	TObjectPtr<UAnimMontage> HitReactMontage;

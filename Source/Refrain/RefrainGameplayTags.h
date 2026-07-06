@@ -7,6 +7,10 @@ namespace RefrainGameplayTags
 	// Attack 태그.
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Attack);
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Attack);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Attack_HandGrip_L);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Attack_HandGrip_R);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Attack_foot_l_Socket);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Attack_foot_r_Socket);
 	
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Attack_Counter);
 	

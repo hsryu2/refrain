@@ -128,6 +128,18 @@ void URAGA_ComboAttack::OnAttackHit(FGameplayEventData Payload)
 		RA_LOG(LogRefrain, Log, TEXT("SourceASC or TargetASC Not Found"));
 	}
 	
+	// 공격 GE 실행
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+	{
+		FGameplayCueParameters CueParams;
+		CueParams.Instigator = AvatarCharacter;
+		CueParams.SourceObject = this;
+		CueParams.Location = AvatarCharacter->GetActorLocation();
+		CueParams.Normal = AvatarCharacter->GetActorForwardVector();
+		
+		//ASC->ExecuteGameplayCue(RefrainGameplayTags::GameplayCue_Attack, CueParams);
+	}
+	
 	ERAHitJudgement HitJudgement = ERAHitJudgement::Miss;
 	if (CurrentJudgementTag == RefrainGameplayTags::Judge_Perfect)
 	{
@@ -275,18 +287,6 @@ void URAGA_ComboAttack::PlayAttackMontage()
 	if (TargetActor)
 	{
 		QueueHitSound();
-	}
-	
-	// 공격 GE 실행
-	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
-	{
-		FGameplayCueParameters CueParams;
-		CueParams.Instigator = AvatarCharacter;
-		CueParams.SourceObject = this;
-		CueParams.Location = AvatarCharacter->GetActorLocation();
-		CueParams.Normal = AvatarCharacter->GetActorForwardVector();
-		
-		ASC->ExecuteGameplayCue(RefrainGameplayTags::GameplayCue_Attack, CueParams);
 	}
 	
 	// 현재 콤보에 따라서 Montage AT 실행 및 델리게이트 등록

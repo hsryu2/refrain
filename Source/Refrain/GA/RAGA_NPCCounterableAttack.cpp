@@ -3,15 +3,19 @@
 
 #include "RAGA_NPCCounterableAttack.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "Refrain.h"
 #include "RefrainGameplayTags.h"
 #include "TimerManager.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Animation/AnimMontage.h"
 #include "Animation/AN_SendGameplayEvent.h"
 #include "AT/RAAT_RhythmTargetWidgetProgress.h"
 #include "Character/RACharacterNonPlayer.h"
 #include "Character/RACharacterPlayer.h"
+#include "Component/AttackHitSweepComponent.h"
 #include "Component/NPCCombatStateComponent.h"
 #include "Engine/World.h"
 #include "Timing/MagicalTimingSubsystem.h"
@@ -58,6 +62,12 @@ void URAGA_NPCCounterableAttack::ActivateAbility(const FGameplayAbilitySpecHandl
 		return;
 	}
 	
+	// 델리게이트 등록
+	UAbilityTask_WaitGameplayEvent* AttackHitTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+		this, RefrainGameplayTags::Event_Montage_AttackHit, nullptr, false, true);
+	AttackHitTask->EventReceived.AddDynamic(this, &URAGA_NPCCounterableAttack::OnAttackHit);
+	AttackHitTask->ReadyForActivation();
+	
 	// 공격
 	Attack();
 }
@@ -77,6 +87,54 @@ void URAGA_NPCCounterableAttack::OnMontageCompleted()
 void URAGA_NPCCounterableAttack::OnMontageInterrupted()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+}
+
+void URAGA_NPCCounterableAttack::OnAttackHit(FGameplayEventData Payload)
+{
+	TryApplyDamageToTargetPlayer();
+}
+
+bool URAGA_NPCCounterableAttack::TryApplyDamageToTargetPlayer()
+{
+	if (!NPC || !TargetPlayer || !DamageEffectClass)
+	{
+		return false;
+	}
+
+	const UAttackHitSweepComponent* AttackHitSweepComponent =
+		NPC->FindComponentByClass<UAttackHitSweepComponent>();
+	if (!AttackHitSweepComponent)
+	{
+		RA_LOG(LogRefrain, Warning, TEXT("AttackHitSweepComponent Not Found"));
+		return false;
+	}
+
+	const TArray<AActor*> HitTargets = AttackHitSweepComponent->HitSweep();
+	if (!HitTargets.Contains(TargetPlayer))
+	{
+		return false;
+	}
+
+	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetPlayer);
+	if (!SourceASC || !TargetASC)
+	{
+		RA_LOG(LogRefrain, Warning, TEXT("SourceASC or TargetASC Not Found"));
+		return false;
+	}
+
+	FGameplayEffectSpecHandle DamageSpec = MakeOutgoingGameplayEffectSpec(DamageEffectClass, GetAbilityLevel());
+	if (!DamageSpec.IsValid())
+	{
+		return false;
+	}
+
+	DamageSpec.Data->SetSetByCallerMagnitude(RefrainGameplayTags::Data_Damage, DamageAmount);
+	SourceASC->ApplyGameplayEffectSpecToTarget(*DamageSpec.Data.Get(), TargetASC);
+	RA_LOG(LogRefrain, Log, TEXT("Apply Counterable Attack Damage to %s: %.1f"),
+		*GetNameSafe(TargetPlayer), DamageAmount);
+
+	return true;
 }
 
 void URAGA_NPCCounterableAttack::Attack()

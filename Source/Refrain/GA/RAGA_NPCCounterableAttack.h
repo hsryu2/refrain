@@ -33,6 +33,8 @@ protected:
 	void OnMontageCompleted();
 	UFUNCTION()
 	void OnMontageInterrupted();
+	UFUNCTION()
+	void OnAttackHit(FGameplayEventData Payload);
 
 // 내부 로직
 protected:
@@ -47,6 +49,9 @@ protected:
 	// CombatStateComponent에 공격할 타이밍 저장
 	void SetAttackTiming(int Bar, int32 Beat);
 	void ClearAttackTiming();
+
+	// AttackHitSweepComponent 판정으로 플레이어 피격 여부를 확인하고 대미지를 적용
+	bool TryApplyDamageToTargetPlayer();
 	
 // 블루프린트에서 지정할 변수
 protected:
@@ -56,6 +61,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Damage)
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 	
+// 포인터
 protected:
 	UPROPERTY()
 	TObjectPtr<UWidgetComponent> RhythmTargetWidget;
@@ -69,10 +75,13 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UNPCCombatStateComponent> CombatManager;
 	
+	FTimerHandle MontageWaitTimerHandle;
+	
+// 내부 로직에서 사용할 수치
+protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Damage)
 	float DamageAmount = 10.0f;
 	
-	FTimerHandle MontageWaitTimerHandle;
 	float MontagePlayRate = 1.f;
 	float MontageStartTime = 0.f;
 	float MontageWaitTime = 0.f;
