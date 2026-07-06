@@ -11,6 +11,7 @@
 #include "Animation/AN_SendGameplayEvent.h"
 #include "AT/RAAT_RhythmTargetWidgetProgress.h"
 #include "Character/RACharacterNonPlayer.h"
+#include "Character/RACharacterPlayer.h"
 #include "Component/NPCCombatStateComponent.h"
 #include "Engine/World.h"
 #include "Timing/MagicalTimingSubsystem.h"
@@ -40,6 +41,23 @@ void URAGA_NPCCounterableAttack::ActivateAbility(const FGameplayAbilitySpecHandl
 		return;
 	}
 	
+	const AActor* EventTarget = TriggerEventData ? TriggerEventData->Target.Get() : nullptr;
+	TargetPlayer = Cast<ARACharacterPlayer>(const_cast<AActor*>(EventTarget));
+	if (!TargetPlayer)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("TargetPlayer Not Found"));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+	
+	CombatManager = TargetPlayer->FindComponentByClass<UNPCCombatStateComponent>();
+	if (!CombatManager)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("CombatManager Not Found"));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+	
 	// 공격
 	Attack();
 }
@@ -47,6 +65,8 @@ void URAGA_NPCCounterableAttack::ActivateAbility(const FGameplayAbilitySpecHandl
 void URAGA_NPCCounterableAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	
+	ClearAttackTiming();
 }
 
 void URAGA_NPCCounterableAttack::OnMontageCompleted()
@@ -185,6 +205,8 @@ float URAGA_NPCCounterableAttack::CalculatePlayRate(const UAnimMontage* Montage)
 			AttackTimeStampBeat -= NumBeats;
 			AttackTimeStampBar += 1;
 		}
+		
+		SetAttackTiming(AttackTimeStampBar, AttackTimeStampBeat);
 	}
 	
 	RA_LOG(LogRefrain, Log, 
@@ -194,11 +216,17 @@ float URAGA_NPCCounterableAttack::CalculatePlayRate(const UAnimMontage* Montage)
 	return TargetBeatTime;
 }
 
-void URAGA_NPCCounterableAttack::SetAttackTiming()
+void URAGA_NPCCounterableAttack::SetAttackTiming(int32 Bar, int32 Beat)
 {
-	// UNPCCombatStateComponent* CombatManager = 
+	CombatManager->SetNowCounterableAttackTiming(NPC, Bar, Beat);
 }
 
 void URAGA_NPCCounterableAttack::ClearAttackTiming()
 {
+	if (!CombatManager || !NPC)
+	{
+		return;
+	}
+	
+	CombatManager->ClearNowCounterableAttackTiming(NPC);
 }

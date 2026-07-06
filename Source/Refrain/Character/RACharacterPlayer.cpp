@@ -82,7 +82,7 @@ ARACharacterPlayer::ARACharacterPlayer()
     }
 	
 	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionDodgeRef(TEXT("/Game/Refrain/Input/InputAction/IA_Dodge.IA_Dodge"));
-	if (InputActionAttackRef.Succeeded())
+	if (InputActionDodgeRef.Succeeded())
 	{
 		DodgeAction = InputActionDodgeRef.Object;
 	}

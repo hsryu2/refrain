@@ -57,9 +57,6 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = Score)
 	int32 BadCount = 0;
 	
-	UPROPERTY(BlueprintReadOnly, Category = Score)
-	int32 MissCount = 0;
-	
 	// 판정에 따라 점수 추가 및 히트수 추가 함수
 	UFUNCTION(BlueprintCallable, Category = Score)
 	void RegisterJudgement(ERAHitJudgement Judgement);
