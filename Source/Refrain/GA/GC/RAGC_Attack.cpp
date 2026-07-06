@@ -15,12 +15,22 @@ URAGC_Attack::URAGC_Attack()
 
 bool URAGC_Attack::OnExecute_Implementation(AActor* MyTarget, const FGameplayCueParameters& Parameters) const
 {
-	UE_LOG(LogTemp, Warning, TEXT("GameplayCue Attack MyTarget: %s / Class: %s"),
-	*GetNameSafe(MyTarget),
-	MyTarget ? *MyTarget->GetClass()->GetName() : TEXT("None"));
+	if (!AttackEffect)
+	{
+		RA_LOG(LogRefrain, Warning, TEXT("AttackEffect Not Found"));
+		return false;
+	}
+
+	const FName* SocketName = AttackSocketMap.Find(Parameters.OriginalTag);
+	if (!SocketName)
+	{
+		RA_LOG(LogRefrain, Warning, TEXT("SocketName Not Found"));
+		return false;
+	}
 	
 	if (!MyTarget)
 	{
+		RA_LOG(LogRefrain, Warning, TEXT("MyTarget Not Found"));
 		return false;
 	}
 	
@@ -33,6 +43,7 @@ bool URAGC_Attack::OnExecute_Implementation(AActor* MyTarget, const FGameplayCue
 
 	if (!EffectTarget)
 	{
+		RA_LOG(LogRefrain, Warning, TEXT("EffectTarget Not Found"));
 		return false;
 	}
 	
@@ -44,13 +55,14 @@ bool URAGC_Attack::OnExecute_Implementation(AActor* MyTarget, const FGameplayCue
 
 			if (!Mesh)
 			{
+				RA_LOG(LogRefrain, Warning, TEXT("Mesh Not Found"));
 				return false;
 			}
 			
 			UNiagaraFunctionLibrary::SpawnSystemAttached(
 				AttackEffect,
 				Mesh,
-				AttachSocketName,
+				*SocketName,
 				FVector::ZeroVector,
 				FRotator::ZeroRotator,
 				EAttachLocation::SnapToTarget,
@@ -59,26 +71,6 @@ bool URAGC_Attack::OnExecute_Implementation(AActor* MyTarget, const FGameplayCue
 		}
 	}
 	
-	//FVector SpawnLocation = Parameters.Location;
-	//FRotator SpawnRotator = MyTarget->GetActorRotation();
-	//
-	//if (AttackEffect)
-	//{
-	//	if (const ACharacter* Character = Cast<ACharacter>(MyTarget))
-	//	{
-	//		USkeletalMeshComponent* Mesh = Character->GetMesh();
-	//		
-	//		UNiagaraFunctionLibrary::SpawnSystemAttached(
-	//			AttackEffect,
-	//			Mesh,
-	//			AttachSocketName,
-	//			FVector::ZeroVector,
-	//			FRotator::ZeroRotator,
-	//			EAttachLocation::SnapToTarget,
-	//			true
-	//		);
-	//	}
-	//}
 	
 	return true;
 }
