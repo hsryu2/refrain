@@ -25,6 +25,10 @@ URAGA_CounterAttack::URAGA_CounterAttack()
 	FGameplayTagContainer Tags(RefrainGameplayTags::Ability_Attack_Counter);
 	SetAssetTags(Tags);;
 	
+	ActivationOwnedTags.AddTag(RefrainGameplayTags::State_Attacking);
+	ActivationBlockedTags.AddTag(RefrainGameplayTags::State_Dodging);
+	ActivationBlockedTags.AddTag(RefrainGameplayTags::State_Attacking);
+	
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
