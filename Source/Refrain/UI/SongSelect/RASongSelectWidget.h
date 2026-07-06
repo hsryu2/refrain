@@ -10,30 +10,7 @@ class UButton;
 class UTextBlock;
 class UImage;
 class UListView;
-
-/**
- * @brief 곡 정보 구조체
- * @note 테스트 및 연동을 위해 임시로 정의된 구조체입니다.
- */
-USTRUCT(BlueprintType)
-struct FRASongInfo
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Song Info")
-	FString SongTitle;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Song Info")
-	FString Artist;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Song Info")
-	float BPM = 120.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Song Info")
-	TObjectPtr<class UTexture2D> JacketImage;
-};
-
+class URAMenuButtonWidget;
 /**
  * @brief 곡 선택 화면을 제어하는 위젯 클래스
  * @note 블루프린트 위젯 생성 시 바인딩하여 사용합니다.
@@ -50,10 +27,10 @@ public:
 	
 	/**
 	 * @brief 현재 선택된 곡 정보를 UI에 업데이트합니다.
-	 * @param InSongInfo 업데이트할 곡 정보
+	 * @param InSongData 업데이트할 곡 데이터
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Song Select")
-	void UpdateSongInfo(const FRASongInfo& InSongInfo);
+	void UpdateSongInfo(class UMagicalMusicData* InSongData);
 	
 	// ----------------------------------------------------------------------------------------------------------------
 	// --- 블루프린트 연동 함수 --- @/
@@ -67,16 +44,16 @@ protected:
 	// ----------------------------------------------------------------------------------------------------------------
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UButton> BtnBack;
+	TObjectPtr<URAMenuButtonWidget> BtnBack;
 	
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UButton> BtnSettings;
+	TObjectPtr<URAMenuButtonWidget> BtnSettings;
 	
 	UPROPERTY(meta = (BindWidgetOptional))
-	TObjectPtr<UButton> BtnCategory;
+	TObjectPtr<URAMenuButtonWidget> BtnCategory;
 	
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UButton> BtnPlay;
+	TObjectPtr<URAMenuButtonWidget> BtnPlay;
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TxtSongTitle;
@@ -102,16 +79,16 @@ protected:
 	// ----------------------------------------------------------------------------------------------------------------
 
 	UFUNCTION()
-	void OnBackClicked();
+	void OnBackClicked(int32 ButtonIndex);
 	
 	UFUNCTION()
-	void OnSettingsClicked();
+	void OnSettingsClicked(int32 ButtonIndex);
 	
 	UFUNCTION()
-	void OnCategoryClicked();
+	void OnCategoryClicked(int32 ButtonIndex);
 	
 	UFUNCTION()
-	void OnPlayClicked();
+	void OnPlayClicked(int32 ButtonIndex);
 	
 	UFUNCTION()
 	void OnSongSelectionChanged(UObject* Item);

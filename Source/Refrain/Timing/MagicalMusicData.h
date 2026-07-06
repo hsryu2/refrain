@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -18,6 +18,15 @@ class REFRAIN_API UMagicalMusicData : public UDataAsset
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music|Data")
 	TSoftObjectPtr<USoundBase> MusicSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music|Metadata")
+	FString SongTitle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music|Metadata")
+	FString Artist;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music|Metadata")
+	TObjectPtr<class UTexture2D> JacketImage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music|Data", meta = (ClampMin = "60.0", ClampMax = "240.0"))
 	float BPM = 100.0f;

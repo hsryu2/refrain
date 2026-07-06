@@ -2,14 +2,14 @@
 
 
 #include "UI/SongSelect/RASongItemWidget.h"
-#include "UI/SongSelect/RASongItemData.h"
+#include "Timing/MagicalMusicData.h"
 #include "Components/TextBlock.h"
 
 void URASongItemWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
 	IUserObjectListEntry::NativeOnListItemObjectSet(ListItemObject);
 
-	URASongItemData* SongData = Cast<URASongItemData>(ListItemObject);
+	UMagicalMusicData* SongData = Cast<UMagicalMusicData>(ListItemObject);
 	if (SongData && TxtSongTitle)
 	{
 		TxtSongTitle->SetText(FText::FromString(SongData->SongTitle));
