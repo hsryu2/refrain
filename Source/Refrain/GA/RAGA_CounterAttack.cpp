@@ -62,6 +62,8 @@ void URAGA_CounterAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, co
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 	
+	ClearAttackMotionWarpTarget();
+	
 	AvatarCharacter = Attacker = nullptr;
 	bIsCounterSucceeded = false;
 }

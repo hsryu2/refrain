@@ -5,6 +5,7 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "MotionWarpingComponent.h"
 #include "Refrain.h"
 #include "RefrainGameplayTags.h"
 #include "TimerManager.h"
@@ -17,6 +18,7 @@
 #include "Character/RACharacterPlayer.h"
 #include "Component/AttackHitSweepComponent.h"
 #include "Component/NPCCombatStateComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Engine/World.h"
 #include "Timing/MagicalTimingSubsystem.h"
 #include "UI/RhythmTargetWidget.h"
@@ -77,6 +79,7 @@ void URAGA_NPCCounterableAttack::EndAbility(const FGameplayAbilitySpecHandle Han
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 	
 	ClearAttackTiming();
+	ClearAttackMotionWarpTarget();
 }
 
 void URAGA_NPCCounterableAttack::OnMontageCompleted()
@@ -137,6 +140,34 @@ bool URAGA_NPCCounterableAttack::TryApplyDamageToTargetPlayer()
 	return true;
 }
 
+void URAGA_NPCCounterableAttack::UpdateAttackMotionWarpTarget()
+{
+	const FVector Offset = FVector(100.f, 0.f, 0.f);
+	UMotionWarpingComponent* MotionWarpingComponent = NPC->FindComponentByClass<UMotionWarpingComponent>();
+	
+	// 플레이어
+	USkeletalMeshComponent* TargetMesh = TargetPlayer->GetMesh();
+	if (!TargetMesh)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("TargetMesh Not Found"));
+		return;
+	}
+	
+	// 모션워핑에 필요한 정보 설정
+	MotionWarpingComponent->AddOrUpdateWarpTargetFromComponent(
+		FName(TEXT("Player")), TargetMesh, NAME_None, false, 
+		EWarpTargetLocationOffsetDirection::VectorFromTargetToOwner, Offset);
+}
+
+void URAGA_NPCCounterableAttack::ClearAttackMotionWarpTarget()
+{
+	UMotionWarpingComponent* MotionWarpingComponent = NPC->FindComponentByClass<UMotionWarpingComponent>();
+	if (MotionWarpingComponent)
+	{
+		MotionWarpingComponent->RemoveAllWarpTargets();
+	}
+}
+
 void URAGA_NPCCounterableAttack::Attack()
 {
 	if (!IsValid(AttackMontage))
@@ -180,6 +211,8 @@ void URAGA_NPCCounterableAttack::Attack()
 
 void URAGA_NPCCounterableAttack::PlayAttackMontage()
 {
+	UpdateAttackMotionWarpTarget();
+	
 	UAbilityTask_PlayMontageAndWait* MontageTask =
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 			this,
