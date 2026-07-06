@@ -28,16 +28,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Effect)
 	TObjectPtr<UNiagaraSystem> AttackEffect;
 	
-	
 	// 소켓은
 	// HandGrip_L
 	// HandGrip_R
 	// foot_l_Socket
 	// foot_r_Socket
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Effect)
-	FName AttachSocketName = "HandGrip_R";
-	
-	// 사운드 추가 가능.
-	
-	
+	FName AttachSocketName = "NAME_None";
 };
