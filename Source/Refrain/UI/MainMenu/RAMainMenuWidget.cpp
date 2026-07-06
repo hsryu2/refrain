@@ -15,6 +15,7 @@
 
 #include "UI/MainMenu/RAMenuButtonWidget.h"
 #include "UI/Settings/RAVolumeSettingsMenuWidget.h"
+#include "UI/SongSelect/RASongSelectWidget.h"
 
 void URAMainMenuWidget::NativeConstruct()
 {
@@ -50,6 +51,11 @@ void URAMainMenuWidget::NativeConstruct()
 	if (VolumeSettingsMenu)
 	{
 		VolumeSettingsMenu->OnSettingsMenuClosed.AddUniqueDynamic(this, &URAMainMenuWidget::OnSettingsMenuClosed);
+	}
+
+	if (SongSelectMenu)
+	{
+		SongSelectMenu->OnSongSelectClosed.AddUniqueDynamic(this, &URAMainMenuWidget::OnSongSelectMenuClosed);
 	}
 
 	// 초기 위치 설정 (선택된 인덱스 기준)
@@ -98,14 +104,14 @@ void URAMainMenuWidget::UpdateHighlightPosition(int32 MenuIndex)
 
 void URAMainMenuWidget::OnNewGameClicked(int32 MenuIndex)
 {
-	if (!NewGameLevel.IsNull())
+	if (MenuSwitcher)
 	{
-	    UGameplayStatics::OpenLevel(GetWorld(), FName(*NewGameLevel.GetAssetName()));
-	}
-	else
-	{
-		// 맵을 넣지 않았다면 경고 처리
-		RA_LOG(LogRefrain, Warning, TEXT("Game Level이 지정되지 않았습니다 !"));
+		MenuSwitcher->SetActiveWidgetIndex(2); // 2: 곡 선택 메뉴
+		
+		if (SelectionHighlight)
+		{
+			SelectionHighlight->SetVisibility(ESlateVisibility::Hidden);
+		}
 	}
 }
 
@@ -123,6 +129,19 @@ void URAMainMenuWidget::OnSettingsClicked(int32 MenuIndex)
 }
 
 void URAMainMenuWidget::OnSettingsMenuClosed()
+{
+	if (MenuSwitcher)
+	{
+		MenuSwitcher->SetActiveWidgetIndex(0); // 0: 메인 메뉴 버튼들
+		
+		if (SelectionHighlight)
+		{
+			SelectionHighlight->SetVisibility(ESlateVisibility::HitTestInvisible);
+		}
+	}
+}
+
+void URAMainMenuWidget::OnSongSelectMenuClosed()
 {
 	if (MenuSwitcher)
 	{
