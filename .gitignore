@@ -3,9 +3,7 @@ __ExternalActors__/
 
 # 애셋
 Content/ThirdPersonTemplate
-Content/8WayFlyAnimation
-Content/RamsterZ_FreeAnims_Volume1
-Content/ParagonAnimationsRetargetedToManny
+Content/Vefects
 
 # AI mcp
 .ai/
