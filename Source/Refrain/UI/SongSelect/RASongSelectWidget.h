@@ -11,6 +11,9 @@ class UImage;
 class UListView;
 class URAMenuButtonWidget;
 class URASongInfoWidget;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSongSelectClosed);
+
 /**
  * @brief 곡 선택 화면을 제어하는 위젯 클래스
  * @note 블루프린트 위젯 생성 시 바인딩하여 사용합니다.
@@ -28,6 +31,9 @@ public:
 	TArray<TObjectPtr<UMagicalMusicData>> AvailableSongs;
 
 	// --- 외부 설정 (에디터 노출) --- @/
+
+	UPROPERTY(BlueprintAssignable, Category = "Song Select")
+	FOnSongSelectClosed OnSongSelectClosed;
 
 	// ----------------------------------------------------------------------------------------------------------------
 	// /@ --- 블루프린트 연동 함수 ---

@@ -82,6 +82,7 @@ void URASongSelectWidget::OnBackClicked(int32 ButtonIndex)
 {
 	// TODO: 메인 메뉴로 돌아가기 등 뒤로가기 로직 구현
 	UE_LOG(LogTemp, Log, TEXT("URASongSelectWidget::OnBackClicked"));
+	OnSongSelectClosed.Broadcast();
 }
 
 void URASongSelectWidget::OnSettingsClicked(int32 ButtonIndex)
