@@ -10,6 +10,8 @@
 #include "Timing/MagicalMusicData.h"
 #include "UI/MainMenu/RAMenuButtonWidget.h"
 #include "UI/SongSelect/RASongInfoWidget.h"
+#include "Game/RAGameSessionSubsystem.h"
+#include "Kismet/GameplayStatics.h"
 
 void URASongSelectWidget::NativeConstruct()
 {
@@ -99,8 +101,27 @@ void URASongSelectWidget::OnCategoryClicked(int32 ButtonIndex)
 
 void URASongSelectWidget::OnPlayClicked(int32 ButtonIndex)
 {
-	// TODO: 선택된 곡으로 게임 씬 전환 등 시작 로직 구현
 	UE_LOG(LogTemp, Log, TEXT("URASongSelectWidget::OnPlayClicked"));
+
+	if (CurrentSelectedSong)
+	{
+		if (UGameInstance* GameInstance = GetGameInstance())
+		{
+			if (URAGameSessionSubsystem* SessionSubsystem = GameInstance->GetSubsystem<URAGameSessionSubsystem>())
+			{
+				SessionSubsystem->SelectedSong = CurrentSelectedSong;
+			}
+		}
+
+		if (!GameplayLevel.IsNull())
+		{
+			UGameplayStatics::OpenLevelBySoftObjectPtr(this, GameplayLevel);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("GameplayLevel is null. Please set it in WBP_SongSelect."));
+		}
+	}
 }
 
 void URASongSelectWidget::OnSongSelectionChanged(UObject* Item)
@@ -111,6 +132,7 @@ void URASongSelectWidget::OnSongSelectionChanged(UObject* Item)
 		UMagicalMusicData* SelectedData = Cast<UMagicalMusicData>(Item);
 		if (SelectedData)
 		{
+			CurrentSelectedSong = SelectedData;
 			// ListView에서 선택된 데이터를 메인 UI에 업데이트
 			UpdateSongInfo(SelectedData);
 		}

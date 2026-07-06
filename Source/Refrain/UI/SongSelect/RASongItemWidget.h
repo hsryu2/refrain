@@ -20,7 +20,24 @@ class REFRAIN_API URASongItemWidget : public UUserWidget, public IUserObjectList
 
 protected:
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
+	virtual void NativeOnItemSelectionChanged(bool bIsSelected) override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
+	/** @brief 보간 속도 */
+	UPROPERTY(EditDefaultsOnly, Category = "UI|Animation")
+	float InterpSpeed = 12.0f;
+
+	/** @brief 선택 시 커질 배율 */
+	UPROPERTY(EditDefaultsOnly, Category = "UI|Animation")
+	float SelectedScale = 1.2f;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TxtSongTitle;
+
+private:
+	/** @brief 애니메이션을 위한 현재 스케일 값 */
+	float CurrentScale = 1.0f;
+	
+	/** @brief 목표 스케일 값 */
+	float TargetScale = 1.0f;
 };

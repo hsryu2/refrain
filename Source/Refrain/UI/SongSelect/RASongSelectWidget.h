@@ -30,10 +30,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Song Select")
 	TArray<TObjectPtr<UMagicalMusicData>> AvailableSongs;
 
+	/** @brief Play 버튼을 누를 때 이동할 실제 게임 레벨(맵) 지정 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level")
+	TSoftObjectPtr<UWorld> GameplayLevel;
+
 	// --- 외부 설정 (에디터 노출) --- @/
 
 	UPROPERTY(BlueprintAssignable, Category = "Song Select")
 	FOnSongSelectClosed OnSongSelectClosed;
+
+	/** @brief 현재 선택된 곡 데이터를 임시로 캐싱합니다. */
+	UPROPERTY(Transient)
+	TObjectPtr<UMagicalMusicData> CurrentSelectedSong;
 
 	// ----------------------------------------------------------------------------------------------------------------
 	// /@ --- 블루프린트 연동 함수 ---
