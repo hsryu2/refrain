@@ -85,15 +85,18 @@ void URAGA_CounterAttack::OnAttackHit(FGameplayEventData Payload)
 		return;
 	}
 	
+	FRAAttackData AttackData = AvatarCharacter->GetAnimationData()->CounterAttack;
+	Payload.EventMagnitude = AttackData.KnockbackDistance;
+	
 	if (Payload.EventTag == RefrainGameplayTags::Event_Montage_AttackHit_FirstHit)
 	{
 		ASC->CurrentMontageSetPlayRate(PlayRateUntilSecondHit);
-		// TODO: 공격 이벤트 전달
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Attacker, RefrainGameplayTags::State_HitReact, Payload);
 	}
 	else if (Payload.EventTag == RefrainGameplayTags::Event_Montage_AttackHit_SecondHit)
 	{
 		ASC->CurrentMontageSetPlayRate(PlayRateAfterSecondHit);
-		// TODO: 공격 이벤트 전달
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Attacker, RefrainGameplayTags::State_HitReact, Payload);
 	}
 }
 
@@ -118,7 +121,8 @@ void URAGA_CounterAttack::PlayAttackMontage()
 	check(RACharacter);
 	const URACharacterAnimationData* AnimationData = RACharacter->GetAnimationData();
 	check(AnimationData);
-	UAnimMontage* Montage = AnimationData->CounterAttack;
+	const FRAAttackData CounterAttackData = AnimationData->CounterAttack;
+	UAnimMontage* Montage = AnimationData->CounterAttack.Montage;
 	check(Montage);
 	
 	// 사전 작업
@@ -243,6 +247,7 @@ void URAGA_CounterAttack::UpdateAttackMotionWarpTarget()
 	}
 	else
 	{
+		// 적 정보		
 		ACharacter* TargetCharacter = Cast<ACharacter>(Attacker);
 		if (!TargetCharacter)
 		{
@@ -255,10 +260,16 @@ void URAGA_CounterAttack::UpdateAttackMotionWarpTarget()
 			RA_LOG(LogRefrain, Error, TEXT("TargetMesh Not Found"));
 			return;
 		}
-		// 모션워핑에 필요한 정보 설정 (현재 오프셋 설정 안 됨)
+		
+		// 애니메이션 정보에서 오프셋 가져오기
+		const URACharacterAnimationData* AnimationData = AvatarCharacter->GetAnimationData();
+		check(AnimationData);
+		const FVector Offset = AnimationData->CounterAttack.MotionWarpLocationOffset;
+		
+		// 모션워핑에 필요한 정보 설정
 		MotionWarpingComponent->AddOrUpdateWarpTargetFromComponent(
 			FName(TEXT("Enemy")), TargetMesh, NAME_None, true, 
-			EWarpTargetLocationOffsetDirection::VectorFromTargetToOwner);
+			EWarpTargetLocationOffsetDirection::VectorFromTargetToOwner, Offset);
 	}
 }
 
@@ -273,4 +284,5 @@ void URAGA_CounterAttack::ClearAttackMotionWarpTarget()
 
 void URAGA_CounterAttack::QueueHitSound()
 {
+	// TODO
 }
