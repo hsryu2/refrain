@@ -12,6 +12,8 @@ class URASongItemData;
 
 /**
  * @brief UListView의 각 항목(Row)에 표시될 위젯
+ * @date 2026-07-01
+ * @author Sejong
  */
 UCLASS()
 class REFRAIN_API URASongItemWidget : public UUserWidget, public IUserObjectListEntry
@@ -19,18 +21,20 @@ class REFRAIN_API URASongItemWidget : public UUserWidget, public IUserObjectList
 	GENERATED_BODY()
 
 protected:
+	// --- override ---
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
 	virtual void NativeOnItemSelectionChanged(bool bIsSelected) override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 	/** @brief 보간 속도 */
-	UPROPERTY(EditDefaultsOnly, Category = "UI|Animation")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI|Animation")
 	float InterpSpeed = 12.0f;
 
 	/** @brief 선택 시 커질 배율 */
-	UPROPERTY(EditDefaultsOnly, Category = "UI|Animation")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI|Animation")
 	float SelectedScale = 1.2f;
 
+	/** @brief 노래 제목 */
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TxtSongTitle;
 

@@ -17,6 +17,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSongSelectClosed);
 /**
  * @brief 곡 선택 화면을 제어하는 위젯 클래스
  * @note 블루프린트 위젯 생성 시 바인딩하여 사용합니다.
+ * @date 2026-07-01
+ * @author Sejong
  */
 UCLASS()
 class REFRAIN_API URASongSelectWidget : public UUserWidget
@@ -24,8 +26,10 @@ class REFRAIN_API URASongSelectWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	// ----------------------------------------------------------------------------------------------------------------
 	// /@ --- 외부 설정 (에디터 노출) ---
-	
+	// ----------------------------------------------------------------------------------------------------------------
+
 	/** @brief 에디터에서 할당할 곡 데이터 목록 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Song Select")
 	TArray<TObjectPtr<UMagicalMusicData>> AvailableSongs;
@@ -34,7 +38,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level")
 	TSoftObjectPtr<UWorld> GameplayLevel;
 
+	// ----------------------------------------------------------------------------------------------------------------
 	// --- 외부 설정 (에디터 노출) --- @/
+	// ----------------------------------------------------------------------------------------------------------------
 
 	UPROPERTY(BlueprintAssignable, Category = "Song Select")
 	FOnSongSelectClosed OnSongSelectClosed;
@@ -68,21 +74,30 @@ protected:
 	// /@ --- UI 바인딩 ---
 	// ----------------------------------------------------------------------------------------------------------------
 
+	/** @brief 뒤로가기 버튼 */
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<URAMenuButtonWidget> BtnBack;
 	
+	/** @brief 설정 버튼 */
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<URAMenuButtonWidget> BtnSettings;
 	
+	/** 
+	 * @brief 카테고리 버튼 
+	 * @note 디테일하게 하고 싶다면 추가 작성하세요.
+	 */
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<URAMenuButtonWidget> BtnCategory;
 	
+	/** @brief 실행하기 버튼 */
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<URAMenuButtonWidget> BtnPlay;
 	
+	/** @brief 곡 정보를 띄워주는 패널 */
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<URASongInfoWidget> SongInfoPanel;
 	
+	/** @brief 노래 리스트 */
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UListView> SongListView;
 	
@@ -94,18 +109,38 @@ protected:
 	// /@ --- 버튼 이벤트 ---
 	// ----------------------------------------------------------------------------------------------------------------
 
+	/**
+	 * @brief 뒤로가기 버튼 클릭 이벤트
+	 * @param ButtonIndex 버튼 인덱스
+	 */
 	UFUNCTION()
 	void OnBackClicked(int32 ButtonIndex);
 	
+	/**
+	 * @brief 설정 버튼 클릭 이벤트
+	 * @param ButtonIndex 버튼 인덱스
+	 */
 	UFUNCTION()
 	void OnSettingsClicked(int32 ButtonIndex);
 	
+	/**
+	 * @brief 카테코리 클릭 이벤트
+	 * @param ButtonIndex 버튼 인덱스
+	 */
 	UFUNCTION()
 	void OnCategoryClicked(int32 ButtonIndex);
 	
+	/**
+	 * @brief 시작하기 버튼 클릭 이벤트
+	 * @param ButtonIndex 버튼 인덱스
+	 */
 	UFUNCTION()
 	void OnPlayClicked(int32 ButtonIndex);
 	
+	/**
+	 * @brief 노래 선택 이벤트
+	 * @param ButtonIndex 버튼 인덱스
+	 */
 	UFUNCTION()
 	void OnSongSelectionChanged(UObject* Item);
 	

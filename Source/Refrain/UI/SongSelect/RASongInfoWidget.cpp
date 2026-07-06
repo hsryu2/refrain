@@ -8,6 +8,7 @@
 
 void URASongInfoWidget::UpdateSongInfo(UMagicalMusicData* InSongData)
 {
+	// 방어 코드
 	if (!InSongData) return;
 
 	if (TxtSongTitle)
@@ -20,6 +21,7 @@ void URASongInfoWidget::UpdateSongInfo(UMagicalMusicData* InSongData)
 		TxtArtist->SetText(FText::FromString(InSongData->Artist));
 	}
 
+	// BPM 정보를 위한 데이터 가공
 	if (TxtBPM)
 	{
 		FString BPMStr = FString::Printf(TEXT("BPM: %.0f"), InSongData->BPM);
