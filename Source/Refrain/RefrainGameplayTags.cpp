@@ -24,6 +24,7 @@ namespace RefrainGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Dead, "State.Dead", "사망 상태");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Dodging, "State.Dodge", "회피 중");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Attacking, "State.Attacking", "공격 중");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Invincible, "State.Invincible", "무적 상태");
 	
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayCue_Dissolve, "GameplayCue.Dissolve", "소멸 이펙트");
 	
