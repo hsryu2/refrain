@@ -11,6 +11,7 @@ URAGA_Dodge::URAGA_Dodge()
 	SetAssetTags(Tags);
 	
 	ActivationOwnedTags.AddTag(RefrainGameplayTags::State_Dodging);
+	ActivationOwnedTags.AddTag(RefrainGameplayTags::State_Invincible);
 	
 	CancelAbilitiesWithTag.AddTag(RefrainGameplayTags::Ability_Attack);
 	BlockAbilitiesWithTag.AddTag(RefrainGameplayTags::Ability_Attack);
