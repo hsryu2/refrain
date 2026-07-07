@@ -13,7 +13,8 @@ enum class ERAHitJudgement : uint8
 	Perfect UMETA(DisplayName = "Perfect"),
 	Good UMETA(DisplayName = "Good"),
 	Bad UMETA(DisplayName = "Bad"),
-	Miss UMETA(DisplayName = "Miss")
+	Miss UMETA(DisplayName = "Miss"),
+	None UMETA(Hidden)
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(
