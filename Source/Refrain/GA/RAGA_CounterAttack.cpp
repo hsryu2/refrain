@@ -34,8 +34,6 @@ URAGA_CounterAttack::URAGA_CounterAttack()
 
 void URAGA_CounterAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
-	RA_LOG(LogRefrain, Log, TEXT("Activate Ability"));
-	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
 	// 변수 초기화

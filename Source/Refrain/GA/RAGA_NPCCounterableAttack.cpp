@@ -36,8 +36,6 @@ URAGA_NPCCounterableAttack::URAGA_NPCCounterableAttack()
 
 void URAGA_NPCCounterableAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
-	RA_LOG(LogRefrain, Log, TEXT(""));
-	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
 	// 변수 저장
@@ -78,8 +76,6 @@ void URAGA_NPCCounterableAttack::ActivateAbility(const FGameplayAbilitySpecHandl
 
 void URAGA_NPCCounterableAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	RA_LOG(LogRefrain, Log, TEXT(""));
-	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 	
 	ClearAttackTiming();
@@ -88,19 +84,16 @@ void URAGA_NPCCounterableAttack::EndAbility(const FGameplayAbilitySpecHandle Han
 
 void URAGA_NPCCounterableAttack::OnMontageCompleted()
 {
-	RA_LOG(LogRefrain, Log, TEXT(""));
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
 void URAGA_NPCCounterableAttack::OnMontageInterrupted()
 {
-	RA_LOG(LogRefrain, Log, TEXT(""));
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }
 
 void URAGA_NPCCounterableAttack::OnMontageCancelled()
 {
-	RA_LOG(LogRefrain, Log, TEXT(""));
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }
 
