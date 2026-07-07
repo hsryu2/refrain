@@ -49,6 +49,24 @@ public:
 	UPROPERTY(Transient)
 	TObjectPtr<UMagicalMusicData> CurrentSelectedSong;
 
+	/** @brief 현재 재생 중인 미리듣기 오디오 컴포넌트 */
+	UPROPERTY(Transient)
+	TObjectPtr<class UAudioComponent> PreviewAudioComponent;
+
+	/** @brief 미리듣기 페이드 아웃을 위한 타이머 핸들 */
+	FTimerHandle PreviewTimerHandle;
+
+	/** @brief 미리듣기 재시작을 위한 타이머 핸들 */
+	FTimerHandle PreviewRestartTimerHandle;
+
+	/** @brief 미리듣기 오디오를 재생하고 페이드 인 하는 함수 */
+	UFUNCTION()
+	void StartPreviewAudio();
+
+	/** @brief 미리듣기 시간이 끝나면 호출되어 오디오를 부드럽게 끕니다. */
+	UFUNCTION()
+	void OnPreviewFinished();
+
 	// ----------------------------------------------------------------------------------------------------------------
 	// /@ --- 블루프린트 연동 함수 ---
 	// ----------------------------------------------------------------------------------------------------------------
@@ -59,6 +77,10 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Song Select")
 	void UpdateSongInfo(class UMagicalMusicData* InSongData);
+
+	/** @brief 메인 메뉴에서 이 화면으로 전환될 때 호출하여 소리 재생 등을 허용합니다. */
+	UFUNCTION(BlueprintCallable, Category = "Song Select")
+	void ActivateSongSelect();
 	
 	// ----------------------------------------------------------------------------------------------------------------
 	// --- 블루프린트 연동 함수 --- @/
@@ -69,6 +91,9 @@ protected:
 
 	/** @brief 리스트 뷰를 AvailableSongs 배열 기반으로 초기화합니다. */
 	void InitSongList();
+
+	/** @brief 현재 위젯이 화면에 활성화되어 오디오 재생이 허용되는지 여부 */
+	bool bIsPreviewAllowed = false;
 
 	// ----------------------------------------------------------------------------------------------------------------
 	// /@ --- UI 바인딩 ---
