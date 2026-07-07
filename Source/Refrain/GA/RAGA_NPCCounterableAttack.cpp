@@ -92,6 +92,11 @@ void URAGA_NPCCounterableAttack::OnMontageInterrupted()
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }
 
+void URAGA_NPCCounterableAttack::OnMontageCancelled()
+{
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+}
+
 void URAGA_NPCCounterableAttack::OnAttackHit(FGameplayEventData Payload)
 {
 	TryApplyDamageToTargetPlayer();
@@ -182,6 +187,7 @@ void URAGA_NPCCounterableAttack::Attack()
 	// WaitTime이 있을 경우 타이머 설정해서 몽타주 재생
 	if (MontageWaitTime > 0.f)
 	{
+		RA_LOG(LogRefrain, Log, TEXT("WaitTime: %.2f"), MontageWaitTime);
 		GetWorld()->GetTimerManager().SetTimer(MontageWaitTimerHandle, this, &URAGA_NPCCounterableAttack::PlayAttackMontage, MontageWaitTime, false);
 	}
 	else
@@ -225,6 +231,7 @@ void URAGA_NPCCounterableAttack::PlayAttackMontage()
 			MontageStartTime);
 	MontageTask->OnCompleted.AddDynamic(this, &URAGA_NPCCounterableAttack::OnMontageCompleted);
 	MontageTask->OnInterrupted.AddDynamic(this, &URAGA_NPCCounterableAttack::OnMontageInterrupted);
+	MontageTask->OnCancelled.AddDynamic(this, &URAGA_NPCCounterableAttack::OnMontageCancelled);
 	MontageTask->ReadyForActivation();
 }
 
