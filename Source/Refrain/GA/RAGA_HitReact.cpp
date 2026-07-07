@@ -13,12 +13,12 @@
 URAGA_HitReact::URAGA_HitReact()
 {
 	// 피격 모션이 재생될 때 공격하는 모션 차단
-	CancelAbilitiesWithTag.AddTag(RefrainGameplayTags::State_Attacking_Main);
+	CancelAbilitiesWithTag.AddTag(RefrainGameplayTags::State_Attacking);
 	
 	ActivationOwnedTags.AddTag(RefrainGameplayTags::State_HitReact);
 	
-	// HitReact 중복 발동 방지
-	ActivationBlockedTags.AddTag(RefrainGameplayTags::State_HitReact);
+	/*// HitReact 중복 발동 방지
+	ActivationBlockedTags.AddTag(RefrainGameplayTags::State_HitReact);*/
 }
 
 void URAGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,

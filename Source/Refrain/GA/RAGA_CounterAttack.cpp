@@ -277,10 +277,13 @@ void URAGA_CounterAttack::UpdateAttackMotionWarpTarget()
 
 void URAGA_CounterAttack::ClearAttackMotionWarpTarget()
 {
-	UMotionWarpingComponent* MotionWarpingComponent = AvatarCharacter->FindComponentByClass<UMotionWarpingComponent>();
-	if (MotionWarpingComponent)
+	if (AvatarCharacter)
 	{
-		MotionWarpingComponent->RemoveAllWarpTargets();
+		UMotionWarpingComponent* MotionWarpingComponent = AvatarCharacter->FindComponentByClass<UMotionWarpingComponent>();
+		if (MotionWarpingComponent)
+		{
+			MotionWarpingComponent->RemoveAllWarpTargets();
+		}
 	}
 }
 

@@ -34,6 +34,8 @@ protected:
 	UFUNCTION()
 	void OnMontageInterrupted();
 	UFUNCTION()
+	void OnMontageCancelled();
+	UFUNCTION()
 	void OnAttackHit(FGameplayEventData Payload);
 
 // 내부 로직
