@@ -134,9 +134,16 @@ bool UMagicalTimingSubsystem::StartMusic()
 		return false;
 	}
 
-	// UAudioComponent 생성 및 포인터 저장
-	MusicAudioComponent = UGameplayStatics::CreateSound2D(
-		GetWorld(), MusicSound, MusicVolume, 1.f, 0.f, nullptr, false, false);
+	// UAudioComponent 생성 및 포인터 저장 (bAutoActivate 방지)
+	MusicAudioComponent = NewObject<UAudioComponent>(GetWorld());
+	MusicAudioComponent->SetSound(MusicSound);
+	MusicAudioComponent->SetVolumeMultiplier(MusicVolume);
+	MusicAudioComponent->bAutoDestroy = false;
+	MusicAudioComponent->bIsUISound = true;
+	MusicAudioComponent->bAllowSpatialization = false;
+	MusicAudioComponent->bAutoActivate = false;
+	MusicAudioComponent->RegisterComponentWithWorld(GetWorld());
+	
 	if (!IsValid(MusicAudioComponent))
 	{
 		RA_LOG(LogRefrain, Error, TEXT("Failed to create audio component"));
@@ -163,6 +170,7 @@ bool UMagicalTimingSubsystem::StopMusic()
 {
 	if (IsValid(MusicAudioComponent))
 	{
+		MusicAudioComponent->OnAudioFinished.RemoveDynamic(this, &UMagicalTimingSubsystem::HandleMusicFinished);
 		MusicAudioComponent->Stop();
 		MusicAudioComponent->DestroyComponent();
 		MusicAudioComponent = nullptr;

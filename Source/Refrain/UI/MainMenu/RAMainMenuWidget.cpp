@@ -112,6 +112,11 @@ void URAMainMenuWidget::OnNewGameClicked(int32 MenuIndex)
 		{
 			SelectionHighlight->SetVisibility(ESlateVisibility::Hidden);
 		}
+		
+		if (SongSelectMenu)
+		{
+			SongSelectMenu->ActivateSongSelect();
+		}
 	}
 }
 

@@ -47,4 +47,12 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music|Data")
 	float StartOffset = 0.0f;
+
+	/** @brief 리스트 뷰에서 선택 시 미리듣기 오디오가 시작될 시간 (초 단위) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music|Data")
+	float PreviewStartTime = 0.0f;
+
+	/** @brief 미리듣기가 재생될 길이 (초 단위). 0보다 크면 지정된 시간 후 페이드 아웃됩니다. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music|Data")
+	float PreviewDuration = 15.0f;
 };
