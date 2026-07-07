@@ -24,11 +24,4 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = SaveData)
 	TMap<FName, int32> SongHighScores;
 	
-	// 해당 노래의 최고 점수 업데이트
-	UFUNCTION()
-	void UpdateAndSaveSongHighScore(FName SongID, int32 CurrentScore);
-	
-	// 해당 노래의 최고 점수 가져오기.
-	UFUNCTION()
-	int32 GetSongHighScore(FName SongID);
 };
