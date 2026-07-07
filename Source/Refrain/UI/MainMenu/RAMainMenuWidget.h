@@ -18,6 +18,7 @@ enum class EMainMenuSwitch : uint8
 
 class URAMenuButtonWidget;
 class URAVolumeSettingsMenuWidget;
+class URASongSelectWidget;
 
 /**
  * @brief 프로젝트의 메인 메뉴와 설정 화면을 제어하는 위젯 클래스\n
@@ -129,6 +130,10 @@ protected:
 	/** @brief 스위처 안에 포함된 설정 메뉴 위젯 */
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<URAVolumeSettingsMenuWidget> VolumeSettingsMenu;
+
+	/** @brief 곡 선택 위젯 참조 */
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<URASongSelectWidget> SongSelectMenu;
 	
 	// ----------------------------------------------------------------------------------------------------------------
 	// --- UI 바인딩 --- @/
@@ -155,6 +160,9 @@ protected:
 	/**	@brief 설정 메뉴가 닫힐 때 발생하는 이벤트 */
 	UFUNCTION()
 	void OnSettingsMenuClosed();
+
+	UFUNCTION()
+	void OnSongSelectMenuClosed();
 	
 	/** 
 	 * @brief 게임 종료 버튼 클릭 이벤트

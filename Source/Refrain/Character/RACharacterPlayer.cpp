@@ -42,7 +42,7 @@ ARACharacterPlayer::ARACharacterPlayer()
 	// Camera
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(RootComponent);
-	SpringArm->TargetArmLength = 400.0f;
+	SpringArm->TargetArmLength = 500.0f;
 	SpringArm->bUsePawnControlRotation = true;
 	
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
