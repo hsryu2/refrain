@@ -36,6 +36,8 @@ URAGA_NPCCounterableAttack::URAGA_NPCCounterableAttack()
 
 void URAGA_NPCCounterableAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
+	RA_LOG(LogRefrain, Log, TEXT(""));
+	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
 	// 변수 저장
@@ -76,6 +78,8 @@ void URAGA_NPCCounterableAttack::ActivateAbility(const FGameplayAbilitySpecHandl
 
 void URAGA_NPCCounterableAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
+	RA_LOG(LogRefrain, Log, TEXT(""));
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 	
 	ClearAttackTiming();
@@ -84,11 +88,19 @@ void URAGA_NPCCounterableAttack::EndAbility(const FGameplayAbilitySpecHandle Han
 
 void URAGA_NPCCounterableAttack::OnMontageCompleted()
 {
+	RA_LOG(LogRefrain, Log, TEXT(""));
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
 void URAGA_NPCCounterableAttack::OnMontageInterrupted()
 {
+	RA_LOG(LogRefrain, Log, TEXT(""));
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+}
+
+void URAGA_NPCCounterableAttack::OnMontageCancelled()
+{
+	RA_LOG(LogRefrain, Log, TEXT(""));
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }
 
@@ -182,6 +194,7 @@ void URAGA_NPCCounterableAttack::Attack()
 	// WaitTime이 있을 경우 타이머 설정해서 몽타주 재생
 	if (MontageWaitTime > 0.f)
 	{
+		RA_LOG(LogRefrain, Log, TEXT("WaitTime: %.2f"), MontageWaitTime);
 		GetWorld()->GetTimerManager().SetTimer(MontageWaitTimerHandle, this, &URAGA_NPCCounterableAttack::PlayAttackMontage, MontageWaitTime, false);
 	}
 	else
@@ -225,6 +238,7 @@ void URAGA_NPCCounterableAttack::PlayAttackMontage()
 			MontageStartTime);
 	MontageTask->OnCompleted.AddDynamic(this, &URAGA_NPCCounterableAttack::OnMontageCompleted);
 	MontageTask->OnInterrupted.AddDynamic(this, &URAGA_NPCCounterableAttack::OnMontageInterrupted);
+	MontageTask->OnCancelled.AddDynamic(this, &URAGA_NPCCounterableAttack::OnMontageCancelled);
 	MontageTask->ReadyForActivation();
 }
 
