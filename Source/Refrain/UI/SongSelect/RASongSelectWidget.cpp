@@ -12,6 +12,8 @@
 #include "UI/SongSelect/RASongInfoWidget.h"
 #include "Game/RAGameSessionSubsystem.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/AudioComponent.h"
+#include "TimerManager.h"
 
 void URASongSelectWidget::NativeConstruct()
 {
@@ -80,10 +82,34 @@ void URASongSelectWidget::UpdateSongInfo(UMagicalMusicData* InSongData)
 	}
 }
 
+void URASongSelectWidget::ActivateSongSelect()
+{
+	bIsPreviewAllowed = true;
+	
+	// 현재 리스트 뷰에서 선택된 곡이 있다면 즉시 재생
+	if (SongListView)
+	{
+		UObject* SelectedItem = SongListView->GetSelectedItem();
+		if (SelectedItem)
+		{
+			OnSongSelectionChanged(SelectedItem);
+		}
+	}
+}
+
 void URASongSelectWidget::OnBackClicked(int32 ButtonIndex)
 {
-	// TODO: 메인 메뉴로 돌아가기 등 뒤로가기 로직 구현
 	UE_LOG(LogTemp, Log, TEXT("URASongSelectWidget::OnBackClicked"));
+	
+	bIsPreviewAllowed = false;
+	GetWorld()->GetTimerManager().ClearTimer(PreviewTimerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(PreviewRestartTimerHandle);
+
+	if (PreviewAudioComponent)
+	{
+		PreviewAudioComponent->Stop();
+	}
+
 	OnSongSelectClosed.Broadcast();
 }
 
@@ -102,6 +128,15 @@ void URASongSelectWidget::OnCategoryClicked(int32 ButtonIndex)
 void URASongSelectWidget::OnPlayClicked(int32 ButtonIndex)
 {
 	UE_LOG(LogTemp, Log, TEXT("URASongSelectWidget::OnPlayClicked"));
+
+	bIsPreviewAllowed = false;
+	GetWorld()->GetTimerManager().ClearTimer(PreviewTimerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(PreviewRestartTimerHandle);
+
+	if (PreviewAudioComponent)
+	{
+		PreviewAudioComponent->Stop();
+	}
 
 	if (CurrentSelectedSong)
 	{
@@ -126,15 +161,69 @@ void URASongSelectWidget::OnPlayClicked(int32 ButtonIndex)
 
 void URASongSelectWidget::OnSongSelectionChanged(UObject* Item)
 {
+	GetWorld()->GetTimerManager().ClearTimer(PreviewTimerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(PreviewRestartTimerHandle);
+	if (PreviewAudioComponent)
+	{
+		PreviewAudioComponent->Stop();
+	}
+
 	// Item이 nullptr인 경우(선택 해제)도 발생할 수 있으므로 체크합니다.
 	if (Item)
 	{
-		UMagicalMusicData* SelectedData = Cast<UMagicalMusicData>(Item);
-		if (SelectedData)
+		if (UMagicalMusicData* SelectedData = Cast<UMagicalMusicData>(Item))
 		{
 			CurrentSelectedSong = SelectedData;
-			// ListView에서 선택된 데이터를 메인 UI에 업데이트
+
+			// UI 업데이트
 			UpdateSongInfo(SelectedData);
+
+			// 오디오 미리듣기 재생
+			if (bIsPreviewAllowed)
+			{
+				StartPreviewAudio();
+			}
 		}
 	}
+}
+
+void URASongSelectWidget::StartPreviewAudio()
+{
+	if (!bIsPreviewAllowed || !CurrentSelectedSong) return;
+
+	if (CurrentSelectedSong->MusicSound.IsValid() || CurrentSelectedSong->MusicSound.LoadSynchronous())
+	{
+		PreviewAudioComponent = NewObject<UAudioComponent>(GetWorld());
+		PreviewAudioComponent->SetSound(CurrentSelectedSong->MusicSound.Get());
+		PreviewAudioComponent->bAutoDestroy = true;
+		PreviewAudioComponent->bIsUISound = true;
+		PreviewAudioComponent->bAllowSpatialization = false;
+		PreviewAudioComponent->bAutoActivate = false; // 생성되자마자 자동 재생되지 않게 함 (Pop 방지)
+		PreviewAudioComponent->SetVolumeMultiplier(1.0f); // 기본 볼륨은 1.0이어야 함!
+		PreviewAudioComponent->RegisterComponentWithWorld(GetWorld());
+		
+		if (PreviewAudioComponent)
+		{
+			// FadeIn 함수가 내부적으로 Play()를 호출하며 0에서 1.0으로 서서히 볼륨을 올림
+			PreviewAudioComponent->FadeIn(0.5f, 1.0f, CurrentSelectedSong->PreviewStartTime);
+		}
+		
+		// 지정된 하이라이트 길이만큼만 재생 후 페이드 아웃 예약
+		if (CurrentSelectedSong->PreviewDuration > 0.0f)
+		{
+			GetWorld()->GetTimerManager().SetTimer(PreviewTimerHandle, this, &URASongSelectWidget::OnPreviewFinished, CurrentSelectedSong->PreviewDuration, false);
+		}
+	}
+}
+
+void URASongSelectWidget::OnPreviewFinished()
+{
+	if (PreviewAudioComponent)
+	{
+		// 1.5초에 걸쳐 볼륨을 서서히 줄여서 끕니다.
+		PreviewAudioComponent->FadeOut(1.5f, 0.0f);
+	}
+
+	// 페이드 아웃 진행 시간(1.5초) + 잠시 대기(0.5초) = 2.0초 뒤에 다시 미리듣기를 처음부터 루프 재생
+	GetWorld()->GetTimerManager().SetTimer(PreviewRestartTimerHandle, this, &URASongSelectWidget::StartPreviewAudio, 2.0f, false);
 }
