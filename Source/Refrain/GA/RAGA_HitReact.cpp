@@ -61,10 +61,6 @@ void URAGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 				BlackboardComp->SetValueAsBool(FName("IsHit"), true);
 				
 				const bool bCurrentIsHit = BlackboardComp->GetValueAsBool(FName("IsHit"));
-				UE_LOG(LogTemp, Warning, TEXT("Blackboard IsHit after set: %s / Pawn: %s / Controller: %s"),
-				bCurrentIsHit ? TEXT("true") : TEXT("false"),
-				*GetNameSafe(AvatarPawn),
-				*GetNameSafe(AIController));
 			}
 		}
 	}
@@ -102,12 +98,7 @@ void URAGA_HitReact::EndAbility(const FGameplayAbilitySpecHandle Handle, const F
 				{
 					BlackboardComp->SetValueAsBool(FName("IsHit"), false);
 				}
-
-				const bool bCurrentIsHit = BlackboardComp->GetValueAsBool(FName("IsHit"));
-				UE_LOG(LogTemp, Warning, TEXT("Blackboard IsHit after set: %s / Pawn: %s / Controller: %s"),
-				bCurrentIsHit ? TEXT("true") : TEXT("false"),
-				*GetNameSafe(AvatarPawn),
-				*GetNameSafe(AIController));
+				
 			}
 		}
 	}

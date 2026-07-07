@@ -80,10 +80,5 @@ void URAAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 		{
 			PlayerState->ResetHits();
 		}
-		
-		UE_LOG(LogTemp, Warning, TEXT("Damage Applied: %.1f, HP: %.1f / %.1f"),
-		IncomingDamage,
-		GetHealth(),
-		GetMaxHealth());
 	}
 }
