@@ -86,6 +86,7 @@ float ARAPlayerState::GetHitsMultiplier() const
 void ARAPlayerState::ResetHits()
 {
 	CurrentHits = 0;
+	OnScoreUpdated.Broadcast(ERAHitJudgement::None, 0, TotalScore, CurrentHits);
 }
 
 class UAbilitySystemComponent* ARAPlayerState::GetAbilitySystemComponent() const
