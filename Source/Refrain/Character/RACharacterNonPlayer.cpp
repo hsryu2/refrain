@@ -128,8 +128,7 @@ void ARACharacterNonPlayer::Die()
 	{
 		if (UNPCCombatStateComponent* CombatManager = Player->FindComponentByClass<UNPCCombatStateComponent>())
 		{
-			// 명단에서 지워달라고 요청합니다. (이 안에서 토큰도 알아서 회수됨!)
-			UE_LOG(LogTemp, Warning, TEXT("토근 떨굼"));
+			// 명단에서 지워달라고 요청합니다.
 			CombatManager->UnRegisterNPC(this);
 		}
 	}
@@ -222,15 +221,6 @@ void ARACharacterNonPlayer::OnHealthChanged(const FOnAttributeChangeData& Data)
 	if (Data.NewValue < Data.OldValue)
 	{
 		const float DamageAmount = Data.OldValue - Data.NewValue;
-		UE_LOG(LogTemp, Warning, TEXT("[ARACharacterNonPlayer] 피격 당함! 데미지: %f, 남은 체력: %f"), DamageAmount, Data.NewValue);
-		
-		//if (const URACharacterAnimationData* AnimData = GetAnimationData())
-		//{
-		//	if (UAnimMontage* HitMontage = AnimData->HitReactMontage)
-		//	{
-		//		PlayAnimMontage(HitMontage);
-		//	}																			
-		//}
 		
 		if (Data.NewValue <= 0.0f)
 		{

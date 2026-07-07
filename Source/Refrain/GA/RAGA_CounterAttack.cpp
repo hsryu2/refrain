@@ -60,6 +60,8 @@ void URAGA_CounterAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, co
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 	
+	GetAbilitySystemComponentFromActorInfo()->RemoveLooseGameplayTag(RefrainGameplayTags::State_Invincible);
+	
 	ClearAttackMotionWarpTarget();
 	
 	AvatarCharacter = Attacker = nullptr;
@@ -105,6 +107,7 @@ void URAGA_CounterAttack::Attack()
 	// 카운터 성공
 	if (bIsCounterSucceeded && Attacker)
 	{
+		GetAbilitySystemComponentFromActorInfo()->AddLooseGameplayTag(RefrainGameplayTags::State_Invincible);
 		PlayAttackMontage();
 	}
 	else

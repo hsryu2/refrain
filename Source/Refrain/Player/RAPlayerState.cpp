@@ -13,10 +13,6 @@
 ARAPlayerState::ARAPlayerState()
 {
 	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
-	// 멀티 전용으로 보임.
-	//ASC->SetIsReplicated(true);
-	//ASC->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
-	
 	AttributeSet = CreateDefaultSubobject<URAAttributeSet>(TEXT("AttributeSet"));
 }
 
@@ -67,8 +63,6 @@ void ARAPlayerState::RegisterJudgement(ERAHitJudgement Judgement)
 	MaxHits = FMath::Max(MaxHits, CurrentHits);
 	const int32 AddedScore = FMath::RoundToInt(static_cast<float>(BaseScore) * GetHitsMultiplier());
 	TotalScore += AddedScore;
-	UE_LOG(LogTemp, Log, TEXT("TotalScore : %d, CurrentCombo : %d"), TotalScore, CurrentHits);
-	UE_LOG(LogTemp, Log, TEXT("Perfect : %d, Good : %d , Bad : %d, MaxHits : %d" ), PerfectCount, GoodCount, BadCount, MaxHits);
 	OnScoreUpdated.Broadcast(Judgement, AddedScore, TotalScore, CurrentHits);
 }
 

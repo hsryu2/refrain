@@ -48,8 +48,17 @@ void URAAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, f
 
 void URAAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
+	// 대미지 처리
 	if (Data.EvaluatedData.Attribute == GetDamageAttribute())
 	{
+		// 무적 상태 체크
+		UAbilitySystemComponent* TargetASC = GetOwningAbilitySystemComponent();
+		if (TargetASC && TargetASC->HasMatchingGameplayTag(RefrainGameplayTags::State_Invincible))
+		{
+			SetDamage(0.0f);
+			return;
+		}
+		
 		const float IncomingDamage = GetDamage();
 		SetDamage(0.0f);
 		
@@ -68,8 +77,6 @@ void URAAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 		else
 		{
 			// 피격 모션
-			UAbilitySystemComponent* TargetASC = GetOwningAbilitySystemComponent();
-			
 			FGameplayEventData EventData;
 			EventData.EventMagnitude = IncomingDamage;
 			
@@ -80,10 +87,5 @@ void URAAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 		{
 			PlayerState->ResetHits();
 		}
-		
-		UE_LOG(LogTemp, Warning, TEXT("Damage Applied: %.1f, HP: %.1f / %.1f"),
-		IncomingDamage,
-		GetHealth(),
-		GetMaxHealth());
 	}
 }

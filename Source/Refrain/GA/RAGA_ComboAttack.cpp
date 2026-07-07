@@ -208,9 +208,6 @@ void URAGA_ComboAttack::OnAttackHit(FGameplayEventData Payload)
 	float KnockbackDis = AnimationData->ComboAttacks[ComboIndex].KnockbackDistance;
 	
 	// 넉백 관련 이벤트 페이로드
-	//FGameplayEventData Payload;
-	//Payload.Instigator = AvatarCharacter;
-	//Payload.Target = TargetActor;
 	Payload.EventMagnitude = KnockbackDis;
 	
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(TargetActor, RefrainGameplayTags::State_HitReact, Payload);
@@ -370,10 +367,11 @@ void URAGA_ComboAttack::UpdateAttackMotionWarpTarget()
 		
 		// 거리에 따라 기존 오프셋 사용 혹은 현재 거리만 적용.
 		float CurrentDistance = FVector::Dist2D(TargetActor->GetActorLocation(), AvatarCharacter->GetActorLocation());
-		if (Offset.X > CurrentDistance)
+		if (Offset.X >= CurrentDistance)
 		{
-			Offset.X = CurrentDistance;
+			Offset.X = 0.0f;
 		}
+		
 		
 		// 모션워핑에 필요한 정보 설정
 		MotionWarpingComponent->AddOrUpdateWarpTargetFromComponent(
