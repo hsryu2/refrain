@@ -42,7 +42,7 @@ protected:
 	TObjectPtr<UTextBlock> TxtBPM;
 
 	/** @brief 곡을 대표하는 시각적 이미지 */
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, Category = "Song Info", meta = (BindWidget))
 	TObjectPtr<UImage> ImgSongJacket;
 	
 	/** @brief 최고 점수(이전 기록) 표시 */
