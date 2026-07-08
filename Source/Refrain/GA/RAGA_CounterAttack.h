@@ -6,6 +6,7 @@
 #include "Abilities/GameplayAbility.h"
 #include "Character/RACharacterNonPlayer.h"
 #include "Component/NPCCombatStateComponent.h"
+#include "Player/RAPlayerState.h"
 #include "RAGA_CounterAttack.generated.h"
 
 struct FRAHitSoundData;
@@ -78,4 +79,8 @@ protected:
 	float PlayRateUntilFirstHit = 1.f;
 	float PlayRateUntilSecondHit = 1.f;
 	float PlayRateAfterSecondHit = 1.f;
+	
+protected:
+	// PlayState에 점수 계산을 위해 판정 전달.
+	void SendJudgementToPlayerState(ERAHitJudgement Judgement);
 };

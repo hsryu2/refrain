@@ -40,7 +40,7 @@ void ARAPlayerState::RegisterJudgement(ERAHitJudgement Judgement)
 	switch (Judgement)
 	{
 		case ERAHitJudgement::Perfect:
-			BaseScore = 100;
+			BaseScore = 120;
 			CurrentHits++;
 			PerfectCount++;
 			break;
@@ -70,11 +70,11 @@ float ARAPlayerState::GetHitsMultiplier() const
 {
 	if (CurrentHits >= 50)
 	{
-		return 1.5f;
+		return 1.7f;
 	}
 	if (CurrentHits >= 30)
 	{
-		return 1.2f;
+		return 1.3f;
 	}
 	if (CurrentHits >= 10)
 	{

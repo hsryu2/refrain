@@ -2,6 +2,8 @@
 
 #include "RAResultRowWidget.h"
 #include "Components/TextBlock.h"
+#include "Components/SizeBox.h"
+#include "Components/Spacer.h"
 
 void URAResultRowWidget::NativePreConstruct()
 {
@@ -21,6 +23,26 @@ void URAResultRowWidget::NativePreConstruct()
 		FSlateFontInfo FontInfo = ValueText->GetFont();
 		FontInfo.Size = FontSize;
 		ValueText->SetFont(FontInfo);
+	}
+
+	if (LabelSizeBox)
+	{
+		if (LabelWidth >= 0.0f)
+		{
+			LabelSizeBox->SetWidthOverride(LabelWidth);
+		}
+		else
+		{
+			LabelSizeBox->ClearWidthOverride();
+		}
+	}
+
+	if (RowSpacer)
+	{
+		if (SpacerWidth >= 0.0f)
+		{
+			RowSpacer->SetSize(FVector2D(SpacerWidth, RowSpacer->GetSize().Y));
+		}
 	}
 }
 

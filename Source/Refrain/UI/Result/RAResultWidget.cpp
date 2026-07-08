@@ -18,6 +18,7 @@ void URAResultWidget::SetScoreVisibility(bool bShow)
 	if (GoodCountRow) GoodCountRow->SetVisibility(NewVisibility);
 	if (BadCountRow) BadCountRow->SetVisibility(NewVisibility);
 	if (MaxHitsRow) MaxHitsRow->SetVisibility(NewVisibility);
+	if (HighScoreRow) HighScoreRow->SetVisibility(NewVisibility);
 }
 
 void URAResultWidget::NativeConstruct()
@@ -66,6 +67,7 @@ void URAResultWidget::NativeConstruct()
 				if (GoodCountRow) GoodCountRow->SetValue(PS->GoodCount);
 				if (BadCountRow) BadCountRow->SetValue(PS->BadCount);
 				if (MaxHitsRow) MaxHitsRow->SetValue(PS->MaxHits);
+				if (HighScoreRow) HighScoreRow->SetValue(PreviousHighScore);
 			}
 		}
 	}

@@ -5,6 +5,9 @@
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
 #include "Timing/MagicalMusicData.h"
+#include "SaveGame/RASaveScoreSubsystem.h"
+#include "Engine/GameInstance.h"
+#include "UI/Result/RAResultRowWidget.h"
 
 void URASongInfoWidget::UpdateSongInfo(UMagicalMusicData* InSongData)
 {
@@ -31,5 +34,16 @@ void URASongInfoWidget::UpdateSongInfo(UMagicalMusicData* InSongData)
 	if (ImgSongJacket && InSongData->JacketImage)
 	{
 		ImgSongJacket->SetBrushFromTexture(InSongData->JacketImage);
+	}
+	
+	// 서브시스템에서 점수들 불러오기
+	if (HighScoreRow)
+	{
+		int32 FoundHighScore = 0;
+		if (URASaveScoreSubsystem* ScoreSubsystem = GetGameInstance()->GetSubsystem<URASaveScoreSubsystem>())
+		{
+			FoundHighScore = ScoreSubsystem->GetSongHighScore(FName(*InSongData->SongTitle));
+		}
+		HighScoreRow->SetValue(FoundHighScore);
 	}
 }

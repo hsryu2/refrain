@@ -444,11 +444,11 @@ FGameplayTag URAGA_ComboAttack::SetJudgement()
 	{
 		ResultTag = RefrainGameplayTags::Judge_Miss;
 	}
-	else if (AbsTimingDifference < 0.05f)
+	else if (AbsTimingDifference < 0.08f)
 	{
 		ResultTag = RefrainGameplayTags::Judge_Perfect;
 	}
-	else if (AbsTimingDifference < 0.2f)
+	else if (AbsTimingDifference < 0.17f)
 	{
 		ResultTag = RefrainGameplayTags::Judge_Good;
 	}
