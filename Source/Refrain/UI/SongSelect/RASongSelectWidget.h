@@ -46,11 +46,11 @@ public:
 	FOnSongSelectClosed OnSongSelectClosed;
 
 	/** @brief 현재 선택된 곡 데이터를 임시로 캐싱합니다. */
-	UPROPERTY(Transient)
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "Song Select")
 	TObjectPtr<UMagicalMusicData> CurrentSelectedSong;
 
 	/** @brief 현재 재생 중인 미리듣기 오디오 컴포넌트 */
-	UPROPERTY(Transient)
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "Song Select")
 	TObjectPtr<class UAudioComponent> PreviewAudioComponent;
 
 	/** @brief 미리듣기 페이드 아웃을 위한 타이머 핸들 */
@@ -58,6 +58,10 @@ public:
 
 	/** @brief 미리듣기 재시작을 위한 타이머 핸들 */
 	FTimerHandle PreviewRestartTimerHandle;
+
+	/** @brief 미리듣기 오디오가 실제로 재생을 시작한 게임 시간(초) */
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "Song Select")
+	float PreviewStartGameTime = 0.0f;
 
 	/** @brief 미리듣기 오디오를 재생하고 페이드 인 하는 함수 */
 	UFUNCTION()
@@ -119,7 +123,7 @@ protected:
 	TObjectPtr<URAMenuButtonWidget> BtnPlay;
 	
 	/** @brief 곡 정보를 띄워주는 패널 */
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, Category = "Song Select", meta = (BindWidget, AllowPrivateAccess = "true"))
 	TObjectPtr<URASongInfoWidget> SongInfoPanel;
 	
 	/** @brief 노래 리스트 */
@@ -164,7 +168,7 @@ protected:
 	
 	/**
 	 * @brief 노래 선택 이벤트
-	 * @param ButtonIndex 버튼 인덱스
+	 * @param Item 버튼 인덱스
 	 */
 	UFUNCTION()
 	void OnSongSelectionChanged(UObject* Item);

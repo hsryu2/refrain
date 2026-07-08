@@ -206,6 +206,7 @@ void URASongSelectWidget::StartPreviewAudio()
 		{
 			// FadeIn 함수가 내부적으로 Play()를 호출하며 0에서 1.0으로 서서히 볼륨을 올림
 			PreviewAudioComponent->FadeIn(0.5f, 1.0f, CurrentSelectedSong->PreviewStartTime);
+			PreviewStartGameTime = GetWorld()->GetTimeSeconds();
 		}
 		
 		// 지정된 하이라이트 길이만큼만 재생 후 페이드 아웃 예약
@@ -227,3 +228,5 @@ void URASongSelectWidget::OnPreviewFinished()
 	// 페이드 아웃 진행 시간(1.5초) + 잠시 대기(0.5초) = 2.0초 뒤에 다시 미리듣기를 처음부터 루프 재생
 	GetWorld()->GetTimerManager().SetTimer(PreviewRestartTimerHandle, this, &URASongSelectWidget::StartPreviewAudio, 2.0f, false);
 }
+
+// Dummy comment for forcing rebuild

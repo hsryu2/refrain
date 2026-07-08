@@ -47,3 +47,11 @@ void URASongInfoWidget::UpdateSongInfo(UMagicalMusicData* InSongData)
 		HighScoreRow->SetValue(FoundHighScore);
 	}
 }
+
+ void URASongInfoWidget::UpdateBounceScale_Implementation(float NewScale)
+ {
+ 	if (ImgSongJacket)
+ 	{
+ 		ImgSongJacket->SetRenderScale(FVector2D(NewScale, NewScale));
+ 	}
+ }
