@@ -28,6 +28,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Song Info")
 	void UpdateSongInfo(UMagicalMusicData* InSongData);
 
+	/**
+	 * @brief 앨범 아트의 바운스 스케일을 업데이트합니다.
+	 * @param NewScale 적용할 스케일 값
+	 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Song Info")
+	void UpdateBounceScale(float NewScale);
+
 protected:
 	/** @brief 노래 제목 */
 	UPROPERTY(meta = (BindWidget))

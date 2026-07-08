@@ -59,6 +59,10 @@ public:
 	/** @brief 미리듣기 재시작을 위한 타이머 핸들 */
 	FTimerHandle PreviewRestartTimerHandle;
 
+	/** @brief 미리듣기 오디오가 실제로 재생을 시작한 게임 시간(초) */
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "Song Select")
+	float PreviewStartGameTime = 0.0f;
+
 	/** @brief 미리듣기 오디오를 재생하고 페이드 인 하는 함수 */
 	UFUNCTION()
 	void StartPreviewAudio();
@@ -119,7 +123,7 @@ protected:
 	TObjectPtr<URAMenuButtonWidget> BtnPlay;
 	
 	/** @brief 곡 정보를 띄워주는 패널 */
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, Category = "Song Select", meta = (BindWidget, AllowPrivateAccess = "true"))
 	TObjectPtr<URASongInfoWidget> SongInfoPanel;
 	
 	/** @brief 노래 리스트 */
