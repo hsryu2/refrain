@@ -175,9 +175,19 @@ void ARAPlayerController::ExecuteUnpause()
 
 void ARAPlayerController::ShowResultUI()
 {
-	RA_LOG(LogRefrain, Log, TEXT("ShowResultUI Called!"));
+	InternalShowEndGameUI(false);
+}
 
-	// 결과창이 뜰 때 기존 인게임 HUD(점수, 체력바)를 숨김처리
+void ARAPlayerController::ShowGameOverUI()
+{
+	InternalShowEndGameUI(true);
+}
+
+void ARAPlayerController::InternalShowEndGameUI(bool bIsGameOver)
+{
+	RA_LOG(LogRefrain, Log, TEXT("InternalShowEndGameUI Called! bIsGameOver: %d"), bIsGameOver);
+
+	// 결과창이 뜰 때 기존 인게임 HUD(점수, 체력바)를 숨깁니다.
 	if (ScoreWidget)
 	{
 		ScoreWidget->RemoveFromParent();
@@ -197,6 +207,9 @@ void ARAPlayerController::ShowResultUI()
 		
 		if (ResultWidget)
 		{
+			ResultWidget->bIsGameOver = bIsGameOver;
+			ResultWidget->SetScoreVisibility(!bIsGameOver);
+			
 			if (!ResultWidget->IsInViewport())
 			{
 				ResultWidget->AddToViewport();

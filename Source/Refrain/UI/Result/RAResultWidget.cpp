@@ -8,6 +8,17 @@
 #include "Player/RAPlayerState.h"
 #include "RAResultRowWidget.h"
 
+void URAResultWidget::SetScoreVisibility(bool bShow)
+{
+	ESlateVisibility NewVisibility = bShow ? ESlateVisibility::Visible : ESlateVisibility::Collapsed;
+	
+	if (TotalScoreRow) TotalScoreRow->SetVisibility(NewVisibility);
+	if (PerfectCountRow) PerfectCountRow->SetVisibility(NewVisibility);
+	if (GoodCountRow) GoodCountRow->SetVisibility(NewVisibility);
+	if (BadCountRow) BadCountRow->SetVisibility(NewVisibility);
+	if (MaxHitsRow) MaxHitsRow->SetVisibility(NewVisibility);
+}
+
 void URAResultWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -28,29 +39,26 @@ void URAResultWidget::NativeConstruct()
 	
 	SelectedIndex = -1;
 	
-	if (APlayerController* PC = GetOwningPlayer())
+	if (bIsGameOver)
 	{
-		if (ARAPlayerState* PS = PC->GetPlayerState<ARAPlayerState>())
+		SetScoreVisibility(false);
+		// 블루프린트에서 LabelTitle 위젯이 있다면 "GAME OVER"로 텍스트를 바꾸는 건 블루프린트 단에서 하거나 
+		// 여기서 바인딩해서 처리할 수 있습니다.
+	}
+	else
+	{
+		SetScoreVisibility(true);
+		
+		// 점수 계산 및 표시
+		if (APlayerController* PC = GetOwningPlayer())
 		{
-			if (TotalScoreRow)
+			if (ARAPlayerState* PS = PC->GetPlayerState<ARAPlayerState>())
 			{
-				TotalScoreRow->SetValue(PS->TotalScore);
-			}
-			if (PerfectCountRow)
-			{
-				PerfectCountRow->SetValue(PS->PerfectCount);
-			}
-			if (GoodCountRow)
-			{
-				GoodCountRow->SetValue(PS->GoodCount);
-			}
-			if (BadCountRow)
-			{
-				BadCountRow->SetValue(PS->BadCount);
-			}
-			if (MaxHitsRow)
-			{
-				MaxHitsRow->SetValue(PS->MaxHits);
+				if (TotalScoreRow) TotalScoreRow->SetValue(PS->TotalScore);
+				if (PerfectCountRow) PerfectCountRow->SetValue(PS->PerfectCount);
+				if (GoodCountRow) GoodCountRow->SetValue(PS->GoodCount);
+				if (BadCountRow) BadCountRow->SetValue(PS->BadCount);
+				if (MaxHitsRow) MaxHitsRow->SetValue(PS->MaxHits);
 			}
 		}
 	}
