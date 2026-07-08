@@ -178,8 +178,19 @@ void ARAPlayerController::ExecuteUnpause()
 
 void ARAPlayerController::ShowResultUI()
 {
-	RA_LOG(LogRefrain, Log, TEXT("ShowResultUI Called!"));
+	InternalShowEndGameUI(false);
+}
 
+void ARAPlayerController::ShowGameOverUI()
+{
+	InternalShowEndGameUI(true);
+}
+
+void ARAPlayerController::InternalShowEndGameUI(bool bIsGameOver)
+{
+	RA_LOG(LogRefrain, Log, TEXT("InternalShowEndGameUI Called! bIsGameOver: %d"), bIsGameOver);
+
+	// 결과창이 뜰 때 기존 인게임 HUD(점수, 체력바)를 숨깁니다.
 	FName CurrentSongID = NAME_None;
 	if (UMagicalTimingSubsystem* TimingSubsystem = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>())
 	{
@@ -222,6 +233,9 @@ void ARAPlayerController::ShowResultUI()
 		
 		if (ResultWidget)
 		{
+			ResultWidget->bIsGameOver = bIsGameOver;
+			ResultWidget->SetScoreVisibility(!bIsGameOver);
+			
 			if (!ResultWidget->IsInViewport())
 			{
 				ResultWidget->AddToViewport();

@@ -19,6 +19,14 @@ UCLASS()
 class REFRAIN_API URAResultWidget : public UUserWidget
 {
 	GENERATED_BODY()
+public:
+	/** true = 게임 오버, false = 클리어 */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Result")
+	bool bIsGameOver = false;
+
+	/** 점수 행을 일괄 숨기기/보이기 */
+	UFUNCTION(BlueprintCallable, Category="Result")
+	void SetScoreVisibility(bool bShow);
 
 protected:
 	virtual void NativeConstruct() override;

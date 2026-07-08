@@ -90,5 +90,12 @@ protected:
 	/** @brief 게임 결과 화면 표시 (마우스 커서 활성화 및 입력 모드 변경) */
 	UFUNCTION(BlueprintCallable, Category = "Menu")
 	void ShowResultUI();
+
+	/** @brief 게임 오버 화면 표시 (마우스 커서 활성화 및 입력 모드 변경) */
+	UFUNCTION(BlueprintCallable, Category = "Menu")
+	void ShowGameOverUI();
+
+private:
+	void InternalShowEndGameUI(bool bIsGameOver);
 	// --- Result UI --- @/
 };
