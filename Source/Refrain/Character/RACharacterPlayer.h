@@ -74,9 +74,10 @@ protected:
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	
-// GAS 설정, 마스코트 스폰
 public:
+	// GAS 설정, 마스코트 스폰
 	virtual void PossessedBy(AController* NewController) override;
+	
 	virtual void Die() override;
 
 protected:
