@@ -150,6 +150,30 @@ void ARACharacterPlayer::PossessedBy(AController* NewController)
 		}
 	}
 }
+
+void ARACharacterPlayer::Die()
+{
+	Super::Die();
+	
+	// 애니메이션 재생
+	if (AnimationData && AnimationData->DeathMontage)
+	{
+		PlayAnimMontage(AnimationData->DeathMontage);
+	}
+	
+	// 플레이어 입력 막기
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		DisableInput(PC);
+		
+		// 게임오버 위젯 띄우기
+		if (ARAPlayerController* RAPC = Cast<ARAPlayerController>(PC))
+		{
+			RAPC->ShowGameOverUI();
+		}
+	}
+}
+
 void ARACharacterPlayer::SetupGASInputComponent()
 {
 	if (IsValid(ASC) && IsValid(InputComponent))

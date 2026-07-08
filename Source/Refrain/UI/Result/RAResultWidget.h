@@ -110,11 +110,18 @@ protected:
 	TObjectPtr<class URAResultRowWidget> BadCountRow;
 	
 	/** @brief MaxHits 표시 */
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<class URAResultRowWidget> MaxHitsRow;
 	
 	// ----------------------------------------------------------------------------------------------------------------
 	// --- 점수 UI 위젯 바인딩 --- @/
 	// ----------------------------------------------------------------------------------------------------------------
 	
+	// /@ --- 패널 전환 (클리어 / 게임 오버) ---
+	
+	/** @brief 화면 레이아웃을 전환하는 위젯 스위처 (0: 클리어, 1: 게임 오버) */
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<class UWidgetSwitcher> ContentSwitcher;
+
+	// --- 패널 전환 (클리어 / 게임 오버) --- @/
 };
