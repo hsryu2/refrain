@@ -6,12 +6,15 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Refrain.h"
+#include "Engine/GameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "SaveGame/RASaveScoreSubsystem.h"
 #include "UI/PauseMenu/RAPauseMenuWidget.h"
 #include "UI/RAScoreWidget.h"
 #include "UI/Result/RAResultWidget.h"
 #include "Timing/MagicalTimingSubsystem.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Player/RAPlayerState.h"
 
 ARAPlayerController::ARAPlayerController()
 {
@@ -188,6 +191,29 @@ void ARAPlayerController::InternalShowEndGameUI(bool bIsGameOver)
 	RA_LOG(LogRefrain, Log, TEXT("InternalShowEndGameUI Called! bIsGameOver: %d"), bIsGameOver);
 
 	// 결과창이 뜰 때 기존 인게임 HUD(점수, 체력바)를 숨깁니다.
+	FName CurrentSongID = NAME_None;
+	if (UMagicalTimingSubsystem* TimingSubsystem = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>())
+	{
+		if (UMagicalMusicData* MusicData = TimingSubsystem->GetMusicData())
+		{
+			CurrentSongID = FName(*MusicData->SongTitle);
+		}
+	}
+	int32 FinalScore = 0;
+	if (ARAPlayerState* RAPS = GetPlayerState<ARAPlayerState>())
+	{
+		FinalScore = RAPS->TotalScore;
+	}
+	if (CurrentSongID != NAME_None)
+	{
+		if (URASaveScoreSubsystem* ScoreSubsystem = GetGameInstance()->GetSubsystem<URASaveScoreSubsystem>())
+		{
+			ScoreSubsystem->UpdateAndSaveSongHighScore(CurrentSongID, FinalScore);
+		}
+	}
+
+	
+	// 결과창이 뜰 때 기존 인게임 HUD(점수, 체력바)를 숨김처리
 	if (ScoreWidget)
 	{
 		ScoreWidget->RemoveFromParent();

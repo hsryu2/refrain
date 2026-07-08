@@ -280,7 +280,10 @@ void URAGA_ComboAttack::PlayAttackMontage()
 	{
 		UpdateAttackMotionWarpTarget();
 	}
-
+	else
+	{
+		ClearAttackMotionWarpTarget();
+	}
 	if (TargetActor)
 	{
 		QueueHitSound();
