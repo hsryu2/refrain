@@ -204,10 +204,16 @@ void ARAPlayerController::InternalShowEndGameUI(bool bIsGameOver)
 	{
 		FinalScore = RAPS->TotalScore;
 	}
+	
+	int32 OldHighScore = 0;
 	if (CurrentSongID != NAME_None)
 	{
 		if (URASaveScoreSubsystem* ScoreSubsystem = GetGameInstance()->GetSubsystem<URASaveScoreSubsystem>())
 		{
+			// 위젯에 전달하기 위해 업데이트 전에 이전 최고 점수를 먼저 가져옵니다.
+			OldHighScore = ScoreSubsystem->GetSongHighScore(CurrentSongID);
+			
+			// 최고 점수 갱신 및 저장
 			ScoreSubsystem->UpdateAndSaveSongHighScore(CurrentSongID, FinalScore);
 		}
 	}
@@ -234,6 +240,8 @@ void ARAPlayerController::InternalShowEndGameUI(bool bIsGameOver)
 		if (ResultWidget)
 		{
 			ResultWidget->bIsGameOver = bIsGameOver;
+			ResultWidget->PreviousHighScore = OldHighScore;
+			ResultWidget->bIsNewRecord = (FinalScore > OldHighScore);
 			ResultWidget->SetScoreVisibility(!bIsGameOver);
 			
 			if (!ResultWidget->IsInViewport())
