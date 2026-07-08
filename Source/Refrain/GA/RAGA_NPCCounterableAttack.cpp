@@ -158,10 +158,16 @@ void URAGA_NPCCounterableAttack::UpdateAttackMotionWarpTarget()
 		return;
 	}
 	
-	// 모션워핑에 필요한 정보 설정
+	// 모션 워핑 타겟 설정 
 	MotionWarpingComponent->AddOrUpdateWarpTargetFromComponent(
-		FName(TEXT("Player")), TargetMesh, NAME_None, false, 
+		FName(TEXT("Player")), TargetMesh, NAME_None, false,
 		EWarpTargetLocationOffsetDirection::VectorFromTargetToOwner, Offset);
+
+	// 워핑 대신 수동으로 플레이어를 향해 회전시킴
+	FVector DirToPlayer = (TargetMesh->GetComponentLocation() - NPC->GetActorLocation());
+	DirToPlayer.Z = 0.f; // Z축 무시
+	FRotator LookAtRot = DirToPlayer.Rotation();
+	NPC->SetActorRotation(LookAtRot);
 }
 
 void URAGA_NPCCounterableAttack::ClearAttackMotionWarpTarget()
