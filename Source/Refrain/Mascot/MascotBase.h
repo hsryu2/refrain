@@ -65,7 +65,7 @@ protected:
 	TObjectPtr<AActor> FollowTarget;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Mascot")
-	FVector FollowOffset = FVector(-80.f, 60.f, 100.f);
+	FVector FollowOffset = FVector(-100.f, 80.f, 100.f);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Mascot")
 	float FollowInterpSpeed = 5.f;
@@ -85,7 +85,7 @@ protected:
 
 	// 나이아가라 효과 크기
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Mascot|VFX", meta=(ClampMin="0.01"))
-	float BeatSyncedNiagaraScale = 0.5f;
+	float BeatSyncedNiagaraScale = 0.4f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Mascot|VFX", meta=(ClampMin="0.01"))
 	float BeatSyncedNiagaraBaseDuration = 1.f;
