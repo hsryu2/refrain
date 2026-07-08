@@ -17,6 +17,7 @@
 #include "Component/NPCCombatStateComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
 #include "Player/RAPlayerState.h"
 #include "Timing/MagicalTimingSubsystem.h"
 #include "Util/RAUtils.h"
@@ -108,6 +109,25 @@ void URAGA_CounterAttack::OnAttackHit(FGameplayEventData Payload)
 		ASC->CurrentMontageSetPlayRate(PlayRateAfterSecondHit);
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Attacker, RefrainGameplayTags::State_HitReact,
 		                                                         Payload);
+	}
+	
+	// 음악 재생 중이 아닐 경우 타격음 재생
+	if (!GetWorld()->GetSubsystem<UMagicalTimingSubsystem>()->IsMusicPlaying())
+	{
+		const FRAHitSoundData* HitSoundData = nullptr;
+		if (Payload.EventTag == RefrainGameplayTags::Event_Montage_AttackHit_FirstHit)
+		{
+			HitSoundData = GetHitSoundData(0);
+		}
+		else if (Payload.EventTag == RefrainGameplayTags::Event_Montage_AttackHit_SecondHit)
+		{
+			HitSoundData = GetHitSoundData(1);
+		}
+		
+		if (HitSoundData && HitSoundData->HitSound)
+		{
+			UGameplayStatics::PlaySound2D(this, HitSoundData->HitSound);
+		}
 	}
 }
 
@@ -305,9 +325,96 @@ void URAGA_CounterAttack::ClearAttackMotionWarpTarget()
 	}
 }
 
+const FRAHitSoundData* URAGA_CounterAttack::GetHitSoundData(int Index) const
+{
+	const URACharacterAnimationData* AnimationData = AvatarCharacter->GetAnimationData();
+	check(AnimationData);
+	
+	if (AnimationData->CounterAttack.HitSoundData.Num() <= Index)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("HitSoundData Array Index Out Of Range"));
+		return nullptr;
+	}
+	
+	const FRAAttackData& AttackData = AnimationData->CounterAttack;
+
+	if (!AttackData.HitSoundData.IsValidIndex(Index))
+	{
+		RA_LOG(LogRefrain, Warning, TEXT("HitSoundData Array Empty, Index: %d"), Index);
+		return nullptr;
+	}
+
+	return &AttackData.HitSoundData[Index];
+}
+
 void URAGA_CounterAttack::QueueHitSound()
 {
-	// TODO
+	const URACharacterAnimationData* AnimationData = AvatarCharacter->GetAnimationData();
+	check(AnimationData);
+
+	const FRAHitSoundData* FirstHitSoundData = GetHitSoundData(0);
+	const FRAHitSoundData* SecondHitSoundData = GetHitSoundData(1);
+	check(FirstHitSoundData);
+	check(SecondHitSoundData);
+	check(FirstHitSoundData->HitSound);
+	check(SecondHitSoundData->HitSound);
+	
+	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
+	if (!MagicalTiming)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("MagicalTimingSubsystem Not Found"));
+		return;
+	}
+	
+	if (!MagicalTiming->IsMusicPlaying())
+	{
+		RA_LOG(LogRefrain, Warning, TEXT("Music Not Playing"));
+		return;
+	}
+	
+	UNPCCombatStateComponent* CombatManager = AvatarCharacter->GetComponentByClass<UNPCCombatStateComponent>();
+	if (!CombatManager)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("CombatManager Not Found"));
+		return;
+	}
+	
+	FAttackTiming NowAttackTiming = CombatManager->GetNowAttackTiming();
+	if (!NowAttackTiming.IsValid())
+	{
+		RA_LOG(LogRefrain, Error, TEXT("NowAttackTiming Is Not Valid"));
+		return;
+	}
+	
+	FQuartzTransportTimeStamp MusicTimeStamp;
+	if (!MagicalTiming->GetMusicTimeStamp(MusicTimeStamp))
+	{
+		RA_LOG(LogRefrain, Error, TEXT("Get MusicTimeStamp Failed"));
+		return;
+	}
+	
+	const int NowBar = MusicTimeStamp.Bars;
+	const int NowBeat = MusicTimeStamp.Beat;
+	UMagicalMusicData* MusicData = MagicalTiming->GetMusicData();
+	const int NumBeats = MusicData->NumBeats;
+	
+	const int AttackBar = NowAttackTiming.Bar;
+	const int AttackBeat = NowAttackTiming.Beat;
+	
+	const int NowAbsoluteBeat = ((NowBar - 1) * NumBeats) + (NowBeat - 1);
+	const int AttackAbsoluteBeat = ((AttackBar - 1) * NumBeats) + (AttackBeat - 1);
+	const int BeatDifference = AttackAbsoluteBeat - NowAbsoluteBeat;
+	const float BeatProgress = MagicalTiming->GetBeatProgress();
+	
+	// Multiplier 계산식..
+	const int BeatProgressFlag = BeatProgress >= 0.5f ? 0 : 1;
+	const float FirstHitMultiplier = BeatDifference * 2.f + BeatProgressFlag;
+	const float SecondHitMultiplier = BeatDifference + 1;
+	
+	// 서브시스템에 타격음 재생 예약
+	RA_LOG(LogRefrain, Log, TEXT("HitSound Queued"));
+	MagicalTiming->PlaySFXQuantized(FirstHitSoundData->HitSound, FirstHitSoundData->Quantization, FirstHitMultiplier, FirstHitSoundData->Offset);
+	MagicalTiming->PlaySFXQuantized(SecondHitSoundData->HitSound, SecondHitSoundData->Quantization, SecondHitMultiplier, SecondHitSoundData->Offset);
 }
 
 void URAGA_CounterAttack::SendJudgementToPlayerState(ERAHitJudgement Judgement)

@@ -9,6 +9,7 @@
 #include "Player/RAPlayerState.h"
 #include "RAGA_CounterAttack.generated.h"
 
+struct FRAHitSoundData;
 class ARACharacterBase;
 /**
  * 카운터 공격(2타)을 한 박자에 반으로 나눠 실행
@@ -56,9 +57,10 @@ protected:
 	void UpdateAttackMotionWarpTarget();
 	void ClearAttackMotionWarpTarget();
 	
+	const FRAHitSoundData* GetHitSoundData(int Index) const;
+	
 	// 사운드 예약 등록
 	void QueueHitSound();
-
 
 protected:
 	// 실행한 캐릭터(플레이어 자신)

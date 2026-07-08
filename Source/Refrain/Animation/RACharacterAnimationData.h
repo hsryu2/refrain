@@ -4,7 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "Sound/QuartzQuantizationUtilities.h"
 #include "RACharacterAnimationData.generated.h"
+
+USTRUCT(BlueprintType)
+struct FRAHitSoundData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<USoundBase> HitSound;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	EQuartzCommandQuantization Quantization = EQuartzCommandQuantization::Beat;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float Offset = 0.f;
+};
 
 USTRUCT(BlueprintType)
 struct FRAAttackData
@@ -22,6 +38,9 @@ struct FRAAttackData
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float DamageMultiplier = 1.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<FRAHitSoundData> HitSoundData;
 };
 
 /**

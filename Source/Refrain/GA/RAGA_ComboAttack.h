@@ -8,6 +8,7 @@
 #include "Camera/CameraShakeBase.h"
 #include "RAGA_ComboAttack.generated.h"
 
+struct FRAHitSoundData;
 class UAttackTargetingComponent;
 class ARACharacterBase;
 class ARACharacterPlayer;
@@ -80,6 +81,9 @@ protected:
 	// 다음 콤보 예약
 	void SetNextCombo();
 	
+	// 타격 효과음 반환(CurrentCombo)
+	const FRAHitSoundData* GetHitSoundData() const;
+	
 	// 타격 효과음 재생
 	void QueueHitSound();
 
@@ -88,10 +92,6 @@ protected:
 	// 대미지 GE
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Damage)
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
-	
-	// 타격음
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Sound)
-	TObjectPtr<USoundBase> HitSound;
 	
 protected:
 	// 실행한 캐릭터
