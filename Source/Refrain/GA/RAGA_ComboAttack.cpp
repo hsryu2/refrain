@@ -187,9 +187,12 @@ void URAGA_ComboAttack::OnAttackHit(FGameplayEventData Payload)
 	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
 	if (!MagicalTiming || !MagicalTiming->IsMusicPlaying())
 	{
-		if (HitSound)
+		if (const FRAHitSoundData* HitSoundData = GetHitSoundData())
 		{
-			UGameplayStatics::PlaySound2D(this, HitSound);
+			if (HitSoundData->HitSound)
+			{
+				UGameplayStatics::PlaySound2D(this, HitSoundData->HitSound);
+			}
 		}
 	}
 	
@@ -570,6 +573,30 @@ void URAGA_ComboAttack::SetNextCombo()
 	bHasQueuedAttackInput = true;
 }
 
+const FRAHitSoundData* URAGA_ComboAttack::GetHitSoundData() const
+{
+	const URACharacterAnimationData* AnimationData = AvatarCharacter->GetAnimationData();
+	check(AnimationData);
+	
+	if (AnimationData->ComboAttacks.IsEmpty())
+	{
+		RA_LOG(LogRefrain, Warning, TEXT("ComboAttacks Array Empty"));
+		return nullptr;
+	}
+	const int ComboAttackNum = AnimationData->ComboAttacks.Num();
+	
+	const FRAAttackData& AttackData = AnimationData->ComboAttacks[CurrentCombo % ComboAttackNum];
+
+	if (!AttackData.HitSoundData.IsValidIndex(0))
+	{
+		RA_LOG(LogRefrain, Warning, TEXT("HitSoundData Array Empty, CurrentCombo: %d"), CurrentCombo);
+		return nullptr;
+	}
+
+	return &AttackData.HitSoundData[0];
+
+}
+
 void URAGA_ComboAttack::QueueHitSound()
 {
 	const URACharacterAnimationData* AnimationData = AvatarCharacter->GetAnimationData();
@@ -582,18 +609,19 @@ void URAGA_ComboAttack::QueueHitSound()
 	}
 	const int ComboAttackNum = AnimationData->ComboAttacks.Num();
 	
-	FRAHitSoundData HitSoundData = AnimationData->ComboAttacks[CurrentCombo % ComboAttackNum].HitSoundData[0]; 
-	
-	if (HitSoundData.HitSound)
+	const FRAHitSoundData* HitSoundData = GetHitSoundData();
+	if (!HitSoundData)
 	{
-		HitSound = HitSoundData.HitSound;
-	}
-	
-	if (!HitSound)
-	{
-		RA_LOG(LogRefrain, Warning, TEXT("HitSound Not Found"));
+		RA_LOG(LogRefrain, Error, TEXT("HitSoundData Not Found, CurrentCombo: %d"), CurrentCombo);
 		return;
 	}
+	
+	if (!HitSoundData->HitSound)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("HitSound Not Found, CurrentCombo: %d"), CurrentCombo);
+		return;
+	}
+	
 	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
 	if (!MagicalTiming)
 	{
@@ -605,7 +633,7 @@ void URAGA_ComboAttack::QueueHitSound()
 	if (MagicalTiming->IsMusicPlaying())
 	{
 		RA_LOG(LogRefrain, Log, TEXT("HitSound Queued"));
-		MagicalTiming->PlaySFXQuantized(HitSound, HitSoundData.Quantization, HitSoundBeatMultiplier);
+		MagicalTiming->PlaySFXQuantized(HitSoundData->HitSound, HitSoundData->Quantization, HitSoundBeatMultiplier, HitSoundData->Offset);
 	}
 }
 
