@@ -5,6 +5,7 @@
 
 #include "GameplayEffectExtension.h"
 #include "RefrainGameplayTags.h"
+#include "Character/RACharacterBase.h"
 #include "Player/RAPlayerState.h"
 
 URAAttributeSet::URAAttributeSet() 
@@ -72,7 +73,11 @@ void URAAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 		
 		if (NewHealth <= 0.0f)
 		{
-			// 여기서 Dead state 태그 부여해야함.
+			// 여기서 Dead state 태그 부여 및 죽음 처리
+			if (ARACharacterBase* Character = Cast<ARACharacterBase>(Data.Target.GetAvatarActor()))
+			{
+				Character->Die();
+			}
 		}
 		else
 		{
