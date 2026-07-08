@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "Sound/QuartzQuantizationUtilities.h"
 #include "MascotBase.generated.h"
 
 class UMagicalTimingSubsystem;
@@ -21,6 +22,7 @@ public:
 protected:
 // 재정의 함수
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void Tick(float DeltaTime) override;
 
 public:
@@ -33,7 +35,29 @@ protected:
 
 	// 비트 표시 (나이아가라 갱신)
 	void InitializeBeatSyncedNiagara();
-	void UpdateBeatSyncedNiagara();
+	void BindMagicalTimingDelegates();
+	void UnbindMagicalTimingDelegates();
+	void RefreshBeatSyncedNiagaraForCurrentMusic();
+	void SubscribeToBeatEvent();
+	void UnsubscribeFromBeatEvent();
+
+	UFUNCTION()
+	void HandleMusicStarted();
+
+	UFUNCTION()
+	void HandleMusicFinished();
+
+	UFUNCTION()
+	void HandleMusicPaused();
+
+	UFUNCTION()
+	void HandleMusicResumed();
+
+	UFUNCTION()
+	void PlayBeatSyncedNiagara();
+
+	UFUNCTION()
+	void HandleBeatEvent(FName ClockName, EQuartzCommandQuantization QuantizationType, int32 NumBars, int32 Beat, float BeatFraction);
 	
 // 마스코트가 따라다닐 대상
 protected:
@@ -78,7 +102,8 @@ protected:
 	UPROPERTY(Transient)
 	TObjectPtr<UMagicalTimingSubsystem> CachedTimingSubsystem;
 
-	int32 LastNiagaraBeatBar = INDEX_NONE;
-	int32 LastNiagaraBeat = INDEX_NONE;
+	float CachedSecondsPerBeat = 0.f;
+
+	bool bIsSubscribedToBeatEvent = false;
 	
 };

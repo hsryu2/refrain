@@ -5,6 +5,8 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraComponent.h"
+#include "OnlineSubsystemUtils.h"
+#include "Quartz/AudioMixerClockHandle.h"
 #include "Refrain.h"
 #include "Engine/World.h"
 #include "Timing/MagicalTimingSubsystem.h"
@@ -25,14 +27,23 @@ void AMascotBase::BeginPlay()
 	}
 
 	InitializeBeatSyncedNiagara();
+	BindMagicalTimingDelegates();
+}
+
+void AMascotBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	UnsubscribeFromBeatEvent();
+	UnbindMagicalTimingDelegates();
+
+	Super::EndPlay(EndPlayReason);
 }
 
 void AMascotBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
+	// 위치 갱신
 	UpdateFollowTarget(DeltaTime);
-	UpdateBeatSyncedNiagara();
 }
 
 void AMascotBase::UpdateFollowTarget(float DeltaTime)
@@ -82,22 +93,12 @@ void AMascotBase::InitializeBeatSyncedNiagara()
 	BeatSyncedNiagaraComponent->Deactivate();
 }
 
-void AMascotBase::UpdateBeatSyncedNiagara()
+void AMascotBase::BindMagicalTimingDelegates()
 {
 	if (!bSyncNiagaraToMusicBeat)
 	{
 		RA_LOG(LogRefrain, Log, TEXT("SyncNiagaraToMusicBeat Disabled"));
 		return;
-	}
-
-	if (!IsValid(BeatSyncedNiagaraComponent))
-	{
-		BeatSyncedNiagaraComponent = FindComponentByClass<UNiagaraComponent>();
-		if (!IsValid(BeatSyncedNiagaraComponent))
-		{
-			RA_LOG(LogRefrain, Error, TEXT("BeatSyncedNiagaraComponent Not Found"));
-			return;
-		}
 	}
 
 	if (!IsValid(CachedTimingSubsystem))
@@ -108,48 +109,154 @@ void AMascotBase::UpdateBeatSyncedNiagara()
 		}
 	}
 
-	if (!IsValid(CachedTimingSubsystem) || !CachedTimingSubsystem->IsMusicPlaying())
+	if (!IsValid(CachedTimingSubsystem))
 	{
-		RA_LOG(LogRefrain, Warning, TEXT("Music Not Playing"));
-		BeatSyncedNiagaraComponent->Deactivate();
-		LastNiagaraBeatBar = INDEX_NONE;
-		LastNiagaraBeat = INDEX_NONE;
+		RA_LOG(LogRefrain, Error, TEXT("MagicalTimingSubsystem Not Found"));
 		return;
 	}
 
-	FQuartzTransportTimeStamp CurrentTimeStamp;
-	if (!CachedTimingSubsystem->GetMusicTimeStamp(CurrentTimeStamp))
+	CachedTimingSubsystem->OnMusicStarted.AddUniqueDynamic(this, &AMascotBase::HandleMusicStarted);
+	CachedTimingSubsystem->OnMusicFinished.AddUniqueDynamic(this, &AMascotBase::HandleMusicFinished);
+	CachedTimingSubsystem->OnMusicPaused.AddUniqueDynamic(this, &AMascotBase::HandleMusicPaused);
+	CachedTimingSubsystem->OnMusicResumed.AddUniqueDynamic(this, &AMascotBase::HandleMusicResumed);
+
+	if (CachedTimingSubsystem->IsMusicPlaying())
 	{
-		RA_LOG(LogRefrain, Error, TEXT("Failed to get current timestamp"));
+		SubscribeToBeatEvent();
+	}
+}
+
+void AMascotBase::UnbindMagicalTimingDelegates()
+{
+	if (!IsValid(CachedTimingSubsystem))
+	{
 		return;
 	}
 
-	const float SecondsPerBeat = CachedTimingSubsystem->GetSecondsPerBeat();
-	if (SecondsPerBeat <= SMALL_NUMBER)
+	CachedTimingSubsystem->OnMusicStarted.RemoveDynamic(this, &AMascotBase::HandleMusicStarted);
+	CachedTimingSubsystem->OnMusicFinished.RemoveDynamic(this, &AMascotBase::HandleMusicFinished);
+	CachedTimingSubsystem->OnMusicPaused.RemoveDynamic(this, &AMascotBase::HandleMusicPaused);
+	CachedTimingSubsystem->OnMusicResumed.RemoveDynamic(this, &AMascotBase::HandleMusicResumed);
+}
+
+void AMascotBase::RefreshBeatSyncedNiagaraForCurrentMusic()
+{
+	if (!IsValid(BeatSyncedNiagaraComponent))
+	{
+		BeatSyncedNiagaraComponent = FindComponentByClass<UNiagaraComponent>();
+	}
+
+	if (!IsValid(BeatSyncedNiagaraComponent) || !IsValid(CachedTimingSubsystem))
+	{
+		return;
+	}
+
+	CachedSecondsPerBeat = CachedTimingSubsystem->GetSecondsPerBeat();
+	if (CachedSecondsPerBeat <= SMALL_NUMBER)
 	{
 		RA_LOG(LogRefrain, Error, TEXT("SecondsPerBeat <= SMALL_NUMBER"));
 		return;
 	}
 
 	const float TargetPlayRate = FMath::Clamp(
-		BeatSyncedNiagaraBaseDuration / SecondsPerBeat,
+		BeatSyncedNiagaraBaseDuration / CachedSecondsPerBeat,
 		MinNiagaraPlayRate,
 		MaxNiagaraPlayRate);
 	BeatSyncedNiagaraComponent->SetCustomTimeDilation(TargetPlayRate);
+}
 
-	if (LastNiagaraBeatBar == INDEX_NONE || LastNiagaraBeat == INDEX_NONE)
-	{
-		LastNiagaraBeatBar = CurrentTimeStamp.Bars;
-		LastNiagaraBeat = CurrentTimeStamp.Beat;
-		return;
-	}
-
-	if (CurrentTimeStamp.Bars == LastNiagaraBeatBar && CurrentTimeStamp.Beat == LastNiagaraBeat)
+void AMascotBase::SubscribeToBeatEvent()
+{
+	if (!bSyncNiagaraToMusicBeat)
 	{
 		return;
 	}
 
-	LastNiagaraBeatBar = CurrentTimeStamp.Bars;
-	LastNiagaraBeat = CurrentTimeStamp.Beat;
+	RefreshBeatSyncedNiagaraForCurrentMusic();
+
+	if (!IsValid(BeatSyncedNiagaraComponent) || !IsValid(CachedTimingSubsystem) || !CachedTimingSubsystem->IsMusicPlaying())
+	{
+		return;
+	}
+
+	UQuartzClockHandle* MusicClockHandle = CachedTimingSubsystem->GetMusicClockHandle();
+	if (!IsValid(MusicClockHandle))
+	{
+		RA_LOG(LogRefrain, Error, TEXT("MusicClockHandle Not Found"));
+		return;
+	}
+
+	if (!bIsSubscribedToBeatEvent)
+	{
+		FOnQuartzMetronomeEventBP BeatDelegate;
+		BeatDelegate.BindDynamic(this, &AMascotBase::HandleBeatEvent);
+		MusicClockHandle->SubscribeToQuantizationEvent(
+			this,
+			EQuartzCommandQuantization::Beat,
+			BeatDelegate,
+			MusicClockHandle);
+		bIsSubscribedToBeatEvent = true;
+	}
+}
+
+void AMascotBase::UnsubscribeFromBeatEvent()
+{
+	if (bIsSubscribedToBeatEvent && IsValid(CachedTimingSubsystem))
+	{
+		UQuartzClockHandle* MusicClockHandle = CachedTimingSubsystem->GetMusicClockHandle();
+		if (IsValid(MusicClockHandle))
+		{
+			MusicClockHandle->UnsubscribeFromTimeDivision(
+				this,
+				EQuartzCommandQuantization::Beat,
+				MusicClockHandle);
+		}
+	}
+	bIsSubscribedToBeatEvent = false;
+
+	if (IsValid(BeatSyncedNiagaraComponent))
+	{
+		BeatSyncedNiagaraComponent->Deactivate();
+	}
+}
+
+void AMascotBase::HandleMusicStarted()
+{
+	SubscribeToBeatEvent();
+}
+
+void AMascotBase::HandleMusicFinished()
+{
+	UnsubscribeFromBeatEvent();
+}
+
+void AMascotBase::HandleMusicPaused()
+{
+	UnsubscribeFromBeatEvent();
+}
+
+void AMascotBase::HandleMusicResumed()
+{
+	SubscribeToBeatEvent();
+}
+
+void AMascotBase::PlayBeatSyncedNiagara()
+{
+	if (!IsValid(BeatSyncedNiagaraComponent) || !IsValid(CachedTimingSubsystem) || !CachedTimingSubsystem->IsMusicPlaying())
+	{
+		UnsubscribeFromBeatEvent();
+		return;
+	}
+
 	BeatSyncedNiagaraComponent->Activate(true);
+}
+
+void AMascotBase::HandleBeatEvent(FName ClockName, EQuartzCommandQuantization QuantizationType, int32 NumBars, int32 Beat, float BeatFraction)
+{
+	if (QuantizationType != EQuartzCommandQuantization::Beat)
+	{
+		return;
+	}
+
+	PlayBeatSyncedNiagara();
 }
