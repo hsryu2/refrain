@@ -66,6 +66,7 @@ void AMascotBase::InitializeBeatSyncedNiagara()
 {
 	if (!bSyncNiagaraToMusicBeat)
 	{
+		RA_LOG(LogRefrain, Log, TEXT("SyncNiagaraToMusicBeat Disabled"));
 		return;
 	}
 
