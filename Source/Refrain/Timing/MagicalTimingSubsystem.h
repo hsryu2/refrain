@@ -13,7 +13,10 @@ class USoundBase;
 class UAudioComponent;
 struct FStreamableHandle;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMusicStarted);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMusicFinished);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMusicPaused);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMusicResumed);
 
 /**
  * 
@@ -25,9 +28,21 @@ class REFRAIN_API UMagicalTimingSubsystem : public UTickableWorldSubsystem
 	
 public:
 	UMagicalTimingSubsystem();
+
+// 델리게이트
+public:
+	UPROPERTY(BlueprintAssignable, Category = "Magical|Event")
+	FOnMusicStarted OnMusicStarted;
 	
 	UPROPERTY(BlueprintAssignable, Category = "Magical|Event")
 	FOnMusicFinished OnMusicFinished;
+	
+	UPROPERTY(BlueprintAssignable, Category = "Magical|Event")
+	FOnMusicPaused OnMusicPaused;
+	
+	UPROPERTY(BlueprintAssignable, Category = "Magical|Event")
+	FOnMusicResumed OnMusicResumed;
+	
 	
 // 엔진 재정의 함수
 protected:
@@ -99,7 +114,9 @@ public:
 // 내부 로직에 필요한 함수
 private:
 	bool CreateQuartzClock();
-	
+
+// 델리게이트 연결
+private:
 	UFUNCTION()
 	void HandleMusicFinished();
 	
