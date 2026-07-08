@@ -77,6 +77,7 @@ protected:
 // GAS 설정, 마스코트 스폰
 public:
 	virtual void PossessedBy(AController* NewController) override;
+	virtual void Die() override;
 
 protected:
 	

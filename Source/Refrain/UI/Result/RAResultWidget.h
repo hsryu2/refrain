@@ -19,6 +19,14 @@ UCLASS()
 class REFRAIN_API URAResultWidget : public UUserWidget
 {
 	GENERATED_BODY()
+public:
+	/** true = 게임 오버, false = 클리어 */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Result")
+	bool bIsGameOver = false;
+
+	/** 점수 행을 일괄 숨기기/보이기 */
+	UFUNCTION(BlueprintCallable, Category="Result")
+	void SetScoreVisibility(bool bShow);
 
 protected:
 	virtual void NativeConstruct() override;
@@ -102,11 +110,18 @@ protected:
 	TObjectPtr<class URAResultRowWidget> BadCountRow;
 	
 	/** @brief MaxHits 표시 */
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<class URAResultRowWidget> MaxHitsRow;
 	
 	// ----------------------------------------------------------------------------------------------------------------
 	// --- 점수 UI 위젯 바인딩 --- @/
 	// ----------------------------------------------------------------------------------------------------------------
 	
+	// /@ --- 패널 전환 (클리어 / 게임 오버) ---
+	
+	/** @brief 화면 레이아웃을 전환하는 위젯 스위처 (0: 클리어, 1: 게임 오버) */
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<class UWidgetSwitcher> ContentSwitcher;
+
+	// --- 패널 전환 (클리어 / 게임 오버) --- @/
 };
