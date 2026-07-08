@@ -14,6 +14,11 @@ void URASongItemWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
 	{
 		TxtSongTitle->SetText(FText::FromString(SongData->SongTitle));
 	}
+	
+	const bool bIsSelected = IsListItemSelected();
+	TargetScale = bIsSelected ? SelectedScale : 1.0f;
+	CurrentScale = TargetScale;
+	SetRenderScale(FVector2D(CurrentScale, CurrentScale));
 }
 
 void URASongItemWidget::NativeOnItemSelectionChanged(bool bIsSelected)
