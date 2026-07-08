@@ -9,11 +9,13 @@
 #include "EnhancedInputComponent.h"
 #include "MotionWarpingComponent.h"
 #include "RACharacterNonPlayer.h"
+#include "Refrain.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Mascot/MascotBase.h"
 #include "Refrain/Animation/RACharacterAnimationData.h"
 #include "Refrain/Component/AttackTargetingComponent.h"
 #include "Refrain/Player/RAPlayerState.h"
@@ -86,6 +88,12 @@ ARACharacterPlayer::ARACharacterPlayer()
 	{
 		DodgeAction = InputActionDodgeRef.Object;
 	}
+
+	static ConstructorHelpers::FClassFinder<AMascotBase> MascotClassRef(TEXT("/Game/Refrain/Characters/Mascot/BP_MascotDuck"));
+	if (MascotClassRef.Succeeded())
+	{
+		MascotClass = MascotClassRef.Class;
+	}
 	
 	// GAS
 	ASC = nullptr;
@@ -102,6 +110,13 @@ void ARACharacterPlayer::BeginPlay()
 	Super::BeginPlay();
 	
 	SetIMC();
+}
+
+void ARACharacterPlayer::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	DestroyMascot();
+
+	Super::EndPlay(EndPlayReason);
 }
 
 // Called every frame
@@ -149,7 +164,53 @@ void ARACharacterPlayer::PossessedBy(AController* NewController)
 			RAPlayerController->InitHealthHUD(ASC);
 		}
 	}
+
+	SpawnMascot();
 }
+
+void ARACharacterPlayer::SpawnMascot()
+{
+	if (IsValid(SpawnedMascot))
+	{
+		SpawnedMascot->SetFollowTarget(this);
+		return;
+	}
+
+	if (!MascotClass)
+	{
+		RA_LOG(LogRefrain, Warning, TEXT("MascotClass is not set."));
+		return;
+	}
+
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.Instigator = this;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	SpawnedMascot = World->SpawnActor<AMascotBase>(MascotClass, GetActorLocation(), GetActorRotation(), SpawnParams);
+
+	if (SpawnedMascot)
+	{
+		SpawnedMascot->SetFollowTarget(this);
+	}
+}
+
+void ARACharacterPlayer::DestroyMascot()
+{
+	if (IsValid(SpawnedMascot))
+	{
+		SpawnedMascot->Destroy();
+	}
+
+	SpawnedMascot = nullptr;
+}
+
 void ARACharacterPlayer::SetupGASInputComponent()
 {
 	if (IsValid(ASC) && IsValid(InputComponent))
