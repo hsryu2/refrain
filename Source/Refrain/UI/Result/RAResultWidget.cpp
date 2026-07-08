@@ -7,6 +7,7 @@
 #include "Components/TextBlock.h"
 #include "Player/RAPlayerState.h"
 #include "RAResultRowWidget.h"
+#include "Components/WidgetSwitcher.h"
 
 void URAResultWidget::SetScoreVisibility(bool bShow)
 {
@@ -38,6 +39,12 @@ void URAResultWidget::NativeConstruct()
 	}
 	
 	SelectedIndex = -1;
+	
+	if (ContentSwitcher)
+	{
+		// 스위처 인덱스를 1(게임오버) 또는 0(클리어)으로 설정합니다.
+		ContentSwitcher->SetActiveWidgetIndex(bIsGameOver ? 1 : 0);
+	}
 	
 	if (bIsGameOver)
 	{

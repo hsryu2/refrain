@@ -162,6 +162,9 @@ bool UMagicalTimingSubsystem::StartMusic()
 		QuantizationBoundary,
 		FOnQuartzCommandEventBP(),
 		MusicData->StartOffset);
+
+	RA_LOG(LogRefrain, Log, TEXT("Music Started! Song: %s, BPM: %f"), *MusicData->SongTitle, MusicData->BPM);
+	OnMusicStarted.Broadcast();
 	
 	return IsValid(MusicAudioComponent);
 }
@@ -198,6 +201,9 @@ void UMagicalTimingSubsystem::PauseMusic()
 		UQuartzClockHandle* RawClockHandle = MusicClockHandle.Get();
 		MusicClockHandle->PauseClock(GetWorld(), RawClockHandle);
 	}
+	
+	RA_LOG(LogRefrain, Log, TEXT("Music Paused!"));
+	OnMusicPaused.Broadcast();
 }
 
 void UMagicalTimingSubsystem::ResumeMusic()
@@ -212,6 +218,9 @@ void UMagicalTimingSubsystem::ResumeMusic()
 		UQuartzClockHandle* RawClockHandle = MusicClockHandle.Get();
 		MusicClockHandle->ResumeClock(GetWorld(), RawClockHandle);
 	}
+	
+	RA_LOG(LogRefrain, Log, TEXT("Music Resumed!"));
+	OnMusicResumed.Broadcast();
 }
 
 bool UMagicalTimingSubsystem::PlaySFXQuantized(USoundBase* InSound, EQuartzCommandQuantization InQuantization, float InMultiplier)
@@ -395,6 +404,6 @@ bool UMagicalTimingSubsystem::CreateQuartzClock()
 
 void UMagicalTimingSubsystem::HandleMusicFinished()
 {
-	RA_LOG(LogRefrain, Log, TEXT("MagicalTimingSubsystem: Music Finished! Broadcasting OnMusicFinished."));
+	RA_LOG(LogRefrain, Log, TEXT("Music Finished! Broadcasting OnMusicFinished."));
 	OnMusicFinished.Broadcast();
 }
