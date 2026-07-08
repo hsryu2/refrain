@@ -307,8 +307,7 @@ void URAGA_ComboAttack::PlayAttackMontage()
 
 UAnimMontage* URAGA_ComboAttack::GetNextAttackAnimMontage() const
 {
-	const ARACharacterBase* RACharacter = Cast<ARACharacterBase>(AvatarCharacter);
-	const URACharacterAnimationData* AnimationData = RACharacter->GetAnimationData();
+	const URACharacterAnimationData* AnimationData = AvatarCharacter->GetAnimationData();
 	check(AnimationData);
 	
 	if (AnimationData->ComboAttacks.IsEmpty())
@@ -573,6 +572,23 @@ void URAGA_ComboAttack::SetNextCombo()
 
 void URAGA_ComboAttack::QueueHitSound()
 {
+	const URACharacterAnimationData* AnimationData = AvatarCharacter->GetAnimationData();
+	check(AnimationData);
+	
+	if (AnimationData->ComboAttacks.IsEmpty())
+	{
+		RA_LOG(LogRefrain, Warning, TEXT("AttackMontages Array Empty"));
+		return;
+	}
+	const int ComboAttackNum = AnimationData->ComboAttacks.Num();
+	
+	FRAHitSoundData HitSoundData = AnimationData->ComboAttacks[CurrentCombo % ComboAttackNum].HitSoundData[0]; 
+	
+	if (HitSoundData.HitSound)
+	{
+		HitSound = HitSoundData.HitSound;
+	}
+	
 	if (!HitSound)
 	{
 		RA_LOG(LogRefrain, Warning, TEXT("HitSound Not Found"));
@@ -589,7 +605,7 @@ void URAGA_ComboAttack::QueueHitSound()
 	if (MagicalTiming->IsMusicPlaying())
 	{
 		RA_LOG(LogRefrain, Log, TEXT("HitSound Queued"));
-		MagicalTiming->PlaySFXQuantized(HitSound, EQuartzCommandQuantization::Beat, HitSoundBeatMultiplier);
+		MagicalTiming->PlaySFXQuantized(HitSound, HitSoundData.Quantization, HitSoundBeatMultiplier);
 	}
 }
 

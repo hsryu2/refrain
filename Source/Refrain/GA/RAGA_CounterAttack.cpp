@@ -290,5 +290,28 @@ void URAGA_CounterAttack::ClearAttackMotionWarpTarget()
 
 void URAGA_CounterAttack::QueueHitSound()
 {
-	// TODO
+	const URACharacterAnimationData* AnimationData = AvatarCharacter->GetAnimationData();
+	check(AnimationData);
+
+	FRAHitSoundData FirstHitSoundData = AnimationData->CounterAttack.HitSoundData[0]; 
+	FRAHitSoundData SecondHitSoundData = AnimationData->CounterAttack.HitSoundData[1]; 
+	check(&FirstHitSoundData);
+	check(&SecondHitSoundData);
+	check(FirstHitSoundData.HitSound);
+	check(SecondHitSoundData.HitSound);
+	
+	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
+	if (!MagicalTiming)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("MagicalTimingSubsystem Not Found"));
+		return;
+	}
+	
+	// 서브시스템에 타격음 재생 예약
+	if (MagicalTiming->IsMusicPlaying())
+	{
+		RA_LOG(LogRefrain, Log, TEXT("HitSound Queued"));
+		MagicalTiming->PlaySFXQuantized(FirstHitSoundData.HitSound, FirstHitSoundData.Quantization);
+		MagicalTiming->PlaySFXQuantized(SecondHitSoundData.HitSound, SecondHitSoundData.Quantization);
+	}
 }
