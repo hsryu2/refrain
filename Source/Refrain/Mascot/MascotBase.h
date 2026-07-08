@@ -65,10 +65,10 @@ protected:
 	TObjectPtr<AActor> FollowTarget;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Mascot")
-	FVector FollowOffset = FVector(-100.f, 80.f, 100.f);
+	FVector FollowOffset = FVector(-120.f, 100.f, 100.f);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Mascot")
-	float FollowInterpSpeed = 5.f;
+	float FollowInterpSpeed = 3.5f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Mascot")
 	float HoverAmplitude = 5.f;
