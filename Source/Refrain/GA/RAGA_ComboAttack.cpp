@@ -27,12 +27,12 @@ class UMotionWarpingComponent;
 
 URAGA_ComboAttack::URAGA_ComboAttack()
 {
-	FGameplayTagContainer Tags(RefrainGameplayTags::Ability_Attack);
+	FGameplayTagContainer Tags(RefrainGameplayTags::Ability_Attack_Combo);
 	SetAssetTags(Tags);
 	
-	ActivationOwnedTags.AddTag(RefrainGameplayTags::State_Attacking);
+	ActivationOwnedTags.AddTag(RefrainGameplayTags::State_Attacking_Combo);
+	
 	ActivationBlockedTags.AddTag(RefrainGameplayTags::State_Dodging);
-	ActivationBlockedTags.AddTag(RefrainGameplayTags::State_Attacking);
 	
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
@@ -108,6 +108,11 @@ void URAGA_ComboAttack::OnMontageInterrupted()
 		bIsMontageInterruptedByCombo = false;
 		return;
 	}
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+}
+
+void URAGA_ComboAttack::OnMontageCancelled()
+{
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }
 
@@ -305,6 +310,7 @@ void URAGA_ComboAttack::PlayAttackMontage()
 			MontageStartTime);
 	MontageTask->OnCompleted.AddDynamic(this, &URAGA_ComboAttack::OnMontageCompleted);
 	MontageTask->OnInterrupted.AddDynamic(this, &URAGA_ComboAttack::OnMontageInterrupted);
+	MontageTask->OnCancelled.AddDynamic(this, &URAGA_ComboAttack::OnMontageCancelled);
 	MontageTask->ReadyForActivation();
 }
 

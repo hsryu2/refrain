@@ -39,6 +39,9 @@ protected:
 	void OnMontageCompleted();
 	UFUNCTION()
 	void OnMontageInterrupted();
+
+	UFUNCTION()
+	void OnMontageCancelled();
 	
 	// 대미지 전달 시점
 	UFUNCTION()
@@ -55,7 +58,6 @@ protected:
 protected:
 	// 공격
 	void Attack();
-	
 	// 공격 애니메이션 실행
 	void PlayAttackMontage();
 	
