@@ -2,7 +2,8 @@
 
 namespace RefrainGameplayTags
 {
-	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_Attack, "Ability.Attack", "기본 공격");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_Attack, "Ability.Attack", "공격 어빌리티 공통");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_Attack_Combo, "Ability.Attack.Combo", "기본 공격 콤보");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayCue_Attack, "GameplayCue.Attack", "공격 이펙트");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayCue_Attack_HandGrip_L, "GameplayCue.Attack.HandGrip_L", "왼손 공격 이펙트");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayCue_Attack_HandGrip_R, "GameplayCue.Attack.HandGrip_R", "오른손 공격 이펙트");
@@ -24,6 +25,9 @@ namespace RefrainGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Dead, "State.Dead", "사망 상태");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Dodging, "State.Dodge", "회피 중");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Attacking, "State.Attacking", "공격 중");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Attacking_Combo, "State.Attacking.Combo", "공격 중(콤보)");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Attacking_Counter, "State.Attacking.Counter", "공격 중(카운터)");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Attacking_Counter_Recovery, "State.Attacking.Counter.Recovery", "카운터 공격 중 후딜 구간");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Invincible, "State.Invincible", "무적 상태");
 	
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayCue_Dissolve, "GameplayCue.Dissolve", "소멸 이펙트");

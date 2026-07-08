@@ -27,9 +27,11 @@ URAGA_CounterAttack::URAGA_CounterAttack()
 	FGameplayTagContainer Tags(RefrainGameplayTags::Ability_Attack_Counter);
 	SetAssetTags(Tags);;
 
-	ActivationOwnedTags.AddTag(RefrainGameplayTags::State_Attacking);
+	ActivationOwnedTags.AddTag(RefrainGameplayTags::State_Attacking_Counter);
+	
 	ActivationBlockedTags.AddTag(RefrainGameplayTags::State_Dodging);
-	ActivationBlockedTags.AddTag(RefrainGameplayTags::State_Attacking);
+	
+	CancelAbilitiesWithTag.AddTag(RefrainGameplayTags::Ability_Attack_Combo);
 
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
@@ -61,10 +63,7 @@ void URAGA_CounterAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 	Attack();
 }
 
-void URAGA_CounterAttack::EndAbility(const FGameplayAbilitySpecHandle Handle,
-                                     const FGameplayAbilityActorInfo* ActorInfo,
-                                     const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility,
-                                     bool bWasCancelled)
+void URAGA_CounterAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 
@@ -74,6 +73,10 @@ void URAGA_CounterAttack::EndAbility(const FGameplayAbilitySpecHandle Handle,
 
 	AvatarCharacter = Attacker = nullptr;
 	bIsCounterSucceeded = false;
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+	{
+		ASC->RemoveLooseGameplayTag(RefrainGameplayTags::State_Attacking_Counter_Recovery);
+	}
 }
 
 void URAGA_CounterAttack::OnMontageCompleted()
@@ -82,6 +85,11 @@ void URAGA_CounterAttack::OnMontageCompleted()
 }
 
 void URAGA_CounterAttack::OnMontageInterrupted()
+{
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+}
+
+void URAGA_CounterAttack::OnMontageCancelled()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }
@@ -101,14 +109,14 @@ void URAGA_CounterAttack::OnAttackHit(FGameplayEventData Payload)
 	if (Payload.EventTag == RefrainGameplayTags::Event_Montage_AttackHit_FirstHit)
 	{
 		ASC->CurrentMontageSetPlayRate(PlayRateUntilSecondHit);
-		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Attacker, RefrainGameplayTags::State_HitReact,
-		                                                         Payload);
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Attacker, RefrainGameplayTags::State_HitReact, Payload);
 	}
 	else if (Payload.EventTag == RefrainGameplayTags::Event_Montage_AttackHit_SecondHit)
 	{
 		ASC->CurrentMontageSetPlayRate(PlayRateAfterSecondHit);
-		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Attacker, RefrainGameplayTags::State_HitReact,
-		                                                         Payload);
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Attacker, RefrainGameplayTags::State_HitReact, Payload);
+		
+		ASC->AddLooseGameplayTag(RefrainGameplayTags::State_Attacking_Counter_Recovery);
 	}
 	
 	// 음악 재생 중이 아닐 경우 타격음 재생
@@ -176,6 +184,7 @@ void URAGA_CounterAttack::PlayAttackMontage()
 			0.f);
 	MontageTask->OnCompleted.AddDynamic(this, &URAGA_CounterAttack::OnMontageCompleted);
 	MontageTask->OnInterrupted.AddDynamic(this, &URAGA_CounterAttack::OnMontageInterrupted);
+	MontageTask->OnCancelled.AddDynamic(this, &URAGA_CounterAttack::OnMontageCancelled);
 	MontageTask->ReadyForActivation();
 }
 

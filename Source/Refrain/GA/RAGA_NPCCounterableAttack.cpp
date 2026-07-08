@@ -80,6 +80,11 @@ void URAGA_NPCCounterableAttack::EndAbility(const FGameplayAbilitySpecHandle Han
 	
 	ClearAttackTiming();
 	ClearAttackMotionWarpTarget();
+	
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+	{
+		ASC->RemoveLooseGameplayTag(RefrainGameplayTags::State_Attacking_Counterable_InWindow);
+	}
 }
 
 void URAGA_NPCCounterableAttack::OnMontageCompleted()
