@@ -68,7 +68,7 @@ protected:
 	FVector FollowOffset = FVector(-120.f, 100.f, 100.f);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Mascot")
-	float FollowInterpSpeed = 3.5f;
+	float FollowInterpSpeed = 4.5f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Mascot")
 	float HoverAmplitude = 5.f;
