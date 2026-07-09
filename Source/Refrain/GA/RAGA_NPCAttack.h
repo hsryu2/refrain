@@ -20,16 +20,18 @@ class REFRAIN_API URAGA_NPCAttack : public UGameplayAbility
 public:
 	URAGA_NPCAttack();
 
+protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	
+protected:
 	UFUNCTION()
 	void OnMontageFinished();
-protected:
-	/** NPC가 태어날 때 가질 기본 어빌리티 목록 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS")
-	TArray<TSubclassOf<class UGameplayAbility>> DefaultAbilities;
 	
+	UFUNCTION()
+	void OnAttackHit(FGameplayEventData Payload);
+
+protected:
 	/** 애님 몽타주를 가리킬 변수 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UAnimMontage> AttackMontage;
@@ -39,9 +41,6 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Damage)
 	float DamageAmount = 10.0f;
-	
-	UFUNCTION()
-	void OnAttackHit(FGameplayEventData Payload);
 	
 	UPROPERTY()
 	TObjectPtr<ARACharacterNonPlayer> NPC;

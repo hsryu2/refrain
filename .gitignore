@@ -3,11 +3,17 @@ __ExternalActors__/
 
 # 애셋
 Content/ThirdPersonTemplate
-Content/8WayFlyAnimation
-Content/RamsterZ_FreeAnims_Volume1
+Content/Vefects
+Content/ParagonAnimationsRetargetedToManny
+Content/Protector
+Content/Ruined_Modern_Buildings
+Content/_ChargeGatherVFX
 
 # AI mcp
 .ai/
+.codex/
+.agents/
+.mcp.json
 
 # 플러그인
 Plugins/

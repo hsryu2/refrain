@@ -51,13 +51,14 @@ protected:
 	
 	virtual void Die() override;
 	
-	FTimerHandle DeathTimerHandle;
-	virtual void TriggerDissolve();
 #if WITH_EDITOR
 	/** 디테일 패널에서 수정을 감지하기 위한 함수 */
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 
+public:
+	UWidgetComponent* GetRhythmTargetWidget() const { return RhythmTargetWidget; }
+	
 private:
 	/** 타이밍 연출을 담당하기 위한 위젯 컴포넌트 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = true))
@@ -106,7 +107,10 @@ private:
 	TSubclassOf<class UGameplayEffect> InitStatEffect;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Targeting, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UAttackTargetingComponent> TargetingComponent;
+	TObjectPtr<class UAttackHitSweepComponent> AttackHitSweepComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=MotionWarping, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UMotionWarpingComponent> MotionWarpingComponent;
 	
 	/**
 	 * @brief 체력 속성 변경 시 호출되는 콜백 함수

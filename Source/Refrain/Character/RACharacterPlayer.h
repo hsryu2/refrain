@@ -12,6 +12,7 @@
 #include "RACharacterPlayer.generated.h"
 
 class ARACharacterNonPlayer;
+class AMascotBase;
 
 UCLASS()
 class REFRAIN_API ARACharacterPlayer : public ARACharacterBase
@@ -25,6 +26,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:	
 	// Called every frame
@@ -45,11 +47,15 @@ protected:
 protected:
 	
 	void SetIMC();
+	
 	UPROPERTY(EditAnywhere, Category = Input, BlueprintReadOnly)
 	TObjectPtr<class UInputMappingContext> DefaultContext;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Input)
 	TObjectPtr<class UInputAction> AttackAction;
+	
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category=Input)
+	TObjectPtr<class UInputAction> CounterAction;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Input)
 	TObjectPtr<class UInputAction> MoveAction;
@@ -61,7 +67,6 @@ protected:
 	TObjectPtr<class UInputAction> DodgeAction;
 	
 public:
-	UAnimMontage* GetAttackMontage(int32 ComboIndex) const;
 	UAnimMontage* GetDodgeMontage() const;
 	
 // 기본 동작
@@ -69,9 +74,11 @@ protected:
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	
-//GAS
 public:
+	// GAS 설정, 마스코트 스폰
 	virtual void PossessedBy(AController* NewController) override;
+	
+	virtual void Die() override;
 
 protected:
 	
@@ -87,13 +94,29 @@ protected:
 	void GASInputPressed(int32 InputId);
 	void GASInputReleased(int32 InputId);
 	
-// 타겟팅 컴포넌트
+
 protected:
+	// 타겟팅 컴포넌트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Targeting)
 	TObjectPtr<class UAttackTargetingComponent> TargetingComponent;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=MotionWarping)
 	TObjectPtr<class UMotionWarpingComponent> MotionWarpingComponent;
+	
+	// 컴뱃컴포넌트.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
+	TObjectPtr<class UNPCCombatStateComponent> CombatManagerComponent;
+
+// 마스코트 클래스 및 포인터 
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Mascot)
+	TSubclassOf<AMascotBase> MascotClass;
+
+	UPROPERTY(Transient)
+	TObjectPtr<AMascotBase> SpawnedMascot;
+
+	void SpawnMascot();
+	void DestroyMascot();
 	
 private:
 	// 현재 타겟팅 중인 NPC

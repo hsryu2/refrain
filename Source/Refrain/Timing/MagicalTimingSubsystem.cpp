@@ -6,6 +6,7 @@
 #include "Components/AudioComponent.h"
 #include "Engine/AssetManager.h"
 #include "Engine/StreamableManager.h"
+#include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialParameterCollection.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
@@ -133,35 +134,49 @@ bool UMagicalTimingSubsystem::StartMusic()
 		return false;
 	}
 
-	// AudioComponent 생성
-	AudioComponent = UGameplayStatics::CreateSound2D(
-		GetWorld(), MusicSound, MusicVolume, 1.f, 0.f, nullptr, false, false);
-	if (!IsValid(AudioComponent))
+	// UAudioComponent 생성 및 포인터 저장 (bAutoActivate 방지)
+	MusicAudioComponent = NewObject<UAudioComponent>(GetWorld());
+	MusicAudioComponent->SetSound(MusicSound);
+	MusicAudioComponent->SetVolumeMultiplier(MusicVolume);
+	MusicAudioComponent->bAutoDestroy = false;
+	MusicAudioComponent->bIsUISound = true;
+	MusicAudioComponent->bAllowSpatialization = false;
+	MusicAudioComponent->bAutoActivate = false;
+	MusicAudioComponent->RegisterComponentWithWorld(GetWorld());
+	
+	if (!IsValid(MusicAudioComponent))
 	{
 		RA_LOG(LogRefrain, Error, TEXT("Failed to create audio component"));
 		return false;
 	}
 	
+	// 음악 종료 시 델리게이트 연동
+	MusicAudioComponent->OnAudioFinished.AddDynamic(this, &UMagicalTimingSubsystem::HandleMusicFinished);
+	
 	// 재생
 	FQuartzQuantizationBoundary QuantizationBoundary(EQuartzCommandQuantization::Bar);
 	UQuartzClockHandle* RawClockHandle = MusicClockHandle.Get();
-	AudioComponent->PlayQuantized(
+	MusicAudioComponent->PlayQuantized(
 		GetWorld(),
 		RawClockHandle,
 		QuantizationBoundary,
 		FOnQuartzCommandEventBP(),
 		MusicData->StartOffset);
+
+	RA_LOG(LogRefrain, Log, TEXT("Music Started! Song: %s, BPM: %f"), *MusicData->SongTitle, MusicData->BPM);
+	OnMusicStarted.Broadcast();
 	
-	return IsValid(AudioComponent);
+	return IsValid(MusicAudioComponent);
 }
 
 bool UMagicalTimingSubsystem::StopMusic()
 {
-	if (IsValid(AudioComponent))
+	if (IsValid(MusicAudioComponent))
 	{
-		AudioComponent->Stop();
-		AudioComponent->DestroyComponent();
-		AudioComponent = nullptr;
+		MusicAudioComponent->OnAudioFinished.RemoveDynamic(this, &UMagicalTimingSubsystem::HandleMusicFinished);
+		MusicAudioComponent->Stop();
+		MusicAudioComponent->DestroyComponent();
+		MusicAudioComponent = nullptr;
 	}
 	
 	if (IsValid(MusicClockHandle))
@@ -171,6 +186,77 @@ bool UMagicalTimingSubsystem::StopMusic()
 		MusicClockHandle = nullptr;
 	}
 
+	return true;
+}
+
+void UMagicalTimingSubsystem::PauseMusic()
+{
+	if (IsValid(MusicAudioComponent))
+	{
+		MusicAudioComponent->SetPaused(true);
+	}
+	
+	if (IsValid(MusicClockHandle))
+	{
+		UQuartzClockHandle* RawClockHandle = MusicClockHandle.Get();
+		MusicClockHandle->PauseClock(GetWorld(), RawClockHandle);
+	}
+	
+	RA_LOG(LogRefrain, Log, TEXT("Music Paused!"));
+	OnMusicPaused.Broadcast();
+}
+
+void UMagicalTimingSubsystem::ResumeMusic()
+{
+	if (IsValid(MusicAudioComponent))
+	{
+		MusicAudioComponent->SetPaused(false);
+	}
+	
+	if (IsValid(MusicClockHandle))
+	{
+		UQuartzClockHandle* RawClockHandle = MusicClockHandle.Get();
+		MusicClockHandle->ResumeClock(GetWorld(), RawClockHandle);
+	}
+	
+	RA_LOG(LogRefrain, Log, TEXT("Music Resumed!"));
+	OnMusicResumed.Broadcast();
+}
+
+bool UMagicalTimingSubsystem::PlaySFXQuantized(USoundBase* InSound, EQuartzCommandQuantization InQuantization, float InMultiplier, float InStartOffset)
+{
+	if (!IsMusicPlaying())
+	{
+		RA_LOG(LogRefrain, Error, TEXT("Music Not Playing"));
+		return false;
+	}
+	if (!IsValid(InSound))
+	{
+		RA_LOG(LogRefrain, Error, TEXT("Sound is not valid"));
+		return false;
+	}
+	
+	// UAudioComponent 생성
+	UAudioComponent* SFXAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), InSound);
+	if (!IsValid(SFXAudioComponent))
+	{
+		RA_LOG(LogRefrain, Error, TEXT("Failed to create audio component"));
+		return false;
+	}
+	
+	// 재생
+	FQuartzQuantizationBoundary QuantizationBoundary(
+		InQuantization,
+		FMath::Max(UE_KINDA_SMALL_NUMBER, InMultiplier),
+		EQuarztQuantizationReference::CurrentTimeRelative);
+	UQuartzClockHandle* RawClockHandle = MusicClockHandle.Get();
+	SFXAudioComponent->PlayQuantized(
+		GetWorld(),
+		RawClockHandle,
+		QuantizationBoundary,
+		FOnQuartzCommandEventBP(),
+		InStartOffset);
+	
 	return true;
 }
 
@@ -185,7 +271,57 @@ float UMagicalTimingSubsystem::GetBeatProgress()
 
 bool UMagicalTimingSubsystem::IsMusicPlaying()
 {
-	return IsValid(AudioComponent) && AudioComponent->IsPlaying() && IsValid(MusicClockHandle);
+	return IsValid(MusicClockHandle) && IsValid(MusicAudioComponent) && MusicAudioComponent->IsPlaying();
+}
+
+bool UMagicalTimingSubsystem::GetMusicTimeStamp(FQuartzTransportTimeStamp& OutTimeStamp) const
+{
+	if (!IsValid(MusicClockHandle))
+	{
+		OutTimeStamp = FQuartzTransportTimeStamp();
+		return false;
+	}
+	
+	OutTimeStamp = MusicClockHandle->GetCurrentTimestamp(GetWorld());
+	
+	return true;
+}
+
+float UMagicalTimingSubsystem::GetTimeUntilBeat(int Bar, float Beat)
+{
+	if (!IsValid(MusicClockHandle) || !IsValid(MusicData))
+	{
+		RA_LOG(LogRefrain, Error, TEXT("MusicClockHandle or MusicData is invalid"));
+		return -1.f;
+	}
+	
+	FQuartzTransportTimeStamp TimeStamp;
+	if (!GetMusicTimeStamp(TimeStamp))
+	{
+		RA_LOG(LogRefrain, Error, TEXT("Failed to get current timestamp"));
+		return -1.f;
+	}
+
+	if (Bar < 0 || Beat < 0.f || Beat >= MusicData->NumBeats + 1)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("Invalid target beat. Bar: %d, Beat: %.2f"), Bar, Beat);
+		return -1.f;
+	}
+
+	const float CurrentBeatInBar = static_cast<float>(TimeStamp.Beat) + TimeStamp.BeatFraction;
+	const float CurrentAbsoluteBeat = static_cast<float>(TimeStamp.Bars * MusicData->NumBeats) + CurrentBeatInBar;
+	const float TargetAbsoluteBeat = static_cast<float>(Bar * MusicData->NumBeats) + Beat;
+	const float BeatDelta = TargetAbsoluteBeat - CurrentAbsoluteBeat;
+
+	if (BeatDelta < 0.f)
+	{
+		RA_LOG(LogRefrain, Warning,
+			TEXT("Target beat is in the past. Current Bar: %d, Beat: %.2f, Target Bar: %d, Beat: %.2f"),
+			TimeStamp.Bars, CurrentBeatInBar, Bar, Beat);
+		return -1.f;
+	}
+
+	return BeatDelta * GetSecondsPerBeat();
 }
 
 float UMagicalTimingSubsystem::JudgeTiming(EQuartzCommandQuantization TargetQuantization, float Multiplier)
@@ -212,18 +348,20 @@ float UMagicalTimingSubsystem::JudgeTiming(EQuartzCommandQuantization TargetQuan
 	return SignedOffsetFromNearestBeat;
 }
 
-float UMagicalTimingSubsystem::GetTimeUntilNextHit(float MinimumStartupDelay, EQuartzCommandQuantization TargetQuantization, float Multiplier)
+float UMagicalTimingSubsystem::GetTimeUntilNextBeat(EQuartzCommandQuantization TargetQuantization, int MinBeatNum)
 {
-	const float TargetDuration = MusicClockHandle->GetDurationOfQuantizationTypeInSeconds(GetWorld(), TargetQuantization, Multiplier);
+	const float TargetDuration = MusicClockHandle->GetDurationOfQuantizationTypeInSeconds(GetWorld(), TargetQuantization);
 	float TargetProgress = MusicClockHandle->GetBeatProgressPercent(TargetQuantization);
 	
 	float TimeUntilNextHit = TargetDuration * (1.f - TargetProgress);
 	
-	// 최소 선딜레이 적용
+	/*// 최소 선딜레이 적용
 	while (TimeUntilNextHit < MinimumStartupDelay)
 	{
 		TimeUntilNextHit += TargetDuration;
-	}
+	}*/
+
+	TimeUntilNextHit += (MinBeatNum - 1) * TargetDuration;
 	
 	return TimeUntilNextHit;
 }
@@ -263,4 +401,10 @@ bool UMagicalTimingSubsystem::CreateQuartzClock()
 	MusicClockHandle->StartClock(World, RawClockHandle);
 
 	return true;
+}
+
+void UMagicalTimingSubsystem::HandleMusicFinished()
+{
+	RA_LOG(LogRefrain, Log, TEXT("Music Finished! Broadcasting OnMusicFinished."));
+	OnMusicFinished.Broadcast();
 }

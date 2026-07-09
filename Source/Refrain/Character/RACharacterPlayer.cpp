@@ -9,18 +9,23 @@
 #include "EnhancedInputComponent.h"
 #include "MotionWarpingComponent.h"
 #include "RACharacterNonPlayer.h"
+#include "Refrain.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Mascot/MascotBase.h"
 #include "Refrain/Animation/RACharacterAnimationData.h"
 #include "Refrain/Component/AttackTargetingComponent.h"
 #include "Refrain/Player/RAPlayerState.h"
 #include "Component/AttackTargetingComponent.h"
+#include "Component/NPCCombatStateComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Player/RAPlayerController.h"
 #include "UI/NPCHealthBarWidget.h"
+#include "Component/NPCCombatStateComponent.h"
+#include "UObject/ConstructorHelpers.h"
 
 class ARAPlayerController;
 // Sets default values
@@ -39,7 +44,7 @@ ARACharacterPlayer::ARACharacterPlayer()
 	// Camera
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(RootComponent);
-	SpringArm->TargetArmLength = 400.0f;
+	SpringArm->TargetArmLength = 500.0f;
 	SpringArm->bUsePawnControlRotation = true;
 	
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
@@ -72,10 +77,22 @@ ARACharacterPlayer::ARACharacterPlayer()
 		AttackAction = InputActionAttackRef.Object;
 	}
 	
+	static ConstructorHelpers::FObjectFinder<UInputAction> CounterActionAttackRef(TEXT("/Game/Refrain/Input/InputAction/IA_Counter.IA_Counter"));
+	if (CounterActionAttackRef.Succeeded())
+	{
+		CounterAction = CounterActionAttackRef.Object;
+	}
+	
 	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionDodgeRef(TEXT("/Game/Refrain/Input/InputAction/IA_Dodge.IA_Dodge"));
-	if (InputActionAttackRef.Succeeded())
+	if (InputActionDodgeRef.Succeeded())
 	{
 		DodgeAction = InputActionDodgeRef.Object;
+	}
+
+	static ConstructorHelpers::FClassFinder<AMascotBase> MascotClassRef(TEXT("/Game/Refrain/Characters/Mascot/BP_MascotDuck"));
+	if (MascotClassRef.Succeeded())
+	{
+		MascotClass = MascotClassRef.Class;
 	}
 	
 	// GAS
@@ -84,6 +101,7 @@ ARACharacterPlayer::ARACharacterPlayer()
 	// 컴포넌트
 	TargetingComponent = CreateDefaultSubobject<UAttackTargetingComponent>(TEXT("TargetingComponent"));
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
+	CombatManagerComponent = CreateDefaultSubobject<UNPCCombatStateComponent>(TEXT("CombatManagerComponent"));
 }
 
 // Called when the game starts or when spawned
@@ -92,6 +110,13 @@ void ARACharacterPlayer::BeginPlay()
 	Super::BeginPlay();
 	
 	SetIMC();
+}
+
+void ARACharacterPlayer::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	DestroyMascot();
+
+	Super::EndPlay(EndPlayReason);
 }
 
 // Called every frame
@@ -108,114 +133,6 @@ void ARACharacterPlayer::Tick(float DeltaTime)
 	{
 		UpdateTarget(NewTarget);
 	}
-}
-
-void ARACharacterPlayer::PossessedBy(AController* NewController)
-{
-	Super::PossessedBy(NewController);
-	
-	ARAPlayerState* GASPS = GetPlayerState<ARAPlayerState>();
-	if (GASPS)
-	{
-		ASC = GASPS->GetAbilitySystemComponent();
-		ASC->InitAbilityActorInfo(GASPS, this);
-		
-		for (const auto& StartAbility : StartAbilities)
-		{
-			FGameplayAbilitySpec StartSpec(StartAbility);
-			ASC->GiveAbility(StartSpec);
-		}
-
-		for (const auto& StartInputAbility : StartInputAbilities)
-		{
-			FGameplayAbilitySpec StartSpec(StartInputAbility.Value);
-			StartSpec.InputID = StartInputAbility.Key;
-			ASC->GiveAbility(StartSpec);
-		}
-		
-		ARAPlayerController* RAPlayerController = Cast<ARAPlayerController>(NewController);
-		if (RAPlayerController)
-		{
-			RAPlayerController->InitHealthHUD(ASC);
-		}
-	}
-}
-void ARACharacterPlayer::SetupGASInputComponent()
-{
-	if (IsValid(ASC) && IsValid(InputComponent))
-	{
-		UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
-		
-		// GAS로 만들 플레이어 액션 여기에 추가.
-		// (GetInputPressed, InputId)로 추가.
-		EnhancedInputComponent->BindAction(
-			AttackAction, ETriggerEvent::Triggered, this, &ARACharacterPlayer::GASInputPressed, 0);
-		EnhancedInputComponent->BindAction(
-			DodgeAction, ETriggerEvent::Triggered, this, &ARACharacterPlayer::GASInputPressed, 1);
-	}
-}
-
-void ARACharacterPlayer::GASInputPressed(int32 InputId)
-{
-	FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromInputID(InputId);
-	if (Spec)
-	{
-		Spec->InputPressed = true;
-		if (Spec->IsActive())
-		{
-			ASC->AbilitySpecInputPressed(*Spec);
-		}
-		else
-		{
-			ASC->TryActivateAbility(Spec->Handle);
-		}
-	}
-}
-
-void ARACharacterPlayer::GASInputReleased(int32 InputId)
-{
-	FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromInputID(InputId);
-	if (Spec)
-	{
-		Spec->InputPressed = false;
-		if (Spec->IsActive())
-		{
-			ASC->AbilitySpecInputReleased(*Spec);
-		}
-	}
-}
-
-void ARACharacterPlayer::UpdateTarget(ARACharacterNonPlayer* NewTarget)
-{
-	// 기존 타겟이 있었다면, 그 타겟의 체력바를 숨김.
-	if (CurrentTarget)
-	{
-		UWidgetComponent* HealthBarComp = CurrentTarget->GetHealthWidgetComponent();
-		if (HealthBarComp)
-		{
-			HealthBarComp->SetVisibility(false);
-		}
-	}
-	
-	// 새로운 타겟을 현재 타겟으로 변경.
-	CurrentTarget = NewTarget;
-	
-	if (CurrentTarget)
-	{
-		UWidgetComponent* HealthBarComp = CurrentTarget->GetHealthWidgetComponent();
-		if (HealthBarComp)
-		{
-			HealthBarComp->SetVisibility(true);
-			
-			UNPCHealthBarWidget* HealthBarWidget = Cast<UNPCHealthBarWidget>(HealthBarComp->GetUserWidgetObject());
-			if (HealthBarWidget)
-			{
-				UAbilitySystemComponent* TargetASC = CurrentTarget->GetAbilitySystemComponent();
-				HealthBarWidget->SetOwnerASC(TargetASC);
-			}
-		}
-	}
-	
 }
 
 // Called to bind functionality to input
@@ -265,26 +182,6 @@ void ARACharacterPlayer::SetIMC()
 	}
 }
 
-UAnimMontage* ARACharacterPlayer::GetAttackMontage(int32 ComboIndex) const
-{
-	if (!AnimationData)
-	{
-		return nullptr;
-	}
-	switch (ComboIndex)
-	{
-	case 1:
-		return AnimationData->AttackMontage_1;
-	case 2:
-		return AnimationData->AttackMontage_2;
-	case 3:
-		return AnimationData->AttackMontage_3;
-	default:
-		return nullptr;
-	}
-
-}
-
 UAnimMontage* ARACharacterPlayer::GetDodgeMontage() const
 {
 	return AnimationData->DodgeMontage;
@@ -320,5 +217,184 @@ void ARACharacterPlayer::Look(const FInputActionValue& Value)
 
 	// 마우스를 올리면 위로 보도록 -1을 곱함.
 	AddControllerPitchInput((RotationValue.Y) * 0.5);
+}
+
+void ARACharacterPlayer::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	
+	ARAPlayerState* GASPS = GetPlayerState<ARAPlayerState>();
+	if (GASPS)
+	{
+		ASC = GASPS->GetAbilitySystemComponent();
+		ASC->InitAbilityActorInfo(GASPS, this);
+		
+		for (const auto& StartAbility : StartAbilities)
+		{
+			FGameplayAbilitySpec StartSpec(StartAbility);
+			ASC->GiveAbility(StartSpec);
+		}
+
+		for (const auto& StartInputAbility : StartInputAbilities)
+		{
+			FGameplayAbilitySpec StartSpec(StartInputAbility.Value);
+			StartSpec.InputID = StartInputAbility.Key;
+			ASC->GiveAbility(StartSpec);
+		}
+		
+		ARAPlayerController* RAPlayerController = Cast<ARAPlayerController>(NewController);
+		if (RAPlayerController)
+		{
+			RAPlayerController->InitHealthHUD(ASC);
+		}
+	}
+
+	SpawnMascot();
+}
+
+void ARACharacterPlayer::Die()
+{
+	Super::Die();
+	
+	// 애니메이션 재생
+	if (AnimationData && AnimationData->DeathMontage)
+	{
+		PlayAnimMontage(AnimationData->DeathMontage);
+	}
+	
+	// 플레이어 입력 막기
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		DisableInput(PC);
+		
+		// 게임오버 위젯 띄우기
+		if (ARAPlayerController* RAPC = Cast<ARAPlayerController>(PC))
+		{
+			RAPC->ShowGameOverUI();
+		}
+	}
+}
+
+void ARACharacterPlayer::SetupGASInputComponent()
+{
+	if (IsValid(ASC) && IsValid(InputComponent))
+	{
+		UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
+		
+		// GAS로 만들 플레이어 액션 여기에 추가.
+		// (GetInputPressed, InputId)로 추가.
+		EnhancedInputComponent->BindAction(
+			AttackAction, ETriggerEvent::Triggered, this, &ARACharacterPlayer::GASInputPressed, 0);
+		EnhancedInputComponent->BindAction(
+			DodgeAction, ETriggerEvent::Triggered, this, &ARACharacterPlayer::GASInputPressed, 1);
+		EnhancedInputComponent->BindAction(
+			CounterAction, ETriggerEvent::Triggered, this, &ARACharacterPlayer::GASInputPressed, 2);
+	}
+}
+
+void ARACharacterPlayer::GASInputPressed(int32 InputId)
+{
+	FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromInputID(InputId);
+	if (Spec)
+	{
+		Spec->InputPressed = true;
+		if (Spec->IsActive())
+		{
+			ASC->AbilitySpecInputPressed(*Spec);
+		}
+		else
+		{
+			ASC->TryActivateAbility(Spec->Handle);
+		}
+	}
+}
+
+void ARACharacterPlayer::GASInputReleased(int32 InputId)
+{
+	FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromInputID(InputId);
+	if (Spec)
+	{
+		Spec->InputPressed = false;
+		if (Spec->IsActive())
+		{
+			ASC->AbilitySpecInputReleased(*Spec);
+		}
+	}
+}
+
+void ARACharacterPlayer::SpawnMascot()
+{
+	if (IsValid(SpawnedMascot))
+	{
+		SpawnedMascot->SetFollowTarget(this);
+		return;
+	}
+
+	if (!MascotClass)
+	{
+		RA_LOG(LogRefrain, Warning, TEXT("MascotClass is not set."));
+		return;
+	}
+
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.Instigator = this;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	SpawnedMascot = World->SpawnActor<AMascotBase>(MascotClass, GetActorLocation(), GetActorRotation(), SpawnParams);
+
+	if (SpawnedMascot)
+	{
+		SpawnedMascot->SetFollowTarget(this);
+	}
+}
+
+void ARACharacterPlayer::DestroyMascot()
+{
+	if (IsValid(SpawnedMascot))
+	{
+		SpawnedMascot->Destroy();
+	}
+
+	SpawnedMascot = nullptr;
+}
+
+void ARACharacterPlayer::UpdateTarget(ARACharacterNonPlayer* NewTarget)
+{
+	// 기존 타겟이 있었다면, 그 타겟의 체력바를 숨김.
+	if (CurrentTarget)
+	{
+		UWidgetComponent* HealthBarComp = CurrentTarget->GetHealthWidgetComponent();
+		if (HealthBarComp)
+		{
+			HealthBarComp->SetVisibility(false);
+		}
+	}
+	
+	// 새로운 타겟을 현재 타겟으로 변경.
+	CurrentTarget = NewTarget;
+	
+	if (CurrentTarget)
+	{
+		UWidgetComponent* HealthBarComp = CurrentTarget->GetHealthWidgetComponent();
+		if (HealthBarComp)
+		{
+			HealthBarComp->SetVisibility(true);
+			
+			UNPCHealthBarWidget* HealthBarWidget = Cast<UNPCHealthBarWidget>(HealthBarComp->GetUserWidgetObject());
+			if (HealthBarWidget)
+			{
+				UAbilitySystemComponent* TargetASC = CurrentTarget->GetAbilitySystemComponent();
+				HealthBarWidget->SetOwnerASC(TargetASC);
+			}
+		}
+	}
+	
 }
 

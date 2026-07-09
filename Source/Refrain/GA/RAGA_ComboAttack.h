@@ -4,8 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
+#include "Player/RAPlayerState.h"
+#include "Camera/CameraShakeBase.h"
 #include "RAGA_ComboAttack.generated.h"
 
+struct FRAHitSoundData;
 class UAttackTargetingComponent;
 class ARACharacterBase;
 class ARACharacterPlayer;
@@ -14,7 +17,7 @@ class ARACharacterPlayer;
  * 몽타주 속도 설정 후 BPM에 맞춰 타격까지 재생하는 함수. 콤보 실행.
  * 몽타주 추가 시 애니메이션데이터 배열에 추가, 몽타주에 이벤트 태그 설정
  * 콤보 입력은 애니메이션 재생 시작시부터 NextComboStart 전까지 최초 1회만 받음
- * TODO: 판정 타이밍 저장 기능 완성 안 됨(대미지 관련 기능 포함)
+ * 타이밍 판정 결과 저장
  */
 UCLASS()
 class REFRAIN_API URAGA_ComboAttack : public UGameplayAbility
@@ -25,31 +28,36 @@ public:
 	URAGA_ComboAttack();
 	
 protected:
-// 재정의 함수
+	// 재정의 함수
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	
 protected:
-// 델리게이트로 실행되는 함수
+	// 델리게이트로 실행되는 함수
 	UFUNCTION()
 	void OnMontageCompleted();
 	UFUNCTION()
 	void OnMontageInterrupted();
+
+	UFUNCTION()
+	void OnMontageCancelled();
 	
+	// 대미지 전달 시점
 	UFUNCTION()
 	void OnAttackHit(FGameplayEventData Payload);
 	
+	// 재생 속도 조절 노티파이
 	UFUNCTION()
 	void OnMontagePlayRate(FGameplayEventData Payload);
 	
 	UFUNCTION()
 	void OnNextComboStart(FGameplayEventData Payload);
 
+// 내부 로직
 protected:
 	// 공격
 	void Attack();
-	
 	// 공격 애니메이션 실행
 	void PlayAttackMontage();
 	
@@ -59,9 +67,6 @@ protected:
 	// 모션 워핑 (몽타주 재생 전, 후 실행)
 	void UpdateAttackMotionWarpTarget();
 	void ClearAttackMotionWarpTarget();
-	
-	// 몽타주 안에서 해당 몽타주 안의 UAN_SendGameplayEvent 노티파이가 위치한 시간을 반환하는 함수. 실패 시 -1.f 반환
-	float FindGameplayEventNotifyTime(const UAnimMontage* Montage, const FGameplayTag EventTag = FGameplayTag::EmptyTag) const;
 
 	// TargetActor 상태 검사 후 null이거나 죽어있으면 새로운 타겟 검색 
 	void SetTargetActor();
@@ -77,11 +82,17 @@ protected:
 	
 	// 다음 콤보 예약
 	void SetNextCombo();
+	
+	// 타격 효과음 반환(CurrentCombo)
+	const FRAHitSoundData* GetHitSoundData() const;
+	
+	// 타격 효과음 재생
+	void QueueHitSound();
 
 protected:
-// 블루프린트에서 설정할 변수
+	// 블루프린트에서 설정할 변수
 	// 대미지 GE
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Damage)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Damage)
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 	
 protected:
@@ -118,4 +129,14 @@ protected:
 	float StrikePlayRate;
 	float RecoveryPlayRate;
 	float MontageStartTime;
+	float HitSoundBeatMultiplier = 1.f;
+	
+protected:
+	// PlayState에 점수 계산을 위해 판정 전달.
+	void SendJudgementToPlayerState(ERAHitJudgement Judgement);
+	
+protected:
+	// 카메라 쉐이크
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Camera")
+	TSubclassOf<UCameraShakeBase> HitCameraShakeClass;
 };

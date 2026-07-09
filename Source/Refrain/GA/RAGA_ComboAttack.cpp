@@ -10,19 +10,29 @@
 #include "RefrainGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "Animation/AnimMontage.h"
 #include "Animation/AN_SendGameplayEvent.h"
 #include "Animation/RACharacterAnimationData.h"
 #include "Attribute/RAAttributeSet.h"
 #include "Character/RACharacterBase.h"
 #include "Component/AttackTargetingComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "DSP/AudioDebuggingUtilities.h"
+#include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
 #include "Timing/MagicalTimingSubsystem.h"
+#include "Util/RAUtils.h"
 
 class UMotionWarpingComponent;
 
 URAGA_ComboAttack::URAGA_ComboAttack()
 {
-	FGameplayTagContainer Tags(RefrainGameplayTags::Ability_Attack);
-	SetAssetTags(Tags);;
+	FGameplayTagContainer Tags(RefrainGameplayTags::Ability_Attack_Combo);
+	SetAssetTags(Tags);
+	
+	ActivationOwnedTags.AddTag(RefrainGameplayTags::State_Attacking_Combo);
+	
+	ActivationBlockedTags.AddTag(RefrainGameplayTags::State_Dodging);
 	
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
@@ -80,8 +90,6 @@ void URAGA_ComboAttack::InputPressed(const FGameplayAbilitySpecHandle Handle, co
 
 void URAGA_ComboAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	RA_LOG(LogRefrain, Log, TEXT("Start"));
-	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 	
 	ClearAttackMotionWarpTarget();
@@ -103,6 +111,11 @@ void URAGA_ComboAttack::OnMontageInterrupted()
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }
 
+void URAGA_ComboAttack::OnMontageCancelled()
+{
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+}
+
 void URAGA_ComboAttack::OnAttackHit(FGameplayEventData Payload)
 {
 	// 대미지 적용
@@ -119,6 +132,109 @@ void URAGA_ComboAttack::OnAttackHit(FGameplayEventData Payload)
 	{
 		RA_LOG(LogRefrain, Log, TEXT("SourceASC or TargetASC Not Found"));
 	}
+	
+	// 공격 GE 실행
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+	{
+		FGameplayCueParameters CueParams;
+		CueParams.Instigator = AvatarCharacter;
+		CueParams.SourceObject = this;
+		CueParams.Location = AvatarCharacter->GetActorLocation();
+		CueParams.Normal = AvatarCharacter->GetActorForwardVector();
+		
+		//ASC->ExecuteGameplayCue(RefrainGameplayTags::GameplayCue_Attack, CueParams);
+	}
+	
+	ERAHitJudgement HitJudgement = ERAHitJudgement::Miss;
+	if (CurrentJudgementTag == RefrainGameplayTags::Judge_Perfect)
+	{
+		HitJudgement = ERAHitJudgement::Perfect;
+	}
+	else if (CurrentJudgementTag == RefrainGameplayTags::Judge_Good)
+	{
+		HitJudgement = ERAHitJudgement::Good;
+	}
+	else if (CurrentJudgementTag == RefrainGameplayTags::Judge_Bad)
+	{
+		HitJudgement = ERAHitJudgement::Bad;
+	}
+
+	if (HitJudgement == ERAHitJudgement::Perfect)
+	{
+		if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+		{
+			FGameplayCueParameters CueParams;
+			CueParams.Instigator = AvatarCharacter;
+			CueParams.EffectCauser = TargetActor;
+			CueParams.SourceObject = this;
+			CueParams.Location = TargetActor ? TargetActor->GetActorLocation() : AvatarCharacter->GetActorLocation();
+			CueParams.Normal = AvatarCharacter->GetActorForwardVector();
+
+			ASC->ExecuteGameplayCue(RefrainGameplayTags::GameplayCue_Attack_Perfect, CueParams);
+		}
+	}
+
+	SendJudgementToPlayerState(HitJudgement);
+	
+	// 카메라 쉐이크
+	if (HitCameraShakeClass && HitJudgement != ERAHitJudgement::Miss)
+	{
+		if (APlayerController* PC = GetActorInfo().PlayerController.Get())
+		{
+			// 판정에 따라 Shake 강약 조절
+			float ShakeScale = 0.5f;
+
+			switch (HitJudgement)
+			{
+			case ERAHitJudgement::Perfect:
+				ShakeScale = 1.2f;
+				break;
+				
+			case ERAHitJudgement::Good:
+				ShakeScale = 1.0f;
+				break;
+				
+			case ERAHitJudgement::Bad:
+				ShakeScale = 0.8f;
+				break;
+			}
+			
+			PC->ClientStartCameraShake(HitCameraShakeClass, ShakeScale);
+		}
+	}
+	
+	// 노래 재생 중이 아닐 때 타격음 재생
+	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
+	if (!MagicalTiming || !MagicalTiming->IsMusicPlaying())
+	{
+		if (const FRAHitSoundData* HitSoundData = GetHitSoundData())
+		{
+			if (HitSoundData->HitSound)
+			{
+				UGameplayStatics::PlaySound2D(this, HitSoundData->HitSound);
+			}
+		}
+	}
+	
+	const ARACharacterBase* RACharacter = Cast<ARACharacterBase>(AvatarCharacter);
+	const URACharacterAnimationData* AnimationData = RACharacter->GetAnimationData();
+	check(AnimationData);
+	
+	if (AnimationData->ComboAttacks.IsEmpty())
+	{
+		return;
+	}
+		
+	const int MontageArrayNum = AnimationData->ComboAttacks.Num();
+	const int ComboIndex = CurrentCombo % MontageArrayNum;
+	
+	float KnockbackDis = AnimationData->ComboAttacks[ComboIndex].KnockbackDistance;
+	
+	// 넉백 관련 이벤트 페이로드
+	Payload.EventMagnitude = KnockbackDis;
+	
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(TargetActor, RefrainGameplayTags::State_HitReact, Payload);
+	
 }
 
 void URAGA_ComboAttack::OnMontagePlayRate(FGameplayEventData Payload)
@@ -187,17 +303,13 @@ void URAGA_ComboAttack::PlayAttackMontage()
 	{
 		UpdateAttackMotionWarpTarget();
 	}
-	
-	// 공격 GE 실행
-	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+	else
 	{
-		FGameplayCueParameters CueParams;
-		CueParams.Instigator = AvatarCharacter;
-		CueParams.SourceObject = this;
-		CueParams.Location = AvatarCharacter->GetActorLocation();
-		CueParams.Normal = AvatarCharacter->GetActorForwardVector();
-		
-		ASC->ExecuteGameplayCue(RefrainGameplayTags::GameplayCue_Attack, CueParams);
+		ClearAttackMotionWarpTarget();
+	}
+	if (TargetActor)
+	{
+		QueueHitSound();
 	}
 	
 	// 현재 콤보에 따라서 Montage AT 실행 및 델리게이트 등록
@@ -213,24 +325,24 @@ void URAGA_ComboAttack::PlayAttackMontage()
 			MontageStartTime);
 	MontageTask->OnCompleted.AddDynamic(this, &URAGA_ComboAttack::OnMontageCompleted);
 	MontageTask->OnInterrupted.AddDynamic(this, &URAGA_ComboAttack::OnMontageInterrupted);
+	MontageTask->OnCancelled.AddDynamic(this, &URAGA_ComboAttack::OnMontageCancelled);
 	MontageTask->ReadyForActivation();
 }
 
 UAnimMontage* URAGA_ComboAttack::GetNextAttackAnimMontage() const
 {
-	const ARACharacterBase* RACharacter = Cast<ARACharacterBase>(AvatarCharacter);
-	const URACharacterAnimationData* AnimationData = RACharacter->GetAnimationData();
+	const URACharacterAnimationData* AnimationData = AvatarCharacter->GetAnimationData();
 	check(AnimationData);
 	
-	if (AnimationData->AttackMontages.IsEmpty())
+	if (AnimationData->ComboAttacks.IsEmpty())
 	{
 		RA_LOG(LogRefrain, Warning, TEXT("AttackMontages Array Empty"));
-		return AnimationData->AttackMontage_1;
+		return nullptr;
 	}
 	
-	const int MontageArrayNum = AnimationData->AttackMontages.Num();
+	const int MontageArrayNum = AnimationData->ComboAttacks.Num();
 	
-	return AnimationData->AttackMontages[CurrentCombo % MontageArrayNum];
+	return AnimationData->ComboAttacks[CurrentCombo % MontageArrayNum].Montage;
 }
 
 void URAGA_ComboAttack::UpdateAttackMotionWarpTarget()
@@ -263,10 +375,34 @@ void URAGA_ComboAttack::UpdateAttackMotionWarpTarget()
 			RA_LOG(LogRefrain, Error, TEXT("TargetMesh Not Found"));
 			return;
 		}
-		// 모션워핑에 필요한 정보 설정 (현재 오프셋 설정 안 됨)
+		
+		const ARACharacterBase* RACharacter = Cast<ARACharacterBase>(AvatarCharacter);
+		const URACharacterAnimationData* AnimationData = RACharacter->GetAnimationData();
+		check(AnimationData);
+		
+		if (AnimationData->ComboAttacks.IsEmpty())
+		{
+			return;
+		}
+		
+		const int MontageArrayNum = AnimationData->ComboAttacks.Num();
+		const int ComboIndex = CurrentCombo % MontageArrayNum;
+
+		UAnimMontage* AnimMontage = AnimationData->ComboAttacks[ComboIndex].Montage;
+		FVector Offset = AnimationData->ComboAttacks[ComboIndex].MotionWarpLocationOffset;
+		
+		// 거리에 따라 기존 오프셋 사용 혹은 현재 거리만 적용.
+		float CurrentDistance = FVector::Dist2D(TargetActor->GetActorLocation(), AvatarCharacter->GetActorLocation());
+		if (Offset.X >= CurrentDistance)
+		{
+			Offset.X = 0.0f;
+		}
+		
+		
+		// 모션워핑에 필요한 정보 설정
 		MotionWarpingComponent->AddOrUpdateWarpTargetFromComponent(
 			FName(TEXT("Enemy")), TargetMesh, NAME_None, true, 
-			EWarpTargetLocationOffsetDirection::VectorFromTargetToOwner);
+			EWarpTargetLocationOffsetDirection::VectorFromTargetToOwner, Offset);
 	}
 }
 
@@ -277,25 +413,6 @@ void URAGA_ComboAttack::ClearAttackMotionWarpTarget()
 	{
 		MotionWarpingComponent->RemoveAllWarpTargets();
 	}
-}
-
-float URAGA_ComboAttack::FindGameplayEventNotifyTime(const UAnimMontage* Montage, const FGameplayTag EventTag) const
-{
-	if (!Montage)
-	{
-		return -1.f;
-	}
-	
-	for (const FAnimNotifyEvent& NotifyEvent : Montage->Notifies)
-	{
-		const UAN_SendGameplayEvent* EventNotify = Cast<UAN_SendGameplayEvent>(NotifyEvent.Notify);
-		if (EventNotify && EventNotify->EventTag == EventTag)
-		{
-			return NotifyEvent.GetTime();
-		}
-	}
-	
-	return -1.f;
 }
 
 void URAGA_ComboAttack::SetTargetActor()
@@ -318,6 +435,7 @@ void URAGA_ComboAttack::SetTargetActor()
 		TargetActor = TargetingComponent->FindAttackTarget();
 	}
 }
+
 
 FGameplayTag URAGA_ComboAttack::SetJudgement()
 {
@@ -347,11 +465,11 @@ FGameplayTag URAGA_ComboAttack::SetJudgement()
 	{
 		ResultTag = RefrainGameplayTags::Judge_Miss;
 	}
-	else if (AbsTimingDifference < 0.05f)
+	else if (AbsTimingDifference < 0.08f)
 	{
 		ResultTag = RefrainGameplayTags::Judge_Perfect;
 	}
-	else if (AbsTimingDifference < 0.2f)
+	else if (AbsTimingDifference < 0.17f)
 	{
 		ResultTag = RefrainGameplayTags::Judge_Good;
 	}
@@ -361,6 +479,7 @@ FGameplayTag URAGA_ComboAttack::SetJudgement()
 	}
 	
 	RA_LOG(LogRefrain, Log, TEXT("[콤보 %d] 입력 타이밍 오차: %.3f초 -> 판정 결과: %s"), CurrentCombo, TimingDifference, *ResultTag.ToString());
+	
 	
 	return ResultTag;
 }
@@ -409,6 +528,9 @@ void URAGA_ComboAttack::CalculatePlayRates(const UAnimMontage* Montage)
 	
 	const float MaxPlayRate = 3.f;
 	
+	MontageStartTime = 0.f;
+	HitSoundBeatMultiplier = 1.f;
+	
 	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
 	if (!MagicalTiming || !MagicalTiming->IsMusicPlaying())
 	{
@@ -421,9 +543,9 @@ void URAGA_ComboAttack::CalculatePlayRates(const UAnimMontage* Montage)
 	const float PlayLength = Montage->GetPlayLength();
 	
 	// 몽타주 안에서 태그가 위치한 시간
-	const float MontageTime1 = FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_StartupToAnticipation);
-	const float MontageTime2 = FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_AnticipationToStrike);
-	const float MontageTime3 = FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_StrikeToRecovery);
+	const float MontageTime1 = URAUtils::FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_StartupToAnticipation);
+	const float MontageTime2 = URAUtils::FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_AnticipationToStrike);
+	const float MontageTime3 = URAUtils::FindGameplayEventNotifyTime(Montage, RefrainGameplayTags::Event_Montage_PlayRate_StrikeToRecovery);
 	if (MontageTime1 < 0.f || MontageTime2 < 0.f || MontageTime3 < 0.f)
 	{
 		RA_LOG(LogRefrain, Error, TEXT("Montage Notify Time Not Found: %f, %f, %f"), MontageTime1, MontageTime2, MontageTime3);
@@ -442,9 +564,9 @@ void URAGA_ComboAttack::CalculatePlayRates(const UAnimMontage* Montage)
 		(1.f + StartupToAnticipationInBeatProgress - BeatProgress) * SecondsPerBeat;
 	TargetTime1 = FMath::Max(TargetTime1, UE_KINDA_SMALL_NUMBER);
 	StartupPlayRate = MontageTime1 / TargetTime1;
+	HitSoundBeatMultiplier = BeatProgress < StartupToAnticipationInBeatProgress ? 1.f : 2.f;
 	
 	// 예외처리 - 초반구간 재생속도가 너무 빠를 경우 앞부분 스킵
-	MontageStartTime = 0.f;
 	if (StartupPlayRate > MaxPlayRate)
 	{
 		MontageStartTime = FMath::Clamp(MontageTime1 - TargetTime1 * MaxPlayRate, 0.f, MontageTime1);
@@ -471,3 +593,89 @@ void URAGA_ComboAttack::SetNextCombo()
 	QueuedJudgementTag = SetJudgement();
 	bHasQueuedAttackInput = true;
 }
+
+const FRAHitSoundData* URAGA_ComboAttack::GetHitSoundData() const
+{
+	const URACharacterAnimationData* AnimationData = AvatarCharacter->GetAnimationData();
+	check(AnimationData);
+	
+	if (AnimationData->ComboAttacks.IsEmpty())
+	{
+		RA_LOG(LogRefrain, Warning, TEXT("ComboAttacks Array Empty"));
+		return nullptr;
+	}
+	const int ComboAttackNum = AnimationData->ComboAttacks.Num();
+	
+	const FRAAttackData& AttackData = AnimationData->ComboAttacks[CurrentCombo % ComboAttackNum];
+
+	if (!AttackData.HitSoundData.IsValidIndex(0))
+	{
+		RA_LOG(LogRefrain, Warning, TEXT("HitSoundData Array Empty, CurrentCombo: %d"), CurrentCombo);
+		return nullptr;
+	}
+
+	return &AttackData.HitSoundData[0];
+
+}
+
+void URAGA_ComboAttack::QueueHitSound()
+{
+	const URACharacterAnimationData* AnimationData = AvatarCharacter->GetAnimationData();
+	check(AnimationData);
+	
+	if (AnimationData->ComboAttacks.IsEmpty())
+	{
+		RA_LOG(LogRefrain, Warning, TEXT("AttackMontages Array Empty"));
+		return;
+	}
+	const int ComboAttackNum = AnimationData->ComboAttacks.Num();
+	
+	const FRAHitSoundData* HitSoundData = GetHitSoundData();
+	if (!HitSoundData)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("HitSoundData Not Found, CurrentCombo: %d"), CurrentCombo);
+		return;
+	}
+	
+	if (!HitSoundData->HitSound)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("HitSound Not Found, CurrentCombo: %d"), CurrentCombo);
+		return;
+	}
+	
+	UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>();
+	if (!MagicalTiming)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("MagicalTimingSubsystem Not Found"));
+		return;
+	}
+	
+	// 서브시스템에 타격음 재생 예약
+	if (MagicalTiming->IsMusicPlaying())
+	{
+		RA_LOG(LogRefrain, Log, TEXT("HitSound Queued"));
+		MagicalTiming->PlaySFXQuantized(HitSoundData->HitSound, HitSoundData->Quantization, HitSoundBeatMultiplier, HitSoundData->Offset);
+	}
+}
+
+// PlayerState에게 판정 정보 보내기.
+void URAGA_ComboAttack::SendJudgementToPlayerState(ERAHitJudgement Judgement)
+{
+	const FGameplayAbilityActorInfo* ActorInfo = GetCurrentActorInfo();
+	if (!ActorInfo)
+	{
+		return;
+	}
+	APawn* Pawn = Cast<APawn>(ActorInfo->AvatarActor.Get());
+	if (!Pawn)
+	{
+		return;
+	}
+	ARAPlayerState* PlayerState = Pawn->GetPlayerState<ARAPlayerState>();
+	if (!PlayerState)
+	{
+		return;
+	}
+	PlayerState->RegisterJudgement(Judgement);
+}
+

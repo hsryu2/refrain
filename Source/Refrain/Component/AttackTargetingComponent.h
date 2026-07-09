@@ -16,7 +16,9 @@ class REFRAIN_API UAttackTargetingComponent : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UAttackTargetingComponent();
-	
+
+// 게임 로직
+public:
 	UFUNCTION(BlueprintCallable, Category = Targeting)
 	AActor* FindAttackTarget() const;
 	
@@ -24,17 +26,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Targeting)
 	void SetTargetActorClass(TSubclassOf<AActor> InTargetActorClass);
 	
-	UFUNCTION(BlueprintCallable, Category = Targeting)
-	TArray<AActor*> HitSweep() const;
-	
+// 변수
 protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-	
-	
 	// 검색 반경
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Targeting)
-	float SearchRadius = 700.0f;
+	float SearchRadius = 450.0f;
 	
 	// 타겟찾는 반경 360도
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Targeting)
@@ -47,15 +43,6 @@ protected:
 	// 타겟의 클래스를 한정하기 위해 사용.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Targeting)
 	TSubclassOf<ARACharacterBase> TargetActorClass;
-	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Targeting)
-	float SweepDistance = 75.0f; 
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Targeting)
-	float SweepStartOffset  = 75.0f; 
-	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Targeting)
-	float SphereSize  = 75.0f; 
 	
 private:
 	bool IsValidTarget(AActor* TargetActor) const;

@@ -4,7 +4,44 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "Sound/QuartzQuantizationUtilities.h"
 #include "RACharacterAnimationData.generated.h"
+
+USTRUCT(BlueprintType)
+struct FRAHitSoundData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<USoundBase> HitSound;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	EQuartzCommandQuantization Quantization = EQuartzCommandQuantization::Beat;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float Offset = 0.f;
+};
+
+USTRUCT(BlueprintType)
+struct FRAAttackData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UAnimMontage> Montage;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FVector MotionWarpLocationOffset = FVector::ZeroVector;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float KnockbackDistance = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float DamageMultiplier = 1.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<FRAHitSoundData> HitSoundData;
+};
 
 /**
  * 
@@ -16,16 +53,10 @@ class REFRAIN_API URACharacterAnimationData : public UDataAsset
 	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attack")
-	TArray<TObjectPtr<UAnimMontage>> AttackMontages;
-	
+	TArray<FRAAttackData> ComboAttacks;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attack")
-	TObjectPtr<UAnimMontage> AttackMontage_1;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attack")
-	TObjectPtr<UAnimMontage> AttackMontage_2;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attack")
-	TObjectPtr<UAnimMontage> AttackMontage_3;
+	FRAAttackData CounterAttack;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="HitReact")
 	TObjectPtr<UAnimMontage> HitReactMontage;

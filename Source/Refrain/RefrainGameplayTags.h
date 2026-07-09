@@ -6,7 +6,15 @@ namespace RefrainGameplayTags
 {
 	// Attack 태그.
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Attack);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Attack_Combo);
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Attack);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Attack_Perfect);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Attack_HandGrip_L);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Attack_HandGrip_R);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Attack_foot_l_Socket);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Attack_foot_r_Socket);
+	
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Attack_Counter);
 	
 	// AttackCombo 시작, 완료 태그
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_ComboInputStart);
@@ -23,6 +31,12 @@ namespace RefrainGameplayTags
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Untargetable);
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_HitReact);
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Dead);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Dodging);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Attacking);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Attacking_Combo);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Attacking_Counter);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Attacking_Counter_Recovery);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Invincible);
 
 	// 사망처리
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Dissolve);
@@ -39,8 +53,16 @@ namespace RefrainGameplayTags
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_PlayRate_AnticipationToStrike);
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_PlayRate_StrikeToRecovery);
 	
+	// 카운터 공격(총 2타) 재생 속도 조절용 태그
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_AttackHit_FirstHit);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_AttackHit_SecondHit);
+	
 	// 다음 콤보로 넘어가는 이벤트
 	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_NextComboStart);
 
+	// NPC가 공격중인 상태.
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Attacking_Main);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Attacking_Counterable);
+	REFRAIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Attacking_Counterable_InWindow);
 	
 }

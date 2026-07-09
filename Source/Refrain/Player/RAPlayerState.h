@@ -7,9 +7,27 @@
 #include "AbilitySystemInterface.h"
 #include "RAPlayerState.generated.h"
 
+UENUM(BlueprintType)
+enum class ERAHitJudgement : uint8
+{
+	Perfect UMETA(DisplayName = "Perfect"),
+	Good UMETA(DisplayName = "Good"),
+	Bad UMETA(DisplayName = "Bad"),
+	Miss UMETA(DisplayName = "Miss"),
+	None UMETA(Hidden)
+};
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(
+	FOnScoreUpdate,
+	ERAHitJudgement, Judgement,
+	int32, AddedScore,
+	int32, NewTotalScore,
+	int32, NewCombo
+);
+
 /**
- * 
  */
+
 UCLASS()
 class REFRAIN_API ARAPlayerState : public APlayerState, public IAbilitySystemInterface
 {
@@ -18,6 +36,43 @@ public:
 	ARAPlayerState();
 	virtual void BeginPlay() override;
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	
+public:
+	// 점수시스템
+	UPROPERTY(BlueprintReadOnly, Category = Score)
+	int32 TotalScore = 0;
+	
+	UPROPERTY(BlueprintReadOnly, Category = Score)
+	int32 CurrentHits = 0;
+	
+	UPROPERTY(BlueprintReadOnly, Category = Score)
+	int32 MaxHits = 0;
+
+	// 판정별 횟수
+	UPROPERTY(BlueprintReadOnly, Category = Score)
+	int32 PerfectCount = 0;
+	
+	UPROPERTY(BlueprintReadOnly, Category = Score)
+	int32 GoodCount = 0;
+	
+	UPROPERTY(BlueprintReadOnly, Category = Score)
+	int32 BadCount = 0;
+	
+	// 판정에 따라 점수 추가 및 히트수 추가 함수
+	UFUNCTION(BlueprintCallable, Category = Score)
+	void RegisterJudgement(ERAHitJudgement Judgement);
+	
+	// 히트 수에 따라 점수 배율 설정
+	UFUNCTION(BlueprintCallable, Category = Score)
+	float GetHitsMultiplier() const;
+	
+	// 히트 리셋
+	UFUNCTION(BlueprintCallable, Category = Score)
+	void ResetHits();
+	
+	UPROPERTY(BlueprintAssignable, Category = Score)
+	FOnScoreUpdate OnScoreUpdated;
+	
 	
 	
 protected:

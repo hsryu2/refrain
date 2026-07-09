@@ -2,8 +2,16 @@
 
 namespace RefrainGameplayTags
 {
-	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_Attack, "Ability.Attack", "기본 공격");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_Attack, "Ability.Attack", "공격 어빌리티 공통");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_Attack_Combo, "Ability.Attack.Combo", "기본 공격 콤보");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayCue_Attack, "GameplayCue.Attack", "공격 이펙트");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayCue_Attack_Perfect, "GameplayCue.Attack.Perfect", "Perfect 공격 이펙트");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayCue_Attack_HandGrip_L, "GameplayCue.Attack.HandGrip_L", "왼손 공격 이펙트");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayCue_Attack_HandGrip_R, "GameplayCue.Attack.HandGrip_R", "오른손 공격 이펙트");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayCue_Attack_foot_l_Socket, "GameplayCue.Attack.foot_l_Socket", "왼발 공격 이펙트");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayCue_Attack_foot_r_Socket, "GameplayCue.Attack.foot_r_Socket", "오른발 공격 이펙트");
+	
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_Attack_Counter, "Ability.Attack.Counter", "카운터 공격");
 	
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_ComboInputStart, "Event.Montage.ComboInputStart", "콤보 시작");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_ComboInputEnd, "Event.Montage.ComboInputEnd", "콤보 완료");
@@ -16,18 +24,31 @@ namespace RefrainGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Untargetable, "State.Untargetable", "대상 지정 불가");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_HitReact, "State.HitReact", "피격 중인 상태");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Dead, "State.Dead", "사망 상태");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Dodging, "State.Dodge", "회피 중");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Attacking, "State.Attacking", "공격 중");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Attacking_Combo, "State.Attacking.Combo", "공격 중(콤보)");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Attacking_Counter, "State.Attacking.Counter", "공격 중(카운터)");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Attacking_Counter_Recovery, "State.Attacking.Counter.Recovery", "카운터 공격 중 후딜 구간");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Invincible, "State.Invincible", "무적 상태");
 	
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayCue_Dissolve, "GameplayCue.Dissolve", "소멸 이펙트");
 	
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Judge_Perfect, "Judge.Perfect", "Perfect 판정");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Judge_Good, "Judge.Good", "Good 판정");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Judge_Bad, "Judge.Bad", "Bad 판정");
-	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Judge_Miss, "Judge.Miss", "Miss 판정");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Judge_Miss, "Judge.Miss", "공격 대상이 없을 때");
 
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_PlayRate, "Event.Montage.PlayRate", "하위 태그들 공통으로 이벤트 호출하기 위한 태그");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_PlayRate_StartupToAnticipation, "Event.Montage.PlayRate.StartupToAnticipation", "공격 준비 모션이 드러나기 시작하는 시점");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_PlayRate_AnticipationToStrike, "Event.Montage.PlayRate.AnticipationToStrike", "본격적인 타격 모션이 시작되는 시점");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_PlayRate_StrikeToRecovery, "Event.Montage.PlayRate.StrikeToRecovery", "타격 모션이 끝나고 후딜이 시작되는 시점");
 	
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_AttackHit_FirstHit, "Event.Montage.AttackHit.FirstHit", "다중 타격 몽타주에서 첫 번째 공격 시점");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_AttackHit_SecondHit, "Event.Montage.AttackHit.SecondHit", "다중 타격 몽타주에서 두 번째 공격 시점");
+	
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Montage_NextComboStart, "Event.Montage.NextComboStart", "다음 콤보가 예약되어 있을 경우 다음 콤보로 넘어가는 시점");
+	
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Attacking_Main, "State.Attacking.Main", "공격 중인 상태");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Attacking_Counterable, "State.Attacking.Counterable", "카운터 가능한 공격");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Attacking_Counterable_InWindow, "State.Attacking.Counterable.InWindow", "카운터 가능한 공격의 카운터 가능한 시점");
 }

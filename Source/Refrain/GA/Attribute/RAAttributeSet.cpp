@@ -4,6 +4,9 @@
 #include "RAAttributeSet.h"
 
 #include "GameplayEffectExtension.h"
+#include "RefrainGameplayTags.h"
+#include "Character/RACharacterBase.h"
+#include "Player/RAPlayerState.h"
 
 URAAttributeSet::URAAttributeSet() 
 	: AttackPower(0.0f)
@@ -46,8 +49,17 @@ void URAAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, f
 
 void URAAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
+	// 대미지 처리
 	if (Data.EvaluatedData.Attribute == GetDamageAttribute())
 	{
+		// 무적 상태 체크
+		UAbilitySystemComponent* TargetASC = GetOwningAbilitySystemComponent();
+		if (TargetASC && TargetASC->HasMatchingGameplayTag(RefrainGameplayTags::State_Invincible))
+		{
+			SetDamage(0.0f);
+			return;
+		}
+		
 		const float IncomingDamage = GetDamage();
 		SetDamage(0.0f);
 		
@@ -61,11 +73,24 @@ void URAAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 		
 		if (NewHealth <= 0.0f)
 		{
-			// 여기서 Dead state 태그 부여해야함.
+			// 여기서 Dead state 태그 부여 및 죽음 처리
+			if (ARACharacterBase* Character = Cast<ARACharacterBase>(Data.Target.GetAvatarActor()))
+			{
+				Character->Die();
+			}
 		}
-	UE_LOG(LogTemp, Warning, TEXT("Damage Applied: %.1f, HP: %.1f / %.1f"),
-	IncomingDamage,
-	GetHealth(),
-	GetMaxHealth());
+		else
+		{
+			// 피격 모션
+			FGameplayEventData EventData;
+			EventData.EventMagnitude = IncomingDamage;
+			
+			TargetASC->HandleGameplayEvent(RefrainGameplayTags::State_HitReact, &EventData);
+		}
+		
+		if (ARAPlayerState* PlayerState = Cast<ARAPlayerState>(Data.Target.GetOwnerActor()))
+		{
+			PlayerState->ResetHits();
+		}
 	}
 }

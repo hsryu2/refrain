@@ -15,6 +15,7 @@ public class Refrain : ModuleRules
 			"Core", 
 			"CoreUObject", 
 			"Engine", 
+			"AudioMixer",
 			"InputCore", 
 			"EnhancedInput", 
 			"GameplayAbilities", 
@@ -22,16 +23,19 @@ public class Refrain : ModuleRules
 			"GameplayTasks", 
 			"Niagara",
 			"MotionWarping",
-			"UMG"
+			"UMG",
+			"DeveloperSettings",
+			"AIModule"
 		});
 		
 
 		// Uncomment if you are using Slate UI
-		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore", "OnlineSubsystemUtils" });
 		
 		// Uncomment if you are using online features
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
 
 		// To include OnlineSubsystemSteam, add it to the plugins section in your uproject file with the Enabled attribute set to true
+
 	}
 }

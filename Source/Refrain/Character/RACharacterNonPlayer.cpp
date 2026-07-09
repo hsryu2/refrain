@@ -5,14 +5,19 @@
 #include "Components/WidgetComponent.h"
 #include "Refrain/UI/RhythmTargetWidget.h"
 #include "AbilitySystemComponent.h"
+#include "AIController.h"
+#include "BrainComponent.h"
+#include "MotionWarpingComponent.h"
 #include "Refrain.h"
 #include "RefrainGameplayTags.h"
 #include "Component/AttackTargetingComponent.h"
 #include "Character/RACharacterPlayer.h"
 #include "Animation/RACharacterAnimationData.h"
+#include "Component/AttackHitSweepComponent.h"
+#include "Component/NPCCombatStateComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "TimerManager.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 ARACharacterNonPlayer::ARACharacterNonPlayer()
 {
@@ -36,8 +41,9 @@ ARACharacterNonPlayer::ARACharacterNonPlayer()
 		RhythmTargetWidget->SetVisibility(false);
 	}
 	
-	TargetingComponent = CreateDefaultSubobject<UAttackTargetingComponent>(TEXT("TargetingComponent"));
-	TargetingComponent->SetTargetActorClass(ARACharacterPlayer::StaticClass());
+	AttackHitSweepComponent = CreateDefaultSubobject<UAttackHitSweepComponent>(TEXT("AttackHitSweepComponent"));
+	AttackHitSweepComponent->SetTargetActorClass(ARACharacterPlayer::StaticClass());
+	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 	
 	// 체력바 위젯
 	HealthWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthWidget"));
@@ -117,6 +123,22 @@ void ARACharacterNonPlayer::BeginPlay()
 
 void ARACharacterNonPlayer::Die()
 {
+	// 편하게 화면의 0번째 플레이어를 찾아옵니다.
+	if (ARACharacterPlayer* Player = Cast<ARACharacterPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0)))
+	{
+		if (UNPCCombatStateComponent* CombatManager = Player->FindComponentByClass<UNPCCombatStateComponent>())
+		{
+			// 명단에서 지워달라고 요청합니다.
+			CombatManager->UnRegisterNPC(this);
+		}
+	}
+	if (AAIController* AIController = Cast<AAIController>(GetController()))
+	{
+		if (UBrainComponent* BrainComp = AIController->GetBrainComponent())
+		{
+			BrainComp->StopLogic(TEXT("Dead")); // 행동 트리 완전 정지
+		}
+	}
 	Super::Die();
 	
 	// 사망 시 더 이상 피격되거나 캐릭터와 충돌하지 않도록 콜리전 끄기
@@ -130,41 +152,14 @@ void ARACharacterNonPlayer::Die()
 		MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 	
-	// 이동 중지 및 AI 동작 정지를 위해 컨트롤러 빙의 해제
-	if (UCharacterMovementComponent* MovementComp = GetCharacterMovement())
-	{
-		MovementComp->StopMovementImmediately();
-		MovementComp->DisableMovement();
-	}
-	
-	if (AController* AIController = GetController())
-	{
-		AIController->UnPossess();
-	}
-
-	
-	float MontageDuration = 0.f;
 	if (const URACharacterAnimationData* AnimData = GetAnimationData())
 	{
 		if (UAnimMontage* DeathMontage = AnimData->DeathMontage)
 		{
-			MontageDuration = PlayAnimMontage(DeathMontage);
+			PlayAnimMontage(DeathMontage);
 		}
 	}
 	
-	// 애니메이션이 있으면 해당 시간만큼 대기 후 디졸브, 없으면 즉시 디졸브
-	if (MontageDuration > 0.f)
-	{
-		GetWorld()->GetTimerManager().SetTimer(DeathTimerHandle, this, &ARACharacterNonPlayer::TriggerDissolve, MontageDuration, false);
-	}
-	else
-	{
-		TriggerDissolve();
-	}
-}
-
-void ARACharacterNonPlayer::TriggerDissolve()
-{
 	// 소멸 이펙트를 위한 Gameplay Cue 트리거
 	if (ASC)
 	{
@@ -226,15 +221,6 @@ void ARACharacterNonPlayer::OnHealthChanged(const FOnAttributeChangeData& Data)
 	if (Data.NewValue < Data.OldValue)
 	{
 		const float DamageAmount = Data.OldValue - Data.NewValue;
-		UE_LOG(LogTemp, Warning, TEXT("[ARACharacterNonPlayer] 피격 당함! 데미지: %f, 남은 체력: %f"), DamageAmount, Data.NewValue);
-		
-		if (const URACharacterAnimationData* AnimData = GetAnimationData())
-		{
-			if (UAnimMontage* HitMontage = AnimData->HitReactMontage)
-			{
-				PlayAnimMontage(HitMontage);
-			}																			
-		}
 		
 		if (Data.NewValue <= 0.0f)
 		{
