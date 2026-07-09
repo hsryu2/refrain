@@ -86,4 +86,9 @@ protected:
 protected:
 	// PlayState에 점수 계산을 위해 판정 전달.
 	void SendJudgementToPlayerState(ERAHitJudgement Judgement);
+	
+	// 블루프린트에서 설정할 변수
+	// 대미지 GE
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Damage)
+	TSubclassOf<UGameplayEffect> DamageEffectClass;
 };

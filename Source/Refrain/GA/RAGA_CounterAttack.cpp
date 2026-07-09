@@ -97,12 +97,25 @@ void URAGA_CounterAttack::OnMontageCancelled()
 void URAGA_CounterAttack::OnAttackHit(FGameplayEventData Payload)
 {
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
-	if (!ASC)
+	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Attacker);
+	if (!ASC || !TargetASC)
 	{
 		RA_LOG(LogRefrain, Error, TEXT("ASC Not Found"));
 		return;
 	}
 
+	if (ASC && TargetASC)
+	{
+		FGameplayEffectSpecHandle DamageSpec = MakeOutgoingGameplayEffectSpec(DamageEffectClass, GetAbilityLevel());
+		DamageSpec.Data->SetSetByCallerMagnitude( RefrainGameplayTags::Data_Damage, 15.0f);
+		RA_LOG(LogRefrain, Log, TEXT("Apply Damage: Target=%s Damage=%.1f"), *GetNameSafe(Attacker), 15.0f);
+		ASC->ApplyGameplayEffectSpecToTarget(*DamageSpec.Data.Get(), TargetASC);
+	}
+	else
+	{
+		RA_LOG(LogRefrain, Log, TEXT("SourceASC or TargetASC Not Found"));
+	}
+	
 	FRAAttackData AttackData = AvatarCharacter->GetAnimationData()->CounterAttack;
 	Payload.EventMagnitude = AttackData.KnockbackDistance;
 
