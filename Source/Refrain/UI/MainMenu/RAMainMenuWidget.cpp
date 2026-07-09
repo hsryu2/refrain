@@ -22,10 +22,10 @@ void URAMainMenuWidget::NativeConstruct()
 	Super::NativeConstruct();
 
 	// 호버 이벤트 바인딩
-	if (BtnContinue)
-	{
-		BtnContinue->OnMenuButtonHoveredEvent.AddUniqueDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
-	}
+	// if (BtnContinue)
+	// {
+	// 	BtnContinue->OnMenuButtonHoveredEvent.AddUniqueDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
+	// }
 	if (BtnNewGame) 
 	{
 		BtnNewGame->OnMenuButtonHoveredEvent.AddUniqueDynamic(this, &URAMainMenuWidget::UpdateHighlightPosition);
@@ -83,7 +83,8 @@ void URAMainMenuWidget::UpdateHighlightPosition(int32 MenuIndex)
 		return;
 	}
 
-	TArray<URAMenuButtonWidget*> MenuButtons = {BtnContinue, BtnNewGame, BtnSettings, BtnCredits, BtnExitGame};
+	// Continue를 살리고 싶다면 추가하세요
+	TArray<URAMenuButtonWidget*> MenuButtons = {BtnNewGame, BtnSettings, BtnCredits, BtnExitGame};
 	
 	// 1. 이전에 선택되어 있던 버튼만 찾아서 애니메이션 끄기 (역재생)
 	if (MenuButtons.IsValidIndex(SelectedIndex) && MenuButtons[SelectedIndex])

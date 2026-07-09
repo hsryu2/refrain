@@ -22,7 +22,8 @@ class URASongSelectWidget;
 
 /**
  * @brief 프로젝트의 메인 메뉴와 설정 화면을 제어하는 위젯 클래스\n
- * @note 메인메뉴의 기능을 담당하며 위젯 블루프린트 작성시 바인딩하여 작성하도록 합니다.\n
+ * @note 메인메뉴의 기능을 담당하며 위젯 블루프린트 작성시 바인딩하여 작성하도록 합니다. Continue 항목은 기능이 존재해 최종 제출로 불가능하다
+ * 상호합의 하였으므로 원한다면 주석을 해제하여 재구현 합니다.\n
  * @date 2026-06-29\n
  * @author sejong
  */
@@ -107,9 +108,9 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UWidgetSwitcher> MenuSwitcher;
 
-	/** @brief 게임 시작 버튼(이어하기) */
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class URAMenuButtonWidget> BtnContinue;
+	// /** @brief 게임 시작 버튼(이어하기) */
+	// UPROPERTY(meta = (BindWidget))
+	// TObjectPtr<class URAMenuButtonWidget> BtnContinue;
 	
 	/** @brief 게임 시작 버튼(처음부터) */
 	UPROPERTY(meta = (BindWidget))
