@@ -159,6 +159,21 @@ void URAGA_ComboAttack::OnAttackHit(FGameplayEventData Payload)
 		HitJudgement = ERAHitJudgement::Bad;
 	}
 
+	if (HitJudgement == ERAHitJudgement::Perfect)
+	{
+		if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+		{
+			FGameplayCueParameters CueParams;
+			CueParams.Instigator = AvatarCharacter;
+			CueParams.EffectCauser = TargetActor;
+			CueParams.SourceObject = this;
+			CueParams.Location = TargetActor ? TargetActor->GetActorLocation() : AvatarCharacter->GetActorLocation();
+			CueParams.Normal = AvatarCharacter->GetActorForwardVector();
+
+			ASC->ExecuteGameplayCue(RefrainGameplayTags::GameplayCue_Attack_Perfect, CueParams);
+		}
+	}
+
 	SendJudgementToPlayerState(HitJudgement);
 	
 	// 카메라 쉐이크

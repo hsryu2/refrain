@@ -5,6 +5,7 @@ namespace RefrainGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_Attack, "Ability.Attack", "공격 어빌리티 공통");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_Attack_Combo, "Ability.Attack.Combo", "기본 공격 콤보");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayCue_Attack, "GameplayCue.Attack", "공격 이펙트");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayCue_Attack_Perfect, "GameplayCue.Attack.Perfect", "Perfect 공격 이펙트");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayCue_Attack_HandGrip_L, "GameplayCue.Attack.HandGrip_L", "왼손 공격 이펙트");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayCue_Attack_HandGrip_R, "GameplayCue.Attack.HandGrip_R", "오른손 공격 이펙트");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayCue_Attack_foot_l_Socket, "GameplayCue.Attack.foot_l_Socket", "왼발 공격 이펙트");
