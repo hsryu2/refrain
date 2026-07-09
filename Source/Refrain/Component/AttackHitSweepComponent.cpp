@@ -50,14 +50,6 @@ TArray<AActor*> UAttackHitSweepComponent::HitSweep() const
 		QueryParams
 	);
 	
-	// 히트스윕 확인용
-	FColor DrawColor = bHit ? FColor::Green : FColor::Red;
-	
-	DrawDebugSphere(GetWorld(), StartLocation, SphereSize, 12, DrawColor, false, 2.0f);
-	DrawDebugSphere(GetWorld(), EndLocation, SphereSize, 12, DrawColor, false, 2.0f);
-	DrawDebugLine(GetWorld(), StartLocation, EndLocation, DrawColor, false, 2.0f, 0, 2.0f);
-	// 여기까지 히트스윕 확인용
-	
 	if (bHit)
 	{
 		for (const FHitResult& Result : HitResults)
