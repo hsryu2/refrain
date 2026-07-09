@@ -35,7 +35,6 @@ bool UNPCCombatStateComponent::RequestAttackToken(ARACharacterNonPlayer* Request
 	}
 	// 토큰 부여
 	CurrentAttacker = RequestingNPC;
-	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("%s 가 토큰 줍기 성공!"), *RequestingNPC->GetName()));
 	// true로 반환하여 BT 혹은 공격 Ability를 실행하도록 할 수 있을 것으로 보임.
 	return true;
 }
@@ -77,7 +76,6 @@ void UNPCCombatStateComponent::ReleaseToken(ARACharacterNonPlayer* ReleasingNPC)
 	if (CurrentAttacker == ReleasingNPC)
 	{
 		CurrentAttacker = nullptr;
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("토큰 반납 완료!! 이제 남는 토큰 있음!"));
 	}
 }
 
