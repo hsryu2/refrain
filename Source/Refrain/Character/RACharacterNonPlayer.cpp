@@ -10,6 +10,7 @@
 #include "MotionWarpingComponent.h"
 #include "Refrain.h"
 #include "RefrainGameplayTags.h"
+#include "TimerManager.h"
 #include "Component/AttackTargetingComponent.h"
 #include "Character/RACharacterPlayer.h"
 #include "Animation/RACharacterAnimationData.h"
@@ -17,6 +18,7 @@
 #include "Component/NPCCombatStateComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 ARACharacterNonPlayer::ARACharacterNonPlayer()
@@ -140,11 +142,19 @@ void ARACharacterNonPlayer::Die()
 		}
 	}
 	Super::Die();
-	
+
 	// 사망 시 더 이상 피격되거나 캐릭터와 충돌하지 않도록 콜리전 끄기
 	if (UCapsuleComponent* CapsuleComp = GetCapsuleComponent())
 	{
-		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		
+		// 플레이어와 시체가 서로 밀지 않도록 함
+		CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+
+		// 넉백 도중 바닥을 통과하지 않도록 유지
+		CapsuleComp->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+		CapsuleComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
+
 	}
 	
 	if (USkeletalMeshComponent* MeshComp = GetMesh())
@@ -217,7 +227,7 @@ void ARACharacterNonPlayer::OnHealthChanged(const FOnAttributeChangeData& Data)
 		return;
 	}
 	
-	// 체력이 이전보다 줄어들었다면 (피격)
+	/*// 체력이 이전보다 줄어들었다면 (피격)
 	if (Data.NewValue < Data.OldValue)
 	{
 		const float DamageAmount = Data.OldValue - Data.NewValue;
@@ -226,6 +236,5 @@ void ARACharacterNonPlayer::OnHealthChanged(const FOnAttributeChangeData& Data)
 		{
 			Die();
 		}
-		
-	}
+	}*/
 }
