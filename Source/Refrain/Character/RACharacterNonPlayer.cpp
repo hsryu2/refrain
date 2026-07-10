@@ -17,6 +17,7 @@
 #include "Component/NPCCombatStateComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 ARACharacterNonPlayer::ARACharacterNonPlayer()
@@ -140,6 +141,13 @@ void ARACharacterNonPlayer::Die()
 		}
 	}
 	Super::Die();
+	
+	// 캡슐 충돌을 제거하기 전에 이동과 중력을 정지
+	if (UCharacterMovementComponent* MovementComp = GetCharacterMovement())
+	{
+		MovementComp->StopMovementImmediately();
+		MovementComp->DisableMovement();
+	}
 	
 	// 사망 시 더 이상 피격되거나 캐릭터와 충돌하지 않도록 콜리전 끄기
 	if (UCapsuleComponent* CapsuleComp = GetCapsuleComponent())
