@@ -2,7 +2,10 @@
 
 
 #include "RACharacterSpawner.h"
+
+#include "TimerManager.h"
 #include "Character/RACharacterNonPlayer.h"
+#include "Engine/World.h"
 
 // Sets default values
 ARACharacterSpawner::ARACharacterSpawner()
