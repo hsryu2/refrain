@@ -61,7 +61,7 @@ bool UNPCCombatStateComponent::SetNowCounterableAttackTiming(ARACharacterNonPlay
 
 bool UNPCCombatStateComponent::ClearNowCounterableAttackTiming(ARACharacterNonPlayer* RequestingNPC)
 {
-	if (CurrentAttacker != RequestingNPC)
+	if (CurrentAttacker && (CurrentAttacker != RequestingNPC))
 	{
 		RA_LOG(LogRefrain, Error, TEXT("RequestingNPC != CurrentAttacker"));
 		return false;
@@ -76,6 +76,7 @@ void UNPCCombatStateComponent::ReleaseToken(ARACharacterNonPlayer* ReleasingNPC)
 	if (CurrentAttacker == ReleasingNPC)
 	{
 		CurrentAttacker = nullptr;
+		ClearNowCounterableAttackTiming(ReleasingNPC);
 	}
 }
 

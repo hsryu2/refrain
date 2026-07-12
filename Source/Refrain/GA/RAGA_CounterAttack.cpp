@@ -96,6 +96,8 @@ void URAGA_CounterAttack::OnMontageCancelled()
 
 void URAGA_CounterAttack::OnAttackHit(FGameplayEventData Payload)
 {
+	const float CounterAttackDamage = 45.f;
+	
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
 	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Attacker);
 	if (!ASC || !TargetASC)
@@ -103,22 +105,26 @@ void URAGA_CounterAttack::OnAttackHit(FGameplayEventData Payload)
 		RA_LOG(LogRefrain, Error, TEXT("ASC Not Found"));
 		return;
 	}
-
-	if (ASC && TargetASC)
+	
+	// 대미지 전달(첫 타로 사망했을 경우 두 번째 타격에서는 대미지 적용 x)
+	if (!TargetASC->HasMatchingGameplayTag(RefrainGameplayTags::State_Dead))
 	{
-		FGameplayEffectSpecHandle DamageSpec = MakeOutgoingGameplayEffectSpec(DamageEffectClass, GetAbilityLevel());
-		DamageSpec.Data->SetSetByCallerMagnitude( RefrainGameplayTags::Data_Damage, 15.0f);
-		RA_LOG(LogRefrain, Log, TEXT("Apply Damage: Target=%s Damage=%.1f"), *GetNameSafe(Attacker), 15.0f);
-		ASC->ApplyGameplayEffectSpecToTarget(*DamageSpec.Data.Get(), TargetASC);
-	}
-	else
-	{
-		RA_LOG(LogRefrain, Log, TEXT("SourceASC or TargetASC Not Found"));
+		if (ASC && TargetASC)
+		{
+			FGameplayEffectSpecHandle DamageSpec = MakeOutgoingGameplayEffectSpec(DamageEffectClass, GetAbilityLevel());
+			DamageSpec.Data->SetSetByCallerMagnitude( RefrainGameplayTags::Data_Damage, CounterAttackDamage);
+			RA_LOG(LogRefrain, Log, TEXT("Apply Damage: Target=%s Damage=%.1f"), *GetNameSafe(Attacker), CounterAttackDamage);
+			ASC->ApplyGameplayEffectSpecToTarget(*DamageSpec.Data.Get(), TargetASC);
+		}
+		else
+		{
+			RA_LOG(LogRefrain, Log, TEXT("SourceASC or TargetASC Not Found"));
+		}
 	}
 	
+	// 넉백 적용
 	FRAAttackData AttackData = AvatarCharacter->GetAnimationData()->CounterAttack;
 	Payload.EventMagnitude = AttackData.KnockbackDistance;
-
 	if (Payload.EventTag == RefrainGameplayTags::Event_Montage_AttackHit_FirstHit)
 	{
 		ASC->CurrentMontageSetPlayRate(PlayRateUntilSecondHit);
@@ -132,7 +138,7 @@ void URAGA_CounterAttack::OnAttackHit(FGameplayEventData Payload)
 		ASC->AddLooseGameplayTag(RefrainGameplayTags::State_Attacking_Counter_Recovery);
 	}
 	
-	// 음악 재생 중이 아닐 경우 타격음 재생
+	// 음악 재생 중이 아닐 경우 타격음 즉시 재생
 	if (!GetWorld()->GetSubsystem<UMagicalTimingSubsystem>()->IsMusicPlaying())
 	{
 		const FRAHitSoundData* HitSoundData = nullptr;
