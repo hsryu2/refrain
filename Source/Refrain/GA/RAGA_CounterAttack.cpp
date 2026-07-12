@@ -34,6 +34,8 @@ URAGA_CounterAttack::URAGA_CounterAttack()
 	CancelAbilitiesWithTag.AddTag(RefrainGameplayTags::Ability_Attack_Combo);
 
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	
+	bRetriggerInstancedAbility = true;
 }
 
 void URAGA_CounterAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -77,6 +79,68 @@ void URAGA_CounterAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, co
 	{
 		ASC->RemoveLooseGameplayTag(RefrainGameplayTags::State_Attacking_Counter_Recovery);
 	}
+}
+
+bool URAGA_CounterAttack::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
+{
+	// 카운터 재실행을 위해 추가된 오버라이드 함수
+	
+	if (Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
+	{
+		return false;
+	}
+	
+	// 클래스 타입 확인
+	ARACharacterBase* CharacterBase = Cast<ARACharacterBase>(ActorInfo->AvatarActor.Get());
+	if (!CharacterBase)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("CharacterBase Cast Failed"));
+	}
+	
+	UNPCCombatStateComponent* CombatManager = CharacterBase->FindComponentByClass<UNPCCombatStateComponent>();
+	if (!CombatManager)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("CombatManager Not Found"));
+		return false;
+	}
+
+	// 공격 중인 적 확인
+	ARACharacterNonPlayer* CurrentAttacker = CombatManager->GetCurrentAttacker();
+	if (!IsValid(CurrentAttacker))
+	{
+		RA_LOG(LogRefrain, Log, TEXT("CurrentAttacker Not Found"));
+		return false;
+	}
+	
+	UAbilitySystemComponent* CurrentAttackerASC = CurrentAttacker->GetAbilitySystemComponent();
+	if (!CurrentAttackerASC)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("CurrentAttackerASC Not Found"));
+		return false;
+	}
+	
+	if (CurrentAttackerASC->HasMatchingGameplayTag(RefrainGameplayTags::State_Dead))
+	{
+		RA_LOG(LogRefrain, Warning, TEXT("CurrentAttacker is Dead"));
+		return false;
+	}
+	
+	// 카운터 재실행 확인
+	if (IsActive() && Attacker == CurrentAttacker)
+	{
+		RA_LOG(LogRefrain, Log, TEXT("Attacker == CurrentAttacker"));
+		return false;
+	}
+	
+	// 카운터 가능 구간 확인
+	if (!CurrentAttackerASC->HasMatchingGameplayTag(RefrainGameplayTags::State_Attacking_Counterable_InWindow))
+	{
+		RA_LOG(LogRefrain, Log, TEXT("Counter Failed"));
+		return false;
+	}
+	
+	RA_LOG(LogRefrain, Log, TEXT("return true;"));
+	return true;
 }
 
 void URAGA_CounterAttack::OnMontageCompleted()
