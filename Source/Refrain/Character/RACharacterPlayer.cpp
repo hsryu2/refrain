@@ -10,6 +10,7 @@
 #include "MotionWarpingComponent.h"
 #include "RACharacterNonPlayer.h"
 #include "Refrain.h"
+#include "RefrainGameplayTags.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -25,6 +26,7 @@
 #include "Player/RAPlayerController.h"
 #include "UI/NPCHealthBarWidget.h"
 #include "Component/NPCCombatStateComponent.h"
+#include "GA/RAGA_CounterAttack.h"
 #include "UObject/ConstructorHelpers.h"
 
 class ARAPlayerController;
@@ -301,6 +303,12 @@ void ARACharacterPlayer::GASInputPressed(int32 InputId)
 		if (Spec->IsActive())
 		{
 			ASC->AbilitySpecInputPressed(*Spec);
+			
+			// 카운터 어택 재실행
+			if (Spec->Ability->GetAssetTags().HasTagExact(RefrainGameplayTags::Ability_Attack_Counter))
+			{
+				ASC->TryActivateAbility(Spec->Handle);
+			}
 		}
 		else
 		{

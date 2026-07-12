@@ -223,7 +223,7 @@ void UMagicalTimingSubsystem::ResumeMusic()
 	OnMusicResumed.Broadcast();
 }
 
-bool UMagicalTimingSubsystem::PlaySFXQuantized(USoundBase* InSound, EQuartzCommandQuantization InQuantization, float InMultiplier, float InStartOffset)
+bool UMagicalTimingSubsystem::PlaySFXQuantized(USoundBase* InSound, EQuartzCommandQuantization InQuantization, float InMultiplier, float InStartOffset, EQuarztQuantizationReference InReferencePoint)
 {
 	if (!IsMusicPlaying())
 	{
@@ -248,7 +248,7 @@ bool UMagicalTimingSubsystem::PlaySFXQuantized(USoundBase* InSound, EQuartzComma
 	FQuartzQuantizationBoundary QuantizationBoundary(
 		InQuantization,
 		FMath::Max(UE_KINDA_SMALL_NUMBER, InMultiplier),
-		EQuarztQuantizationReference::CurrentTimeRelative);
+		InReferencePoint);
 	UQuartzClockHandle* RawClockHandle = MusicClockHandle.Get();
 	SFXAudioComponent->PlayQuantized(
 		GetWorld(),
@@ -354,12 +354,18 @@ float UMagicalTimingSubsystem::GetTimeUntilNextBeat(EQuartzCommandQuantization T
 	float TargetProgress = MusicClockHandle->GetBeatProgressPercent(TargetQuantization);
 	
 	float TimeUntilNextHit = TargetDuration * (1.f - TargetProgress);
+
+	TimeUntilNextHit += (MinBeatNum - 1) * TargetDuration;
 	
-	/*// 최소 선딜레이 적용
-	while (TimeUntilNextHit < MinimumStartupDelay)
-	{
-		TimeUntilNextHit += TargetDuration;
-	}*/
+	return TimeUntilNextHit;
+}
+
+float UMagicalTimingSubsystem::GetTimeUntilNextBeatFromTimeStamp(const FQuartzTransportTimeStamp& TimeStamp, EQuartzCommandQuantization TargetQuantization, int MinBeatNum)
+{
+	const float TargetDuration = MusicClockHandle->GetDurationOfQuantizationTypeInSeconds(GetWorld(), TargetQuantization);
+	float TargetProgress = TimeStamp.BeatFraction;
+	
+	float TimeUntilNextHit = TargetDuration * (1.f - TargetProgress);
 
 	TimeUntilNextHit += (MinBeatNum - 1) * TargetDuration;
 	

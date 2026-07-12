@@ -282,8 +282,25 @@ float URAGA_NPCCounterableAttack::CalculatePlayRate(const UAnimMontage* Montage)
 	}
 	const float SecondsPerBeat = MagicalTiming->GetSecondsPerBeat(); 
 	
+	// 타임스탬프
+	FQuartzTransportTimeStamp CurrentTimeStamp;
+	if (MagicalTiming->GetMusicTimeStamp(CurrentTimeStamp))
+	{
+		AttackTimeStampBar = CurrentTimeStamp.Bars;
+		AttackTimeStampBeat = CurrentTimeStamp.Beat + TargetBeatMultiplier;
+		
+		const int NumBeats = MagicalTiming->GetMusicData()->NumBeats;
+		while (AttackTimeStampBeat > NumBeats)
+		{
+			AttackTimeStampBeat -= NumBeats;
+			AttackTimeStampBar += 1;
+		}
+		
+		SetAttackTiming(AttackTimeStampBar, AttackTimeStampBeat);
+	}
+	
 	// 목표 박자(정박)까지 시간
-	const float TargetBeatTime = MagicalTiming->GetTimeUntilNextBeat(EQuartzCommandQuantization::Beat, TargetBeatMultiplier);
+	const float TargetBeatTime = MagicalTiming->GetTimeUntilNextBeatFromTimeStamp(CurrentTimeStamp, EQuartzCommandQuantization::Beat, TargetBeatMultiplier);
 	
 	// 계산식...
 	const float DesiredNotifyTime = TargetBeatTime + (TargetProgressOnTargetTagNotify * SecondsPerBeat);		// 태그가 발동될 목표 시간
@@ -301,22 +318,7 @@ float URAGA_NPCCounterableAttack::CalculatePlayRate(const UAnimMontage* Montage)
 		
 		MontagePlayRate = MinPlayRate;
 	}
-	
-	FQuartzTransportTimeStamp CurrentTimeStamp;
-	if (MagicalTiming->GetMusicTimeStamp(CurrentTimeStamp))
-	{
-		AttackTimeStampBar = CurrentTimeStamp.Bars;
-		AttackTimeStampBeat = CurrentTimeStamp.Beat + TargetBeatMultiplier;
-		
-		const int NumBeats = MagicalTiming->GetMusicData()->NumBeats;
-		while (AttackTimeStampBeat > NumBeats)
-		{
-			AttackTimeStampBeat -= NumBeats;
-			AttackTimeStampBar += 1;
-		}
-		
-		SetAttackTiming(AttackTimeStampBar, AttackTimeStampBeat);
-	}
+
 	
 	RA_LOG(LogRefrain, Log, 
 		TEXT("NotifyTime: %.2f, TargetBeatTime: %.2f, DesiredNotifyTime: %.2f, MontagePlayRate: %.2f, MontageStartTime: %.2f, MontageWaitTime: %.2f, AttackTimeStampBar: %d, AttackTimeStampBeat: %d"),

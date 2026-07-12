@@ -28,13 +28,21 @@ bool UNPCCombatStateComponent::RequestAttackToken(ARACharacterNonPlayer* Request
 		return true;
 	}
 	
+	// 토큰 딜레이
+	if (GetWorld() && GetWorld()->GetTimeSeconds() < LastTokenReleasedTime + TokenDelay)
+	{
+		return false;
+	}
+	
 	// 누군가 공격중이라면 false
 	if (CurrentAttacker != nullptr)
 	{
 		return false;
 	}
+	
 	// 토큰 부여
 	CurrentAttacker = RequestingNPC;
+	
 	// true로 반환하여 BT 혹은 공격 Ability를 실행하도록 할 수 있을 것으로 보임.
 	return true;
 }
@@ -61,7 +69,7 @@ bool UNPCCombatStateComponent::SetNowCounterableAttackTiming(ARACharacterNonPlay
 
 bool UNPCCombatStateComponent::ClearNowCounterableAttackTiming(ARACharacterNonPlayer* RequestingNPC)
 {
-	if (CurrentAttacker != RequestingNPC)
+	if (CurrentAttacker && (CurrentAttacker != RequestingNPC))
 	{
 		RA_LOG(LogRefrain, Error, TEXT("RequestingNPC != CurrentAttacker"));
 		return false;
@@ -73,9 +81,18 @@ bool UNPCCombatStateComponent::ClearNowCounterableAttackTiming(ARACharacterNonPl
 
 void UNPCCombatStateComponent::ReleaseToken(ARACharacterNonPlayer* ReleasingNPC)
 {
-	if (CurrentAttacker == ReleasingNPC)
+	if (CurrentAttacker != ReleasingNPC)
 	{
-		CurrentAttacker = nullptr;
+		RA_LOG(LogRefrain, Error, TEXT("ReleasingNPC != CurrentAttacker"));
+		return;
+	}
+	
+	CurrentAttacker = nullptr;
+	ClearNowCounterableAttackTiming(ReleasingNPC);
+	
+	if (GetWorld())
+	{
+		LastTokenReleasedTime = GetWorld()->GetTimeSeconds();
 	}
 }
 

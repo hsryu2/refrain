@@ -125,6 +125,12 @@ void ARACharacterNonPlayer::BeginPlay()
 
 void ARACharacterNonPlayer::Die()
 {
+	// 중복 호출 방지
+	if (!ASC || ASC->HasMatchingGameplayTag(RefrainGameplayTags::State_Dead))
+	{
+		return;
+	}
+	
 	// 편하게 화면의 0번째 플레이어를 찾아옵니다.
 	if (ARACharacterPlayer* Player = Cast<ARACharacterPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0)))
 	{

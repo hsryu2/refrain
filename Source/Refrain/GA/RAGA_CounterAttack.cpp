@@ -34,6 +34,8 @@ URAGA_CounterAttack::URAGA_CounterAttack()
 	CancelAbilitiesWithTag.AddTag(RefrainGameplayTags::Ability_Attack_Combo);
 
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	
+	bRetriggerInstancedAbility = true;
 }
 
 void URAGA_CounterAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -79,6 +81,68 @@ void URAGA_CounterAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, co
 	}
 }
 
+bool URAGA_CounterAttack::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
+{
+	// 카운터 재실행을 위해 추가된 오버라이드 함수
+	
+	if (Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
+	{
+		return false;
+	}
+	
+	// 클래스 타입 확인
+	ARACharacterBase* CharacterBase = Cast<ARACharacterBase>(ActorInfo->AvatarActor.Get());
+	if (!CharacterBase)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("CharacterBase Cast Failed"));
+	}
+	
+	UNPCCombatStateComponent* CombatManager = CharacterBase->FindComponentByClass<UNPCCombatStateComponent>();
+	if (!CombatManager)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("CombatManager Not Found"));
+		return false;
+	}
+
+	// 공격 중인 적 확인
+	ARACharacterNonPlayer* CurrentAttacker = CombatManager->GetCurrentAttacker();
+	if (!IsValid(CurrentAttacker))
+	{
+		RA_LOG(LogRefrain, Log, TEXT("CurrentAttacker Not Found"));
+		return false;
+	}
+	
+	UAbilitySystemComponent* CurrentAttackerASC = CurrentAttacker->GetAbilitySystemComponent();
+	if (!CurrentAttackerASC)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("CurrentAttackerASC Not Found"));
+		return false;
+	}
+	
+	if (CurrentAttackerASC->HasMatchingGameplayTag(RefrainGameplayTags::State_Dead))
+	{
+		RA_LOG(LogRefrain, Warning, TEXT("CurrentAttacker is Dead"));
+		return false;
+	}
+	
+	// 카운터 재실행 확인
+	if (IsActive() && Attacker == CurrentAttacker)
+	{
+		RA_LOG(LogRefrain, Log, TEXT("Attacker == CurrentAttacker"));
+		return false;
+	}
+	
+	// 카운터 가능 구간 확인
+	if (!CurrentAttackerASC->HasMatchingGameplayTag(RefrainGameplayTags::State_Attacking_Counterable_InWindow))
+	{
+		RA_LOG(LogRefrain, Log, TEXT("Counter Failed"));
+		return false;
+	}
+	
+	RA_LOG(LogRefrain, Log, TEXT("return true;"));
+	return true;
+}
+
 void URAGA_CounterAttack::OnMontageCompleted()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
@@ -96,6 +160,8 @@ void URAGA_CounterAttack::OnMontageCancelled()
 
 void URAGA_CounterAttack::OnAttackHit(FGameplayEventData Payload)
 {
+	const float CounterAttackDamage = 45.f;
+	
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
 	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Attacker);
 	if (!ASC || !TargetASC)
@@ -103,22 +169,26 @@ void URAGA_CounterAttack::OnAttackHit(FGameplayEventData Payload)
 		RA_LOG(LogRefrain, Error, TEXT("ASC Not Found"));
 		return;
 	}
-
-	if (ASC && TargetASC)
+	
+	// 대미지 전달(첫 타로 사망했을 경우 두 번째 타격에서는 대미지 적용 x)
+	if (!TargetASC->HasMatchingGameplayTag(RefrainGameplayTags::State_Dead))
 	{
-		FGameplayEffectSpecHandle DamageSpec = MakeOutgoingGameplayEffectSpec(DamageEffectClass, GetAbilityLevel());
-		DamageSpec.Data->SetSetByCallerMagnitude( RefrainGameplayTags::Data_Damage, 15.0f);
-		RA_LOG(LogRefrain, Log, TEXT("Apply Damage: Target=%s Damage=%.1f"), *GetNameSafe(Attacker), 15.0f);
-		ASC->ApplyGameplayEffectSpecToTarget(*DamageSpec.Data.Get(), TargetASC);
-	}
-	else
-	{
-		RA_LOG(LogRefrain, Log, TEXT("SourceASC or TargetASC Not Found"));
+		if (ASC && TargetASC)
+		{
+			FGameplayEffectSpecHandle DamageSpec = MakeOutgoingGameplayEffectSpec(DamageEffectClass, GetAbilityLevel());
+			DamageSpec.Data->SetSetByCallerMagnitude( RefrainGameplayTags::Data_Damage, CounterAttackDamage);
+			RA_LOG(LogRefrain, Log, TEXT("Apply Damage: Target=%s Damage=%.1f"), *GetNameSafe(Attacker), CounterAttackDamage);
+			ASC->ApplyGameplayEffectSpecToTarget(*DamageSpec.Data.Get(), TargetASC);
+		}
+		else
+		{
+			RA_LOG(LogRefrain, Log, TEXT("SourceASC or TargetASC Not Found"));
+		}
 	}
 	
+	// 넉백 적용
 	FRAAttackData AttackData = AvatarCharacter->GetAnimationData()->CounterAttack;
 	Payload.EventMagnitude = AttackData.KnockbackDistance;
-
 	if (Payload.EventTag == RefrainGameplayTags::Event_Montage_AttackHit_FirstHit)
 	{
 		ASC->CurrentMontageSetPlayRate(PlayRateUntilSecondHit);
@@ -132,7 +202,7 @@ void URAGA_CounterAttack::OnAttackHit(FGameplayEventData Payload)
 		ASC->AddLooseGameplayTag(RefrainGameplayTags::State_Attacking_Counter_Recovery);
 	}
 	
-	// 음악 재생 중이 아닐 경우 타격음 재생
+	// 음악 재생 중이 아닐 경우 타격음 즉시 재생
 	if (!GetWorld()->GetSubsystem<UMagicalTimingSubsystem>()->IsMusicPlaying())
 	{
 		const FRAHitSoundData* HitSoundData = nullptr;
@@ -248,9 +318,9 @@ void URAGA_CounterAttack::CalculatePlayRates(const UAnimMontage* Montage)
 
 	// 현재 재생 상태 정보
 	const float SecondsPerBeat = MagicalTiming->GetSecondsPerBeat();
-	const float BeatProgress = MagicalTiming->GetBeatProgress();
 	FQuartzTransportTimeStamp MusicTimeStamp;
 	MagicalTiming->GetMusicTimeStamp(MusicTimeStamp);
+	const float BeatProgress = MusicTimeStamp.BeatFraction;
 	const int NowBar = MusicTimeStamp.Bars;
 	const int NowBeat = MusicTimeStamp.Beat;
 	UMagicalMusicData* MusicData = MagicalTiming->GetMusicData();
@@ -278,6 +348,15 @@ void URAGA_CounterAttack::CalculatePlayRates(const UAnimMontage* Montage)
 	// PlayRate 계산 - FirstHit가 0.5박, SecondHit가 1박에 맞춰지게
 	const float DesiredFirstHitTime = (static_cast<float>(BeatDifference) + 0.5f - BeatProgress) * SecondsPerBeat;
 	const float DesiredSecondHitTime = (static_cast<float>(BeatDifference) + 1.f - BeatProgress) * SecondsPerBeat;
+	
+	// 방어 코드
+	if (DesiredFirstHitTime <= UE_KINDA_SMALL_NUMBER || DesiredSecondHitTime <= DesiredFirstHitTime)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("DesiredFirstHitTime: %.2f DesiredSecondHitTime: %.2f, NowAbsoluteBeat: %d, AttackAbsoluteBeat: %d"), 
+			DesiredFirstHitTime, DesiredSecondHitTime, NowAbsoluteBeat, AttackAbsoluteBeat);
+		PlayRateUntilFirstHit = PlayRateUntilSecondHit = PlayRateAfterSecondHit = 1.f;
+		return;
+	}
 
 	PlayRateUntilFirstHit = FirstHitTime / DesiredFirstHitTime;
 	PlayRateUntilSecondHit = (SecondHitTime - FirstHitTime) / (DesiredSecondHitTime - DesiredFirstHitTime);
@@ -408,35 +487,34 @@ void URAGA_CounterAttack::QueueHitSound()
 		return;
 	}
 	
-	FQuartzTransportTimeStamp MusicTimeStamp;
-	if (!MagicalTiming->GetMusicTimeStamp(MusicTimeStamp))
-	{
-		RA_LOG(LogRefrain, Error, TEXT("Get MusicTimeStamp Failed"));
-		return;
-	}
-	
-	const int NowBar = MusicTimeStamp.Bars;
-	const int NowBeat = MusicTimeStamp.Beat;
 	UMagicalMusicData* MusicData = MagicalTiming->GetMusicData();
 	const int NumBeats = MusicData->NumBeats;
 	
 	const int AttackBar = NowAttackTiming.Bar;
 	const int AttackBeat = NowAttackTiming.Beat;
 	
-	const int NowAbsoluteBeat = ((NowBar - 1) * NumBeats) + (NowBeat - 1);
 	const int AttackAbsoluteBeat = ((AttackBar - 1) * NumBeats) + (AttackBeat - 1);
-	const int BeatDifference = AttackAbsoluteBeat - NowAbsoluteBeat;
-	const float BeatProgress = MagicalTiming->GetBeatProgress();
-	
-	// Multiplier 계산식..
-	const int BeatProgressFlag = BeatProgress >= 0.5f ? 0 : 1;
-	const float FirstHitMultiplier = BeatDifference * 2.f + BeatProgressFlag;
-	const float SecondHitMultiplier = BeatDifference + 1;
+
+	if (FirstHitSoundData->Quantization != EQuartzCommandQuantization::EighthNote ||
+		SecondHitSoundData->Quantization != EQuartzCommandQuantization::Beat)
+	{
+		RA_LOG(LogRefrain, Error,
+		       TEXT("TransportRelative multiplier calculation requires First=EighthNote and Second=Beat"));
+		return;
+	}
+
+	// Transport 시작점을 기준으로 FirstHit는 공격 목표 + 0.5박, SecondHit는 공격 목표 + 1박에 예약한다.
+	const float FirstHitMultiplier = AttackAbsoluteBeat * 2.f + 2.f;
+	const float SecondHitMultiplier = AttackAbsoluteBeat + 2.f;
 	
 	// 서브시스템에 타격음 재생 예약
 	RA_LOG(LogRefrain, Log, TEXT("HitSound Queued"));
-	MagicalTiming->PlaySFXQuantized(FirstHitSoundData->HitSound, FirstHitSoundData->Quantization, FirstHitMultiplier, FirstHitSoundData->Offset);
-	MagicalTiming->PlaySFXQuantized(SecondHitSoundData->HitSound, SecondHitSoundData->Quantization, SecondHitMultiplier, SecondHitSoundData->Offset);
+	MagicalTiming->PlaySFXQuantized(FirstHitSoundData->HitSound, FirstHitSoundData->Quantization,
+	                                 FirstHitMultiplier, FirstHitSoundData->Offset,
+	                                 EQuarztQuantizationReference::TransportRelative);
+	MagicalTiming->PlaySFXQuantized(SecondHitSoundData->HitSound, SecondHitSoundData->Quantization,
+	                                 SecondHitMultiplier, SecondHitSoundData->Offset,
+	                                 EQuarztQuantizationReference::TransportRelative);
 }
 
 void URAGA_CounterAttack::SendJudgementToPlayerState(ERAHitJudgement Judgement)

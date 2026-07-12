@@ -89,4 +89,12 @@ protected:
 	// 공격 중인 NPC가 공격할 타이밍
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="CounterAttack")
 	FAttackTiming NowAttackTiming;
+	
+	// 토큰 회수 이후 발급까지 딜레이
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat Token", meta = (ClampMin = "0.01"))
+	float TokenDelay = 0.2f;
+	
+	// 이전 토큰 발급 시간
+	float LastTokenReleasedTime = 0.f;
+	
 };
