@@ -72,7 +72,7 @@ public:
 // 게임 로직 - 효과음 재생
 public:
 	UFUNCTION(BlueprintCallable, Category = "Magical|Control")
-	bool PlaySFXQuantized(USoundBase* InSound, EQuartzCommandQuantization InQuantization = EQuartzCommandQuantization::Beat, float InMultiplier = 1.f, float InStartOffset = 0.f);
+	bool PlaySFXQuantized(USoundBase* InSound, EQuartzCommandQuantization InQuantization = EQuartzCommandQuantization::Beat, float InMultiplier = 1.f, float InStartOffset = 0.f, EQuarztQuantizationReference InReferencePoint = EQuarztQuantizationReference::CurrentTimeRelative);
 
 // Getter
 public:
@@ -119,6 +119,10 @@ private:
 private:
 	UFUNCTION()
 	void HandleMusicFinished();
+
+	// 로그 기록용 함수
+	UFUNCTION()
+	void HandleSFXQuantizedCommand(EQuartzCommandDelegateSubType EventType, FName Name);
 	
 // 재생 중인 음악 관련 변수
 protected:

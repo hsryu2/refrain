@@ -223,7 +223,7 @@ void UMagicalTimingSubsystem::ResumeMusic()
 	OnMusicResumed.Broadcast();
 }
 
-bool UMagicalTimingSubsystem::PlaySFXQuantized(USoundBase* InSound, EQuartzCommandQuantization InQuantization, float InMultiplier, float InStartOffset)
+bool UMagicalTimingSubsystem::PlaySFXQuantized(USoundBase* InSound, EQuartzCommandQuantization InQuantization, float InMultiplier, float InStartOffset, EQuarztQuantizationReference InReferencePoint)
 {
 	if (!IsMusicPlaying())
 	{
@@ -244,20 +244,49 @@ bool UMagicalTimingSubsystem::PlaySFXQuantized(USoundBase* InSound, EQuartzComma
 		return false;
 	}
 	
+	FQuartzTransportTimeStamp QueueTimeStamp;
+	GetMusicTimeStamp(QueueTimeStamp);
+	const float ClampedMultiplier = FMath::Max(UE_KINDA_SMALL_NUMBER, InMultiplier);
+	const UEnum* QuantizationEnum = StaticEnum<EQuartzCommandQuantization>();
+	const UEnum* ReferencePointEnum = StaticEnum<EQuarztQuantizationReference>();
+	RA_LOG(LogRefrain, Log,
+	       TEXT("[SFXQuartz][Request] Sound=%s, AudioComponent=%s, Quantization=%s, Reference=%s, RawMultiplier=%.4f, ClampedMultiplier=%.4f, StartOffset=%.4f, Bar=%d, Beat=%d, Fraction=%.4f, Seconds=%.4f"),
+	       *GetNameSafe(InSound), *GetNameSafe(SFXAudioComponent),
+	       QuantizationEnum ? *QuantizationEnum->GetNameStringByValue(static_cast<int64>(InQuantization)) : TEXT("Unknown"),
+	       ReferencePointEnum
+		       ? *ReferencePointEnum->GetNameStringByValue(static_cast<int64>(InReferencePoint))
+		       : TEXT("Unknown"),
+	       InMultiplier, ClampedMultiplier, InStartOffset, QueueTimeStamp.Bars, QueueTimeStamp.Beat,
+	       QueueTimeStamp.BeatFraction, QueueTimeStamp.Seconds);
+
 	// 재생
 	FQuartzQuantizationBoundary QuantizationBoundary(
 		InQuantization,
-		FMath::Max(UE_KINDA_SMALL_NUMBER, InMultiplier),
-		EQuarztQuantizationReference::CurrentTimeRelative);
+		ClampedMultiplier,
+		InReferencePoint);
 	UQuartzClockHandle* RawClockHandle = MusicClockHandle.Get();
+	FOnQuartzCommandEventBP CommandEventDelegate;
+	CommandEventDelegate.BindDynamic(this, &UMagicalTimingSubsystem::HandleSFXQuantizedCommand);
 	SFXAudioComponent->PlayQuantized(
 		GetWorld(),
 		RawClockHandle,
 		QuantizationBoundary,
-		FOnQuartzCommandEventBP(),
+		CommandEventDelegate,
 		InStartOffset);
 	
 	return true;
+}
+
+void UMagicalTimingSubsystem::HandleSFXQuantizedCommand(EQuartzCommandDelegateSubType EventType, FName Name)
+{
+	FQuartzTransportTimeStamp EventTimeStamp;
+	GetMusicTimeStamp(EventTimeStamp);
+	const UEnum* EventTypeEnum = StaticEnum<EQuartzCommandDelegateSubType>();
+	RA_LOG(LogRefrain, Log,
+	       TEXT("[SFXQuartz][CommandEvent] Event=%s, Command=%s, Bar=%d, Beat=%d, Fraction=%.4f, Seconds=%.4f"),
+	       EventTypeEnum ? *EventTypeEnum->GetNameStringByValue(static_cast<int64>(EventType)) : TEXT("Unknown"),
+	       *Name.ToString(), EventTimeStamp.Bars, EventTimeStamp.Beat, EventTimeStamp.BeatFraction,
+	       EventTimeStamp.Seconds);
 }
 
 float UMagicalTimingSubsystem::GetBeatProgress()
