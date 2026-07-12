@@ -119,10 +119,6 @@ private:
 private:
 	UFUNCTION()
 	void HandleMusicFinished();
-
-	// 로그 기록용 함수
-	UFUNCTION()
-	void HandleSFXQuantizedCommand(EQuartzCommandDelegateSubType EventType, FName Name);
 	
 // 재생 중인 음악 관련 변수
 protected:

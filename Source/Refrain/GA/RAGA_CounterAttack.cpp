@@ -96,19 +96,6 @@ void URAGA_CounterAttack::OnMontageCancelled()
 
 void URAGA_CounterAttack::OnAttackHit(FGameplayEventData Payload)
 {
-	if (UMagicalTimingSubsystem* MagicalTiming = GetWorld()->GetSubsystem<UMagicalTimingSubsystem>())
-	{
-		FQuartzTransportTimeStamp HitTimeStamp;
-		MagicalTiming->GetMusicTimeStamp(HitTimeStamp);
-		RA_LOG(LogRefrain, Log,
-		       TEXT("[CounterHitTiming] EventTag=%s, Bar=%d, Beat=%d, Fraction=%.4f, Seconds=%.4f, CurrentPlayRate=%.4f"),
-		       *Payload.EventTag.ToString(), HitTimeStamp.Bars, HitTimeStamp.Beat, HitTimeStamp.BeatFraction,
-		       HitTimeStamp.Seconds,
-		       Payload.EventTag == RefrainGameplayTags::Event_Montage_AttackHit_FirstHit
-			       ? PlayRateUntilFirstHit
-			       : PlayRateUntilSecondHit);
-	}
-
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
 	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Attacker);
 	if (!ASC || !TargetASC)
@@ -421,15 +408,6 @@ void URAGA_CounterAttack::QueueHitSound()
 		return;
 	}
 	
-	FQuartzTransportTimeStamp MusicTimeStamp;
-	if (!MagicalTiming->GetMusicTimeStamp(MusicTimeStamp))
-	{
-		RA_LOG(LogRefrain, Error, TEXT("Get MusicTimeStamp Failed"));
-		return;
-	}
-	
-	const int NowBar = MusicTimeStamp.Bars;
-	const int NowBeat = MusicTimeStamp.Beat;
 	UMagicalMusicData* MusicData = MagicalTiming->GetMusicData();
 	const int NumBeats = MusicData->NumBeats;
 	
@@ -449,26 +427,6 @@ void URAGA_CounterAttack::QueueHitSound()
 	// Transport 시작점을 기준으로 FirstHit는 공격 목표 + 0.5박, SecondHit는 공격 목표 + 1박에 예약한다.
 	const float FirstHitMultiplier = AttackAbsoluteBeat * 2.f + 2.f;
 	const float SecondHitMultiplier = AttackAbsoluteBeat + 2.f;
-	const UEnum* QuantizationEnum = StaticEnum<EQuartzCommandQuantization>();
-
-	RA_LOG(LogRefrain, Log,
-	       TEXT("[CounterHitSoundTiming] Now=%d:%d+%.4f (Seconds=%.4f), Attack=%d:%d, AttackAbsoluteBeat=%d, Reference=TransportRelative"),
-	       NowBar, NowBeat, MusicTimeStamp.BeatFraction, MusicTimeStamp.Seconds, AttackBar, AttackBeat,
-	       AttackAbsoluteBeat);
-	RA_LOG(LogRefrain, Log,
-	       TEXT("[CounterHitSoundTiming][First] Sound=%s, Quantization=%s, TransportMultiplier=%.4f, Target=%d:%d+0.5, Offset=%.4f"),
-	       *GetNameSafe(FirstHitSoundData->HitSound),
-	       QuantizationEnum
-		       ? *QuantizationEnum->GetNameStringByValue(static_cast<int64>(FirstHitSoundData->Quantization))
-		       : TEXT("Unknown"),
-	       FirstHitMultiplier, AttackBar, AttackBeat, FirstHitSoundData->Offset);
-	RA_LOG(LogRefrain, Log,
-	       TEXT("[CounterHitSoundTiming][Second] Sound=%s, Quantization=%s, TransportMultiplier=%.4f, Target=%d:%d+1.0, Offset=%.4f"),
-	       *GetNameSafe(SecondHitSoundData->HitSound),
-	       QuantizationEnum
-		       ? *QuantizationEnum->GetNameStringByValue(static_cast<int64>(SecondHitSoundData->Quantization))
-		       : TEXT("Unknown"),
-	       SecondHitMultiplier, AttackBar, AttackBeat, SecondHitSoundData->Offset);
 	
 	// 서브시스템에 타격음 재생 예약
 	RA_LOG(LogRefrain, Log, TEXT("HitSound Queued"));
