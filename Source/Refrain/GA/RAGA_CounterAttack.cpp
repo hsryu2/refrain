@@ -318,9 +318,9 @@ void URAGA_CounterAttack::CalculatePlayRates(const UAnimMontage* Montage)
 
 	// 현재 재생 상태 정보
 	const float SecondsPerBeat = MagicalTiming->GetSecondsPerBeat();
-	const float BeatProgress = MagicalTiming->GetBeatProgress();
 	FQuartzTransportTimeStamp MusicTimeStamp;
 	MagicalTiming->GetMusicTimeStamp(MusicTimeStamp);
+	const float BeatProgress = MusicTimeStamp.BeatFraction;
 	const int NowBar = MusicTimeStamp.Bars;
 	const int NowBeat = MusicTimeStamp.Beat;
 	UMagicalMusicData* MusicData = MagicalTiming->GetMusicData();
@@ -348,6 +348,15 @@ void URAGA_CounterAttack::CalculatePlayRates(const UAnimMontage* Montage)
 	// PlayRate 계산 - FirstHit가 0.5박, SecondHit가 1박에 맞춰지게
 	const float DesiredFirstHitTime = (static_cast<float>(BeatDifference) + 0.5f - BeatProgress) * SecondsPerBeat;
 	const float DesiredSecondHitTime = (static_cast<float>(BeatDifference) + 1.f - BeatProgress) * SecondsPerBeat;
+	
+	// 방어 코드
+	if (DesiredFirstHitTime <= UE_KINDA_SMALL_NUMBER || DesiredSecondHitTime <= DesiredFirstHitTime)
+	{
+		RA_LOG(LogRefrain, Error, TEXT("DesiredFirstHitTime: %.2f DesiredSecondHitTime: %.2f, NowAbsoluteBeat: %d, AttackAbsoluteBeat: %d"), 
+			DesiredFirstHitTime, DesiredSecondHitTime, NowAbsoluteBeat, AttackAbsoluteBeat);
+		PlayRateUntilFirstHit = PlayRateUntilSecondHit = PlayRateAfterSecondHit = 1.f;
+		return;
+	}
 
 	PlayRateUntilFirstHit = FirstHitTime / DesiredFirstHitTime;
 	PlayRateUntilSecondHit = (SecondHitTime - FirstHitTime) / (DesiredSecondHitTime - DesiredFirstHitTime);

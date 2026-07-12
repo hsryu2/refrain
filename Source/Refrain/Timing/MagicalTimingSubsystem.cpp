@@ -354,12 +354,18 @@ float UMagicalTimingSubsystem::GetTimeUntilNextBeat(EQuartzCommandQuantization T
 	float TargetProgress = MusicClockHandle->GetBeatProgressPercent(TargetQuantization);
 	
 	float TimeUntilNextHit = TargetDuration * (1.f - TargetProgress);
+
+	TimeUntilNextHit += (MinBeatNum - 1) * TargetDuration;
 	
-	/*// 최소 선딜레이 적용
-	while (TimeUntilNextHit < MinimumStartupDelay)
-	{
-		TimeUntilNextHit += TargetDuration;
-	}*/
+	return TimeUntilNextHit;
+}
+
+float UMagicalTimingSubsystem::GetTimeUntilNextBeatFromTimeStamp(const FQuartzTransportTimeStamp& TimeStamp, EQuartzCommandQuantization TargetQuantization, int MinBeatNum)
+{
+	const float TargetDuration = MusicClockHandle->GetDurationOfQuantizationTypeInSeconds(GetWorld(), TargetQuantization);
+	float TargetProgress = TimeStamp.BeatFraction;
+	
+	float TimeUntilNextHit = TargetDuration * (1.f - TargetProgress);
 
 	TimeUntilNextHit += (MinBeatNum - 1) * TargetDuration;
 	
