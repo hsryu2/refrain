@@ -16,7 +16,8 @@ Content/_ChargeGatherVFX
 .mcp.json
 
 # 플러그인
-Plugins/
+Plugins/VRM4U
+Plugins/KawaiiPhysics
 
 # Rider 개인 설정
 .idea/
