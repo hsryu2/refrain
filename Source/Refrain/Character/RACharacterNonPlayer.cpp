@@ -185,6 +185,7 @@ void ARACharacterNonPlayer::Die()
 	}
 }
 
+#if WITH_EDITOR
 void ARACharacterNonPlayer::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
@@ -192,6 +193,7 @@ void ARACharacterNonPlayer::PostEditChangeProperty(FPropertyChangedEvent& Proper
 	// 변수가 수정되면 즉시 프리뷰 업데이트
 	UpdateWidgetPreview();
 }
+#endif
 
 void ARACharacterNonPlayer::UpdateWidgetPreview()
 {
