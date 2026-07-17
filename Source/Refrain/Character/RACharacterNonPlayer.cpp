@@ -10,6 +10,7 @@
 #include "MotionWarpingComponent.h"
 #include "Refrain.h"
 #include "RefrainGameplayTags.h"
+#include "TimerManager.h"
 #include "Component/AttackTargetingComponent.h"
 #include "Character/RACharacterPlayer.h"
 #include "Animation/RACharacterAnimationData.h"
@@ -17,6 +18,7 @@
 #include "Component/NPCCombatStateComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 ARACharacterNonPlayer::ARACharacterNonPlayer()
@@ -123,6 +125,12 @@ void ARACharacterNonPlayer::BeginPlay()
 
 void ARACharacterNonPlayer::Die()
 {
+	// 중복 호출 방지
+	if (!ASC || ASC->HasMatchingGameplayTag(RefrainGameplayTags::State_Dead))
+	{
+		return;
+	}
+	
 	// 편하게 화면의 0번째 플레이어를 찾아옵니다.
 	if (ARACharacterPlayer* Player = Cast<ARACharacterPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0)))
 	{
@@ -140,11 +148,19 @@ void ARACharacterNonPlayer::Die()
 		}
 	}
 	Super::Die();
-	
+
 	// 사망 시 더 이상 피격되거나 캐릭터와 충돌하지 않도록 콜리전 끄기
 	if (UCapsuleComponent* CapsuleComp = GetCapsuleComponent())
 	{
-		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		
+		// 플레이어와 시체가 서로 밀지 않도록 함
+		CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+
+		// 넉백 도중 바닥을 통과하지 않도록 유지
+		CapsuleComp->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+		CapsuleComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
+
 	}
 	
 	if (USkeletalMeshComponent* MeshComp = GetMesh())
@@ -169,6 +185,7 @@ void ARACharacterNonPlayer::Die()
 	}
 }
 
+#if WITH_EDITOR
 void ARACharacterNonPlayer::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
@@ -176,6 +193,7 @@ void ARACharacterNonPlayer::PostEditChangeProperty(FPropertyChangedEvent& Proper
 	// 변수가 수정되면 즉시 프리뷰 업데이트
 	UpdateWidgetPreview();
 }
+#endif
 
 void ARACharacterNonPlayer::UpdateWidgetPreview()
 {
@@ -217,7 +235,7 @@ void ARACharacterNonPlayer::OnHealthChanged(const FOnAttributeChangeData& Data)
 		return;
 	}
 	
-	// 체력이 이전보다 줄어들었다면 (피격)
+	/*// 체력이 이전보다 줄어들었다면 (피격)
 	if (Data.NewValue < Data.OldValue)
 	{
 		const float DamageAmount = Data.OldValue - Data.NewValue;
@@ -226,6 +244,5 @@ void ARACharacterNonPlayer::OnHealthChanged(const FOnAttributeChangeData& Data)
 		{
 			Die();
 		}
-		
-	}
+	}*/
 }

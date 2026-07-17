@@ -3,6 +3,7 @@
 
 #include "GA/RAGA_HitReact.h"
 
+#include "AbilitySystemComponent.h"
 #include "RefrainGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Animation/RACharacterAnimationData.h"
@@ -27,6 +28,7 @@ void URAGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
+	// 넉백
 	if (TriggerEventData)
 	{
 		float KnockbackDis = TriggerEventData->EventMagnitude;
@@ -63,6 +65,15 @@ void URAGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 				const bool bCurrentIsHit = BlackboardComp->GetValueAsBool(FName("IsHit"));
 			}
 		}
+	}
+	
+	// 사망 시 피격 몽타주 재생 x 
+	// TODO: 넉백을 별도 기능으로 분리(하단 코드 삭제, HitReact GA 활성화 조건에 사망 상태 추가)
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	if (ASC && ASC->HasMatchingGameplayTag(RefrainGameplayTags::State_Dead))
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		return;
 	}
 	
 	// 몽타주 등록
